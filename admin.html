@@ -68,10 +68,19 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
-    const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_PROJECT_ID.firebaseapp.com", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_PROJECT_ID.appspot.com", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" };
+    const firebaseConfig = {
+        apiKey: "AIzaSyAO0UWeKJrR7DWsuWB6si98BTNgxHW3Z8k",
+        authDomain: "invest-b66ac.firebaseapp.com",
+        projectId: "invest-b66ac",
+        storageBucket: "invest-b66ac.firebasestorage.app",
+        messagingSenderId: "312081014932",
+        appId: "1:312081014932:web:82f003c61051c879bc1481",
+        measurementId: "G-VRNFZM9FPJ"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let stockDataMap = {};
+
     document.getElementById('stock-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('stock-name').value.trim();
@@ -80,6 +89,7 @@
         await db.collection('stocks').add({ name: name, currentPrice: price, initialPrice: price, changeRate: 0, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         document.getElementById('stock-form').reset();
     });
+
     db.collection('stocks').onSnapshot(snapshot => {
         const list = document.getElementById('admin-stock-list');
         const newsSelect = document.getElementById('news-target-stock');
@@ -93,6 +103,7 @@
         });
         loadUserMonitoring();
     });
+
     async function updateStockPrice(id) {
         const newPrice = Number(document.getElementById(`price-${id}`).value);
         const oldStock = stockDataMap[id];
@@ -101,7 +112,9 @@
         const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
         await db.collection('stocks').doc(id).update({ currentPrice: newPrice, changeRate: changeRate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
+
     async function deleteStock(id) { if(confirm("정말 삭제하시겠습니까?")) await db.collection('stocks').doc(id).delete(); }
+
     document.getElementById('news-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const title = document.getElementById('news-title').value.trim();
@@ -110,6 +123,7 @@
         await db.collection('news').add({ title: title, targetStockId: target, content: content, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         document.getElementById('news-form').reset();
     });
+
     db.collection('news').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
         const newsList = document.getElementById('admin-news-list');
         newsList.innerHTML = '';
@@ -119,7 +133,9 @@
             newsList.innerHTML += `<tr><td>${timeStr}</td><td><strong>${data.title}</strong></td><td>${data.targetStockId === 'ALL' ? '전체' : (stockDataMap[data.targetStockId]?.name || '종목')}</td><td><button class="btn-sm btn-danger" onclick="deleteNews('${doc.id}')">삭제</button></td></tr>`;
         });
     });
+
     async function deleteNews(id) { await db.collection('news').doc(id).delete(); }
+
     function loadUserMonitoring() {
         db.collection('users').onSnapshot(snapshot => {
             const tbody = document.getElementById('admin-user-monitor');
