@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모의 주식 투자 시스템</title>
+    <style>
+        :root { --bg-color: #f8f9fa; --card-bg: #ffffff; --primary: #1e293b; --accent: #2563eb; --profit: #0056b3; --loss: #d9534f; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); color: #333; padding: 15px; }
+        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--border); border-radius: 6px; }
+        header { background: var(--primary); color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .user-badge { background: #334155; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; }
+        .card { background: var(--card-bg); padding: 18px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+        .text-profit { color: var(--profit); font-weight: bold; }
+        .text-loss { color: var(--loss); font-weight: bold; }
+        .asset-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+        .asset-box { background: #f1f5f9; padding: 10px; border-radius: 8px; }
+        .asset-box .val { font-size: 1.1rem; font-weight: bold; margin-top: 4px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 10px 6px; text-align: center; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; color: #64748b; }
+        .trade-btn { padding: 5px 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; }
+        .btn-buy { background: var(--loss); }
+        .btn-sell { background: var(--profit); }
+        .trade-input { width: 50px; text-align: center; padding: 4px; border: 1px solid var(--border); border-radius: 4px; }
+        .news-item { border-bottom: 1px solid var(--border); padding: 10px 0; }
+        .news-item:last-child { border-bottom: none; }
+        .news-title { font-weight: bold; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+<div id="login-modal">
+    <div class="modal-content">
+        <h2>📈 모의 주식 투자 입장</h2>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">본인의 이름(실명)을 입력하고 참가하세요.</p>
+        <input type="text" id="user-name-input" placeholder="예: 홍길동">
+        <button onclick="login()" style="width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">투자 시작하기 (기본 1,000만원)</button>
+    </div>
+</div>
+<header>
+    <h1>📈 모의 주식 투자</h1>
+    <div class="user-badge" id="user-display-name">접속 대기 중</div>
+</header>
+<div class="dashboard">
+    <div class="card" style="grid-column: 1 / -1;">
+        <h2>내 투자 요약 & 실시간 순위</h2>
+        <div class="asset-summary">
+            <div class="asset-box"><div>내 현재 순위</div><div class="val" style="color:var(--accent);" id="my-rank">- 위 / - 명</div></div>
+            <div class="asset-box"><div>총 평가 자산</div><div class="val" id="total-asset">0 원</div></div>
+            <div class="asset-box"><div>예수금 (현금)</div><div class="val" id="user-balance">0 원</div></div>
+            <div class="asset-box"><div>총 누적 수익률</div><div class="val" id="total-profit-rate">0.00%</div></div>
+        </div>
+    </div>
+    <div class="card">
+        <h2>📊 주식 시장 (매수/매도)</h2>
+        <table>
+            <thead><tr><th>종목명</th><th>현재가</th><th>변동률</th><th>수량</th><th>거래</th></tr></thead>
+            <tbody id="stock-market-list"></tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h2>💼 내 잔고 및 보유 주식</h2>
+        <table>
+            <thead><tr><th>종목명</th><th>보유수량</th><th>현재가</th><th>총 평가금액</th></tr></thead>
+            <tbody id="my-portfolio-list"></tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h2>📰 실시간 시장 속보</h2>
+        <div id="user-news-list" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+    <div class="card">
+        <h2>🏆 전체 투자자 수익률 랭킹</h2>
+        <table>
+            <thead><tr><th>순위</th><th>이름</th><th>총 자산</th><th>수익률</th></tr></thead>
+            <tbody id="leaderboard-list"></tbody>
+        </table>
+    </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_PROJECT_ID.firebaseapp.com", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_PROJECT_ID.appspot.com", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let currentUser = null; let userId = null; let stockDataMap = {};
+    async function login() {
+        const name = document.getElementById('user-name-input').value.trim();
+        if (!name) return alert("이름을 입력해 주세요.");
+        userId = `user_${name}`;
+        const userRef = db.collection('users').doc(userId);
+        const doc = await userRef.get();
+        if (!doc.exists) {
+            await userRef.set({ name: name, balance: 10000000, holdings: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('user-display-name').innerText = `👤 ${name} 님`;
+        initRealtimeData();
+    }
+    function initRealtimeData() {
+        db.collection('stocks').onSnapshot(snapshot => {
+            stockDataMap = {};
+            const marketList = document.getElementById('stock-market-list');
+            marketList.innerHTML = '';
+            snapshot.forEach(doc => {
+                const data = doc.data(); stockDataMap[doc.id] = data;
+                const rate = data.changeRate || 0;
+                const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
+                marketList.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>${data.currentPrice.toLocaleString()}원</td><td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td><td><input type="number" id="trade-qty-${doc.id}" class="trade-input" value="1" min="1"></td><td><button class="trade-btn btn-buy" onclick="tradeStock('${doc.id}', 'BUY')">매수</button> <button class="trade-btn btn-sell" onclick="tradeStock('${doc.id}', 'SELL')">매도</button></td></tr>`;
+            });
+            updateUserDataUI();
+        });
+        db.collection('users').doc(userId).onSnapshot(doc => { if (doc.exists) { currentUser = doc.data(); updateUserDataUI(); } });
+        db.collection('users').onSnapshot(snapshot => {
+            let usersRank = [];
+            snapshot.forEach(doc => {
+                const u = doc.data(); let stockEval = 0;
+                for (let stockId in u.holdings) { if (stockDataMap[stockId]) stockEval += (stockDataMap[stockId].currentPrice * u.holdings[stockId]); }
+                const totalAsset = u.balance + stockEval;
+                const profitRate = ((totalAsset - 10000000) / 10000000) * 100;
+                usersRank.push({ id: doc.id, name: u.name, totalAsset: totalAsset, profitRate: profitRate });
+            });
+            usersRank.sort((a, b) => b.totalAsset - a.totalAsset);
+            const leaderboard = document.getElementById('leaderboard-list');
+            leaderboard.innerHTML = '';
+            usersRank.forEach((u, index) => {
+                const rank = index + 1;
+                const colorClass = u.profitRate > 0 ? 'text-profit' : (u.profitRate < 0 ? 'text-loss' : '');
+                leaderboard.innerHTML += `<tr style="${u.id === userId ? 'background-color:#e0f2fe; font-weight:bold;' : ''}"><td>${rank}위</td><td>${u.name}</td><td>${u.totalAsset.toLocaleString()}원</td><td class="${colorClass}">${u.profitRate > 0 ? '+' : ''}${u.profitRate.toFixed(2)}%</td></tr>`;
+                if (u.id === userId) document.getElementById('my-rank').innerText = `${rank} 위 / ${usersRank.length} 명`;
+            });
+        });
+        db.collection('news').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+            const newsContainer = document.getElementById('user-news-list'); newsContainer.innerHTML = '';
+            snapshot.forEach(doc => {
+                const news = doc.data();
+                const stockName = news.targetStockId === 'ALL' ? '전체 시장' : (stockDataMap[news.targetStockId]?.name || '관련 종목');
+                newsContainer.innerHTML += `<div class="news-item"><div class="news-title">[${stockName}] ${news.title}</div><div style="font-size:0.85rem; color:#475569; margin-top:4px;">${news.content}</div></div>`;
+            });
+        });
+    }
+    function updateUserDataUI() {
+        if (!currentUser) return;
+        document.getElementById('user-balance').innerText = `${currentUser.balance.toLocaleString()} 원`;
+        let stockEvalTotal = 0; const portfolioList = document.getElementById('my-portfolio-list'); portfolioList.innerHTML = '';
+        const holdings = currentUser.holdings || {};
+        for (let stockId in holdings) {
+            const qty = holdings[stockId];
+            if (qty > 0 && stockDataMap[stockId]) {
+                const stock = stockDataMap[stockId]; const evalPrice = stock.currentPrice * qty; stockEvalTotal += evalPrice;
+                portfolioList.innerHTML += `<tr><td><strong>${stock.name}</strong></td><td>${qty}주</td><td>${stock.currentPrice.toLocaleString()}원</td><td>${evalPrice.toLocaleString()}원</td></tr>`;
+            }
+        }
+        const totalAsset = currentUser.balance + stockEvalTotal;
+        const totalProfitRate = ((totalAsset - 10000000) / 10000000) * 100;
+        document.getElementById('total-asset').innerText = `${totalAsset.toLocaleString()} 원`;
+        const rateEl = document.getElementById('total-profit-rate');
+        rateEl.innerText = `${totalProfitRate > 0 ? '+' : ''}${totalProfitRate.toFixed(2)}%`;
+        rateEl.className = `val ${totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '')}`;
+    }
+    async function tradeStock(stockId, type) {
+        if (!currentUser || !stockDataMap[stockId]) return;
+        const qtyInput = document.getElementById(`trade-qty-${stockId}`);
+        const qty = Number(qtyInput.value);
+        if (qty <= 0 || isNaN(qty)) return alert("올바른 수량을 입력하세요.");
+        const stock = stockDataMap[stockId];
+        const totalPrice = stock.currentPrice * qty;
+        const currentHoldings = currentUser.holdings[stockId] || 0;
+        const userRef = db.collection('users').doc(userId);
+        if (type === 'BUY') {
+            if (currentUser.balance < totalPrice) return alert("예수금(현금)이 부족합니다.");
+            await userRef.update({ balance: currentUser.balance - totalPrice, [`holdings.${stockId}`]: currentHoldings + qty });
+            alert(`${stock.name} ${qty}주 매수 완료!`);
+        } else if (type === 'SELL') {
+            if (currentHoldings < qty) return alert("보유 수량이 부족합니다.");
+            await userRef.update({ balance: currentUser.balance + totalPrice, [`holdings.${stockId}`]: currentHoldings - qty });
+            alert(`${stock.name} ${qty}주 매도 완료!`);
+        }
+    }
+</script>
+</body>
+</html>
