@@ -85,10 +85,19 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
-    const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_PROJECT_ID.firebaseapp.com", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_PROJECT_ID.appspot.com", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" };
+    const firebaseConfig = {
+        apiKey: "AIzaSyAO0UWeKJrR7DWsuWB6si98BTNgxHW3Z8k",
+        authDomain: "invest-b66ac.firebaseapp.com",
+        projectId: "invest-b66ac",
+        storageBucket: "invest-b66ac.firebasestorage.app",
+        messagingSenderId: "312081014932",
+        appId: "1:312081014932:web:82f003c61051c879bc1481",
+        measurementId: "G-VRNFZM9FPJ"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let currentUser = null; let userId = null; let stockDataMap = {};
+
     async function login() {
         const name = document.getElementById('user-name-input').value.trim();
         if (!name) return alert("이름을 입력해 주세요.");
@@ -102,6 +111,7 @@
         document.getElementById('user-display-name').innerText = `👤 ${name} 님`;
         initRealtimeData();
     }
+
     function initRealtimeData() {
         db.collection('stocks').onSnapshot(snapshot => {
             stockDataMap = {};
@@ -144,6 +154,7 @@
             });
         });
     }
+
     function updateUserDataUI() {
         if (!currentUser) return;
         document.getElementById('user-balance').innerText = `${currentUser.balance.toLocaleString()} 원`;
@@ -163,6 +174,7 @@
         rateEl.innerText = `${totalProfitRate > 0 ? '+' : ''}${totalProfitRate.toFixed(2)}%`;
         rateEl.className = `val ${totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '')}`;
     }
+
     async function tradeStock(stockId, type) {
         if (!currentUser || !stockDataMap[stockId]) return;
         const qtyInput = document.getElementById(`trade-qty-${stockId}`);
