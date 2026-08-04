@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모의 주식 투자 - 관리자 센터</title>
+    <style>
+        :root { --bg-color: #f4f6f9; --card-bg: #ffffff; --primary: #2c3e50; --accent: #3498db; --profit: #0056b3; --loss: #d9534f; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); color: #333; padding: 20px; }
+        header { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .card h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        button { background: var(--accent); color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; }
+        button:hover { opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: center; }
+        th { background-color: #edf2f7; font-weight: 600; }
+        .text-profit { color: var(--profit); font-weight: bold; }
+        .text-loss { color: var(--loss); font-weight: bold; }
+        .price-input-group { display: flex; gap: 5px; }
+        .price-input-group input { width: 80px; padding: 4px; text-align: right; }
+        .btn-sm { padding: 4px 8px; font-size: 0.75rem; width: auto; }
+        .btn-danger { background: var(--loss); }
+    </style>
+</head>
+<body>
+<header><h1>📈 모의 주식 투자 프로젝트 [관리자]</h1></header>
+<div class="grid-layout">
+    <div class="card">
+        <h2>📊 종목 추가 및 주가 변동 관리</h2>
+        <form id="stock-form">
+            <div class="form-group"><label>종목명</label><input type="text" id="stock-name" placeholder="예: 한국전자" required></div>
+            <div class="form-group"><label>기준 가격(원)</label><input type="number" id="stock-price" placeholder="10000" required></div>
+            <button type="submit">신규 종목 등록</button>
+        </form>
+        <table style="margin-top:20px;">
+            <thead><tr><th>종목명</th><th>현재가</th><th>변동률</th><th>가격 조정</th></tr></thead>
+            <tbody id="admin-stock-list"></tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h2>📰 시장 속보/뉴스 작성</h2>
+        <form id="news-form">
+            <div class="form-group"><label>뉴스 제목</label><input type="text" id="news-title" placeholder="속보 제목 입력" required></div>
+            <div class="form-group"><label>관련 종목 선택</label><select id="news-target-stock" required><option value="ALL">전체 시장</option></select></div>
+            <div class="form-group"><label>뉴스 내용</label><textarea id="news-content" rows="4" placeholder="시장이나 해당 종목에 영향을 미칠 호재/악재 뉴스 작성" required></textarea></div>
+            <button type="submit">속보 발행</button>
+        </form>
+        <h3 style="margin-top:20px; font-size:1rem;">최근 발행 속보 목록</h3>
+        <table style="margin-top:10px;">
+            <thead><tr><th>시각</th><th>제목</th><th>대상</th><th>관리</th></tr></thead>
+            <tbody id="admin-news-list"></tbody>
+        </table>
+    </div>
+    <div class="card" style="grid-column: 1 / -1;">
+        <h2>👥 전체 투자자 보유 현황 실시간 모니터링</h2>
+        <table>
+            <thead><tr><th>참여자 이름</th><th>예수금 (원)</th><th>주식 평가액 (원)</th><th>총 자산 (원)</th><th>수익률 (%)</th><th>보유 종목 세부 현황</th></tr></thead>
+            <tbody id="admin-user-monitor"></tbody>
+        </table>
+    </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_PROJECT_ID.firebaseapp.com", projectId: "YOUR_PROJECT_ID", storageBucket: "YOUR_PROJECT_ID.appspot.com", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let stockDataMap = {};
+    document.getElementById('stock-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('stock-name').value.trim();
+        const price = Number(document.getElementById('stock-price').value);
+        if(!name || !price) return;
+        await db.collection('stocks').add({ name: name, currentPrice: price, initialPrice: price, changeRate: 0, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        document.getElementById('stock-form').reset();
+    });
+    db.collection('stocks').onSnapshot(snapshot => {
+        const list = document.getElementById('admin-stock-list');
+        const newsSelect = document.getElementById('news-target-stock');
+        list.innerHTML = ''; newsSelect.innerHTML = '<option value="ALL">전체 시장</option>'; stockDataMap = {};
+        snapshot.forEach(doc => {
+            const data = doc.data(); stockDataMap[doc.id] = data;
+            const rate = data.changeRate || 0;
+            const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
+            list.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>${data.currentPrice.toLocaleString()}원</td><td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td><td><div class="price-input-group"><input type="number" id="price-${doc.id}" value="${data.currentPrice}"><button class="btn-sm" onclick="updateStockPrice('${doc.id}')">수정</button><button class="btn-sm btn-danger" onclick="deleteStock('${doc.id}')">삭제</button></div></td></tr>`;
+            newsSelect.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
+        });
+        loadUserMonitoring();
+    });
+    async function updateStockPrice(id) {
+        const newPrice = Number(document.getElementById(`price-${id}`).value);
+        const oldStock = stockDataMap[id];
+        if (!oldStock || isNaN(newPrice)) return;
+        const initialPrice = oldStock.initialPrice || oldStock.currentPrice;
+        const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
+        await db.collection('stocks').doc(id).update({ currentPrice: newPrice, changeRate: changeRate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    async function deleteStock(id) { if(confirm("정말 삭제하시겠습니까?")) await db.collection('stocks').doc(id).delete(); }
+    document.getElementById('news-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('news-title').value.trim();
+        const target = document.getElementById('news-target-stock').value;
+        const content = document.getElementById('news-content').value.trim();
+        await db.collection('news').add({ title: title, targetStockId: target, content: content, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        document.getElementById('news-form').reset();
+    });
+    db.collection('news').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+        const newsList = document.getElementById('admin-news-list');
+        newsList.innerHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const timeStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) : '방금 전';
+            newsList.innerHTML += `<tr><td>${timeStr}</td><td><strong>${data.title}</strong></td><td>${data.targetStockId === 'ALL' ? '전체' : (stockDataMap[data.targetStockId]?.name || '종목')}</td><td><button class="btn-sm btn-danger" onclick="deleteNews('${doc.id}')">삭제</button></td></tr>`;
+        });
+    });
+    async function deleteNews(id) { await db.collection('news').doc(id).delete(); }
+    function loadUserMonitoring() {
+        db.collection('users').onSnapshot(snapshot => {
+            const tbody = document.getElementById('admin-user-monitor');
+            tbody.innerHTML = '';
+            snapshot.forEach(doc => {
+                const user = doc.data(); const holdings = user.holdings || {};
+                let stockEval = 0; let holdingsDetailStr = [];
+                for (let stockId in holdings) {
+                    const count = holdings[stockId];
+                    if (count > 0 && stockDataMap[stockId]) {
+                        stockEval += stockDataMap[stockId].currentPrice * count;
+                        holdingsDetailStr.push(`${stockDataMap[stockId].name}: ${count}주`);
+                    }
+                }
+                const totalAsset = user.balance + stockEval;
+                const profitRate = ((totalAsset - 10000000) / 10000000) * 100;
+                const colorClass = profitRate > 0 ? 'text-profit' : (profitRate < 0 ? 'text-loss' : '');
+                tbody.innerHTML += `<tr><td><strong>${user.name}</strong></td><td>${user.balance.toLocaleString()}원</td><td>${stockEval.toLocaleString()}원</td><td><strong>${totalAsset.toLocaleString()}원</strong></td><td class="${colorClass}">${profitRate > 0 ? '+' : ''}${profitRate.toFixed(2)}%</td><td style="text-align:left;">${holdingsDetailStr.join(', ') || '보유 주식 없음'}</td></tr>`;
+            });
+        });
+    }
+</script>
+</body>
+</html>
