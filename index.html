@@ -84,8 +84,9 @@
         .ai-control-btn.warning { background: #d97706; }
         .ai-control-btn.danger { background: #ef4444; }
 
-        /* 차트 선택 셀렉트 박스 */
-        .chart-select { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: bold; outline: none; }
+        /* 차트 셀렉트 박스 */
+        .chart-select { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
+        .chart-container { position: relative; height: 320px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
     </style>
 </head>
 <body>
@@ -149,15 +150,14 @@
         </div>
     </div>
 
-    <!-- 주가 변동 추이 그래프 (신규 추가) -->
+    <!-- 실시간 주가 꺾은선 변동 차트 -->
     <div class="card" style="grid-column: 1 / -1;">
         <h2>
-            <span>📉 실시간 주가 변동 차트</span>
+            <span>📉 실시간 거래소 주가 변동 차트</span>
             <select id="chart-stock-select" class="chart-select" onchange="renderStockChart()">
-                <!-- 자바스크립트로 종목 옵션 동적 생성 -->
             </select>
         </h2>
-        <div style="position: relative; height: 300px; width: 100%;">
+        <div class="chart-container">
             <canvas id="stockHistoryChart"></canvas>
         </div>
     </div>
@@ -250,8 +250,7 @@
     let stockDataMap = {};
     let allUsersData = [];
 
-    // 주가 기록 내역 (차트용 데이터 저장소)
-    let stockHistoryMap = {}; // { stockId: [ { time: '10:00:05', price: 72000 }, ... ] }
+    let stockHistoryMap = {};
     let stockChart = null;
 
     const AI_NEWS_POOL = [
@@ -259,13 +258,13 @@
             stockIndex: 0, 
             isFake: false,
             title: "[단독] 삼성전자, 글로벌 빅테크기업과 차세대 반도체 장기 공급 계약 임박", 
-            content: "여의도 증권가 및 반도체 업계 출처에 따르면, 삼성전자가 실리콘밸리 글로벌 빅테크 기업과 대규모 차세대 반도체 장기 위탁생산 및 파운드리 공급 계약 체결을 눈앞에 두고 있습니다.\n\n이번 계약 규모는 단일 건으로 수조 원 대에 달할 것으로 추정되며, 양사는 상호 비밀유지협약(NDA)으로 인해 구체적인 명칭을 비공개로 유지하고 있습니다." 
+            content: "여의도 증권가 및 반도체 업계 출처에 따르면, 삼성전자가 실리콘밸리 글로벌 빅테크 기업과 대규모 차세대 반도체 장기 위탁생산 및 파운드리 공급 계약 체결을 눈앞에 두고 있습니다." 
         },
         { 
             stockIndex: 0, 
             isFake: true,
             title: "삼성전자 파운드리 수율 논란 재점화... 증권가 \"실적 영향은 제한적\"", 
-            content: "해외 IT 전문 매체 및 SNS 팁스터를 중심으로 삼성전자의 선단 공정 수율 하락 가능성이 제기되면서 일부 시장의 우려가 증대되고 있습니다.\n\n그러나 국내 주요 증권사 연구원들은 이번 수율 관련 소문이 과장되어 있다는 분석을 제시했습니다." 
+            content: "해외 IT 전문 매체 및 SNS 팁스터를 중심으로 삼성전자의 선단 공정 수율 하락 가능성이 제기되면서 일부 시장의 우려가 증대되고 있습니다." 
         },
         { 
             stockIndex: 1, 
@@ -335,32 +334,72 @@
         }
     }
 
+    // 실제 주가 차트 스타일 (꺾은선, 그리드, 음영)
     function initChart() {
         const ctx = document.getElementById('stockHistoryChart').getContext('2d');
+        
         stockChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
                 datasets: [{
-                    label: '주가 (원)',
+                    label: '현재 주가',
                     data: [],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderColor: '#dc2626',
+                    borderWidth: 2.5,
+                    pointRadius: 2,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#dc2626',
                     fill: true,
-                    tension: 0.2,
-                    borderWidth: 2,
-                    pointRadius: 3
+                    tension: 0, // 꺾은선 모드 (직선 연결)
+                    stepped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: { duration: 300 },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 scales: {
-                    x: { grid: { display: false } },
-                    y: { ticks: { callback: value => value.toLocaleString() + '원' } }
+                    x: {
+                        grid: {
+                            color: '#f1f5f9',
+                            drawBorder: true
+                        },
+                        ticks: {
+                            font: { size: 10 },
+                            color: '#64748b'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#e2e8f0',
+                            drawBorder: true
+                        },
+                        ticks: {
+                            font: { size: 11, weight: 'bold' },
+                            color: '#334155',
+                            callback: value => value.toLocaleString() + '원'
+                        }
+                    }
                 },
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { size: 12 },
+                        bodyFont: { size: 13, weight: 'bold' },
+                        padding: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return ` 주가: ${context.parsed.y.toLocaleString()} 원`;
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -390,19 +429,16 @@
                 const data = doc.data();
                 stockDataMap[doc.id] = data;
 
-                // 차트용 히스토리 데이터 축적
                 if (!stockHistoryMap[doc.id]) {
                     stockHistoryMap[doc.id] = [];
                 }
                 
-                // 중복시간 누적 방지 및 최대 30개 기록 유지
                 const history = stockHistoryMap[doc.id];
                 if (history.length === 0 || history[history.length - 1].time !== nowTime) {
                     history.push({ time: nowTime, price: data.currentPrice });
-                    if (history.length > 30) history.shift();
+                    if (history.length > 25) history.shift(); // 최근 25개 변동 데이터 표출
                 }
 
-                // 차트 종목 셀렉트 박스 채우기
                 const option = document.createElement('option');
                 option.value = doc.id;
                 option.innerText = `${data.name} (${data.currentPrice.toLocaleString()}원)`;
@@ -495,7 +531,7 @@
         });
     }
 
-    // 주가 그래프 렌더링 함수
+    // 주가 변동 꺾은선 차트 렌더링
     function renderStockChart() {
         const selectEl = document.getElementById('chart-stock-select');
         const selectedStockId = selectEl.value || Object.keys(stockDataMap)[0];
@@ -509,14 +545,32 @@
         const stock = stockDataMap[selectedStockId];
         const isUp = stock && stock.changeRate >= 0;
 
+        // 상승(빨강) / 하락(파랑) 테마 색상 설정
+        const mainColor = isUp ? '#dc2626' : '#2563eb';
+        const ctx = document.getElementById('stockHistoryChart').getContext('2d');
+        
+        // 차트 하단 배경 그라데이션 적용
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, isUp ? 'rgba(220, 38, 38, 0.25)' : 'rgba(37, 99, 235, 0.25)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+
+        // Y축 변동범위 계산 (차트가 변동성을 선명하게 보여주도록 최소/최대값 동적설정)
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        const margin = Math.max((maxPrice - minPrice) * 0.15, 500);
+
+        stockChart.options.scales.y.min = Math.floor(minPrice - margin);
+        stockChart.options.scales.y.max = Math.ceil(maxPrice + margin);
+
         stockChart.data.labels = labels;
         stockChart.data.datasets[0].data = prices;
-        stockChart.data.datasets[0].borderColor = isUp ? '#dc2626' : '#2563eb';
-        stockChart.data.datasets[0].backgroundColor = isUp ? 'rgba(220, 38, 38, 0.1)' : 'rgba(37, 99, 235, 0.1)';
-        stockChart.update();
+        stockChart.data.datasets[0].borderColor = mainColor;
+        stockChart.data.datasets[0].pointBackgroundColor = mainColor;
+        stockChart.data.datasets[0].backgroundColor = gradient;
+
+        stockChart.update('none'); // 매끄러운 트랜지션
     }
 
-    // [ADMIN 기능] 주가 초기화
     async function adminResetStockPrices() {
         if (!confirm("모든 주식의 가격을 초기 주가(최초 설정가)로 리셋하시겠습니까?")) return;
         if (!verifyAdminPassword()) return;
@@ -529,7 +583,6 @@
                 changeRate: 0,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            // 히스토리 내역도 초기화
             stockHistoryMap[stock.id] = [{ time: new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), price: stock.initialPrice }];
         }
         await batch.commit();
@@ -689,7 +742,7 @@
                     <td class="${colorClass}">${u.profitRate > 0 ? '+' : ''}${u.profitRate.toFixed(2)}%</td>
                     <td>
                         <button class="admin-action-btn btn-admin-info" onclick="adminViewUserInfo('${u.id}')">조회</button>
-                        <button class="admin-action-btn btn-admin-reset" onclick="adminResetBalance('${u.id}', '${u.name}')">초기화</button>
+                        <button class="admin-action-btn btn-admin-reset" onclick="adminResetUserAssets('${u.id}', '${u.name}')">총자산 초기화</button>
                         <button class="admin-action-btn btn-admin-delete" onclick="adminDeleteSingleUser('${u.id}', '${u.name}')">삭제</button>
                     </td>
                 </tr>`;
@@ -808,13 +861,15 @@
         document.getElementById('user-info-modal').style.display = 'flex';
     }
 
-    async function adminResetBalance(targetUserId, targetUserName) {
-        if (confirm(`'${targetUserName}' 참가자의 예수금을 1,000,0000원(1,000만원)으로 초기화하시겠습니까?`)) {
+    async function adminResetUserAssets(targetUserId, targetUserName) {
+        if (confirm(`'${targetUserName}' 참가자의 총자산을 1,000만원(예수금 1,000만원 / 보유주식 0주)으로 초기화하시겠습니까?`)) {
             if (verifyAdminPassword()) {
                 await db.collection('users').doc(targetUserId).update({
-                    balance: 10000000
+                    balance: 10000000,
+                    holdings: {},
+                    buyPrices: {}
                 });
-                alert(`'${targetUserName}' 님의 예수금이 1,000만원으로 초기화되었습니다.`);
+                alert(`'${targetUserName}' 님의 총자산이 1,000만원으로 완전 초기화되었습니다.`);
             }
         }
     }
