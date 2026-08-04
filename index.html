@@ -82,6 +82,8 @@
         /* AI 조종판 */
         .ai-control-panel { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
         .ai-control-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .ai-control-btn.freeze { background: #0284c7; }
+        .ai-control-btn.unfreeze { background: #ea580c; }
         .ai-control-btn.warning { background: #d97706; }
         .ai-control-btn.danger { background: #ef4444; }
 
@@ -130,8 +132,11 @@
 </header>
 
 <div class="ai-control-panel">
-    <div>⏱️ <strong>주가: 5초마다 변동</strong> | 📰 <strong>뉴스: 1시간당 5개 자동 발행</strong></div>
     <div>
+        ⏱️ <strong>주가 상태: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span> (5초 주기)</strong> | 📰 <strong>뉴스: 1시간당 5개 자동 발행</strong>
+    </div>
+    <div>
+        <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()">🧊 주가 얼리기 (일시정지)</button>
         <button class="ai-control-btn" onclick="adminTriggerStock()">📈 즉시 주가 변동</button>
         <button class="ai-control-btn warning" onclick="adminResetStockPrices()">📉 주가 초기화</button>
         <button class="ai-control-btn" onclick="adminTriggerNews()">📰 즉시 AI 뉴스 생성</button>
@@ -240,11 +245,11 @@
     const ADMIN_PASSWORD = "eerf";
 
     const PRESET_STOCKS = [
-        { id: "s1", name: "삼성전자", currentPrice: 72000, initialPrice: 72000, changeRate: 0 },
-        { id: "s2", name: "현대차", currentPrice: 240000, initialPrice: 240000, changeRate: 0 },
-        { id: "s3", name: "SK하이닉스", currentPrice: 185000, initialPrice: 185000, changeRate: 0 },
-        { id: "s4", name: "카카오", currentPrice: 48000, initialPrice: 48000, changeRate: 0 },
-        { id: "s5", name: "에코프로", currentPrice: 95000, initialPrice: 95000, changeRate: 0 }
+        { id: "s1", name: "삼성전자", currentPrice: 72000, initialPrice: 72000, changeRate: 0, lastImpact: 0 },
+        { id: "s2", name: "현대차", currentPrice: 240000, initialPrice: 240000, changeRate: 0, lastImpact: 0 },
+        { id: "s3", name: "SK하이닉스", currentPrice: 185000, initialPrice: 185000, changeRate: 0, lastImpact: 0 },
+        { id: "s4", name: "카카오", currentPrice: 48000, initialPrice: 48000, changeRate: 0, lastImpact: 0 },
+        { id: "s5", name: "에코프로", currentPrice: 95000, initialPrice: 95000, changeRate: 0, lastImpact: 0 }
     ];
 
     let currentUser = { name: "", balance: 10000000, holdings: {}, buyPrices: {} };
@@ -255,19 +260,21 @@
     let stockHistoryMap = {};
     let stockChart = null;
 
-    // 뉴스 별 주가 영향력 설정 포함 (impactMultiplier)
+    // 주가 얼리기 (일시정지) 상태 관리 변수
+    let isStocksFrozen = false;
+
     const AI_NEWS_POOL = [
         { 
             stockIndex: 0, 
             type: 'positive',
-            impact: 0.08, // +8% 급등
+            impact: 0.08, 
             title: "[단독] 삼성전자, 글로벌 빅테크기업과 차세대 반도체 장기 공급 계약 임박", 
             content: "여의도 증권가 출처에 따르면, 삼성전자가 실리콘밸리 글로벌 빅테크 기업과 대규모 차세대 반도체 장기 위탁생산 계약 체결을 눈앞에 두고 있습니다." 
         },
         { 
             stockIndex: 0, 
             type: 'negative',
-            impact: -0.05, // -5% 하락
+            impact: -0.05, 
             title: "삼성전자 파운드리 수율 논란 재점화... 증권가 우려 확산", 
             content: "해외 IT 전문 매체를 중심으로 삼성전자의 선단 공정 수율 하락 가능성이 제기되면서 일부 시장의 우려가 증대되고 있습니다." 
         },
@@ -281,7 +288,7 @@
         { 
             stockIndex: 2, 
             type: 'positive',
-            impact: 0.10, // +10% 대폭등
+            impact: 0.10, 
             title: "[속보] SK하이닉스, 차세대 HBM3E 메모리 세계 최초 독점 공급 성공", 
             content: "SK하이닉스가 차세대 인공지능(AI) 반도체 시장의 핵심 부품인 초고속 HBM 메모리 제품의 세계 최초 양산 및 독점 공급 체제 구축에 성공했다고 밝혔다." 
         },
@@ -295,7 +302,7 @@
         { 
             stockIndex: 4, 
             type: 'positive',
-            impact: 0.12, // +12% 폭등
+            impact: 0.12, 
             title: "에코프로, 북미 광산기업과 핵심 2차전지 원자재 장기 공급계약 체결", 
             content: "2차전지 소재 선도 기업 에코프로가 북미 주요 광산기업과의 협상을 거쳐 핵심 양극재 원자재의 장기 안정적 수급망을 확보하는 데 성공했다고 발표했습니다." 
         }
@@ -307,6 +314,7 @@
         
         userId = `user_${name}`;
         await ensurePresetStocks();
+        await ensureSystemSettings();
 
         const userRef = db.collection('users').doc(userId);
         const doc = await userRef.get();
@@ -337,9 +345,18 @@
                     currentPrice: stock.currentPrice,
                     initialPrice: stock.initialPrice,
                     changeRate: 0,
+                    lastImpact: 0,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
+        }
+    }
+
+    async function ensureSystemSettings() {
+        const sysRef = db.collection('system').doc('config');
+        const doc = await sysRef.get();
+        if (!doc.exists) {
+            await sysRef.set({ isFrozen: false });
         }
     }
 
@@ -405,6 +422,14 @@
     }
 
     function initRealtimeData() {
+        // 주가 동결 상태 실시간 감지
+        db.collection('system').doc('config').onSnapshot(doc => {
+            if (doc.exists) {
+                isStocksFrozen = doc.data().isFrozen || false;
+                updateFreezeUI();
+            }
+        });
+
         db.collection('stocks').onSnapshot(snapshot => {
             const currentQtyMap = {};
             snapshot.forEach(doc => {
@@ -510,7 +535,6 @@
                 newsEl.className = 'news-item-title';
                 newsEl.onclick = () => openNewsModal(newsId, news.title, news.content, stockName, timeStr, isFake);
                 
-                // 관리자에게만 진짜/가짜 태그 표출
                 let adminTagHtml = '';
                 if (isAdmin) {
                     adminTagHtml = isFake 
@@ -528,7 +552,6 @@
                 
                 newsItemContainer.appendChild(newsEl);
 
-                // 관리자 세션인 경우에만 토글 버튼 노출
                 if (isAdmin) {
                     const adminBtn = document.createElement('button');
                     adminBtn.className = `btn-fake-toggle ${isFake ? 'active' : ''}`;
@@ -543,6 +566,34 @@
                 newsContainer.appendChild(newsItemContainer);
             });
         });
+    }
+
+    function updateFreezeUI() {
+        const textEl = document.getElementById('freeze-status-text');
+        const btnEl = document.getElementById('freeze-toggle-btn');
+
+        if (isStocksFrozen) {
+            textEl.innerText = '[🧊 주가 얼림(일시정지 중)]';
+            textEl.style.color = '#dc2626';
+            btnEl.innerText = '🔥 주가 얼리기 해제 (재개)';
+            btnEl.className = 'ai-control-btn unfreeze';
+        } else {
+            textEl.innerText = '[실시간 변동 중]';
+            textEl.style.color = '#059669';
+            btnEl.innerText = '🧊 주가 얼리기 (일시정지)';
+            btnEl.className = 'ai-control-btn freeze';
+        }
+    }
+
+    async function adminToggleFreeze() {
+        if (!verifyAdminPassword()) return;
+
+        const newState = !isStocksFrozen;
+        await db.collection('system').doc('config').set({
+            isFrozen: newState
+        }, { merge: true });
+
+        alert(newState ? "주가 변동이 일시 중지(얼림) 되었습니다." : "주가 변동이 다시 시작되었습니다.");
     }
 
     function renderStockChart() {
@@ -591,6 +642,7 @@
             batch.update(ref, {
                 currentPrice: stock.initialPrice,
                 changeRate: 0,
+                lastImpact: 0,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             stockHistoryMap[stock.id] = [{ time: new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), price: stock.initialPrice }];
@@ -834,7 +886,7 @@
 
     function adminTriggerStock() {
         if (verifyAdminPassword()) {
-            triggerStockPriceChangeNow();
+            triggerStockPriceChangeNow(true);
         }
     }
 
@@ -892,7 +944,6 @@
         }
     }
 
-    // ⭐ 신규 기능: 전체 유저 자산 일괄 초기화
     async function adminResetAllUserAssets() {
         if (confirm("⚠️ 모든 참가자의 자산을 초기 자금(1,000만 원, 보유 주식 0주)으로 일괄 초기화하시겠습니까?")) {
             if (verifyAdminPassword()) {
@@ -934,7 +985,10 @@
         }
     }
 
-    async function triggerStockPriceChangeNow() {
+    async function triggerStockPriceChangeNow(isForce = false) {
+        // 주가가 얼어 있는 상태이고 강제 변경 요청이 아닌 경우 주가 변동 스킵
+        if (isStocksFrozen && !isForce) return;
+
         const stockKeys = Object.keys(stockDataMap);
         if (stockKeys.length === 0) return;
 
@@ -956,14 +1010,23 @@
         }
     }
 
-    // ⭐ 뉴스 생성 시 난수 적용 및 해당 주가 실시간 반영
     async function triggerAINewsNow() {
         const stockKeys = Object.keys(stockDataMap);
         if (stockKeys.length === 0) return;
 
-        const baseNews = AI_NEWS_POOL[Math.floor(Math.random() * AI_NEWS_POOL.length)];
-        let targetStockId = null;
+        // 최근 발행된 뉴스 5개 목록 가져오기 (동일 한 타임 내 중복 방지용)
+        const recentNewsSnap = await db.collection('news').orderBy('createdAt', 'desc').limit(5).get();
+        const recentTitles = [];
+        recentNewsSnap.forEach(doc => recentTitles.push(doc.data().title));
 
+        // 중복되지 않는 뉴스 후보군 선별
+        const availableNews = AI_NEWS_POOL.filter(n => !recentTitles.includes(n.title));
+        
+        // 만약 모든 뉴스가 다 나왔다면 풀 전체에서 선택
+        const poolToChoose = availableNews.length > 0 ? availableNews : AI_NEWS_POOL;
+        const baseNews = poolToChoose[Math.floor(Math.random() * poolToChoose.length)];
+
+        let targetStockId = null;
         if (baseNews.stockIndex >= 0 && PRESET_STOCKS[baseNews.stockIndex]) {
             targetStockId = PRESET_STOCKS[baseNews.stockIndex].id;
         }
@@ -971,19 +1034,27 @@
         // 1. 진짜/가짜 뉴스 무작위 (50% 확률)
         const isFake = Math.random() < 0.5;
 
-        // 2. 뉴스 영향력 적용 (진짜면 지정된 호재/악재 영향력 적용, 가짜뉴스면 반대 충격 발생)
-        if (targetStockId && stockDataMap[targetStockId]) {
+        // 2. 종목 주가 영향 계산 (주가가 얼어있지 않을 경우에만 반영)
+        if (!isStocksFrozen && targetStockId && stockDataMap[targetStockId]) {
             const stock = stockDataMap[targetStockId];
-            let impactFactor = baseNews.impact;
             
-            if (isFake) {
-                // 가짜 뉴스일 경우 시장이 오판하여 반대 또는 왜곡된 영향 형성
-                impactFactor = -impactFactor * (0.8 + Math.random() * 0.4);
-            } else {
-                impactFactor = impactFactor * (0.9 + Math.random() * 0.3);
+            // 기존 뉴스 영향 상쇄 역산
+            const prevImpact = stock.lastImpact || 0;
+            let restoredPrice = stock.currentPrice;
+            if (prevImpact !== 0) {
+                restoredPrice = Math.round(stock.currentPrice / (1 + prevImpact));
             }
 
-            let newPrice = Math.round(stock.currentPrice * (1 + impactFactor));
+            // 신규 뉴스 영향력 계산
+            let newImpactFactor = baseNews.impact;
+            if (isFake) {
+                newImpactFactor = -newImpactFactor * (0.8 + Math.random() * 0.4);
+            } else {
+                newImpactFactor = newImpactFactor * (0.9 + Math.random() * 0.3);
+            }
+
+            // 이전 뉴스 영향을 제외한 주가에 신규 영향 적용
+            let newPrice = Math.round(restoredPrice * (1 + newImpactFactor));
             if (newPrice < 1000) newPrice = 1000;
 
             const initialPrice = stock.initialPrice || stock.currentPrice;
@@ -992,6 +1063,7 @@
             await db.collection('stocks').doc(targetStockId).update({
                 currentPrice: newPrice,
                 changeRate: changeRate,
+                lastImpact: newImpactFactor,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
