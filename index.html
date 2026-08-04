@@ -265,6 +265,7 @@
     function initRealtimeData() {
         // 주식 시세 실시간 감지
         db.collection('stocks').onSnapshot(snapshot => {
+            // UI 재갱신 전 기존에 입력된 수량 상태를 기억
             const currentQtyMap = {};
             snapshot.forEach(doc => {
                 const inputEl = document.getElementById(`trade-qty-${doc.id}`);
@@ -284,7 +285,8 @@
                 const rate = data.changeRate || 0;
                 const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
 
-                const savedQty = currentQtyMap[doc.id] !== undefined ? currentQtyMap[doc.id] : 1;
+                // 이전 입력값이 존재하면 사용하고, 없으면 기본값 1주 세팅
+                const savedQty = (currentQtyMap[doc.id] !== undefined && currentQtyMap[doc.id] !== "") ? currentQtyMap[doc.id] : 1;
 
                 marketList.innerHTML += `
                     <tr>
@@ -308,7 +310,6 @@
             if (doc.exists) {
                 currentUser = doc.data();
             } else {
-                // 사용자가 삭제된 경우 기본값 처리
                 currentUser = { name: "", balance: 0, holdings: {}, buyPrices: {} };
             }
             updateUserUI();
@@ -528,10 +529,15 @@
         }, 3600000);
     }
 
-    // Admin 인증 함수
+    // Admin 인증 세션 처리 (최초 1회 인증 완료 시 재입력 방지)
     function verifyAdminPassword() {
+        if (sessionStorage.getItem('admin_authenticated') === 'true') {
+            return true;
+        }
+
         const inputPw = prompt("관리자 비밀번호를 입력하세요:");
         if (inputPw === ADMIN_PASSWORD) {
+            sessionStorage.setItem('admin_authenticated', 'true');
             return true;
         } else {
             alert("비밀번호가 올바르지 않습니다.");
@@ -551,7 +557,6 @@
         }
     }
 
-    // [Admin] 특정 단일 개별 유저 데이터 삭제
     async function adminDeleteSingleUser(targetUserId, targetUserName) {
         if (confirm(`'${targetUserName}' 참가자의 계정 및 자산 데이터를 정말 삭제하시겠습니까?`)) {
             if (verifyAdminPassword()) {
@@ -561,7 +566,6 @@
         }
     }
 
-    // [Admin] 전체 참가자 데이터 일괄 삭제/초기화
     async function adminDeleteAllUsers() {
         if (confirm("⚠️ 경고: 등록된 모든 참가자의 데이터를 삭제하시겠습니까? (복구 불가)")) {
             if (verifyAdminPassword()) {
