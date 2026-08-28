@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 자동 운용 모의 주식 투자 시스템</title>
-    <!-- Chart.js CDN 추가 -->
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -31,6 +31,7 @@
         header { background: var(--primary); color: white; padding: 18px 24px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         header h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
         .user-badge { background: #334155; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-left: 8px; }
 
         /* 대시보드 그리드 레이아웃 */
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
@@ -79,13 +80,16 @@
         .btn-fake-toggle { background: #475569; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; cursor: pointer; font-weight: bold; }
         .btn-fake-toggle.active { background: #dc2626; }
 
-        /* AI 조종판 */
+        /* AI 조종판 (어드민 전용) */
         .ai-control-panel { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
         .ai-control-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
         .ai-control-btn.freeze { background: #0284c7; }
         .ai-control-btn.unfreeze { background: #ea580c; }
         .ai-control-btn.warning { background: #d97706; }
         .ai-control-btn.danger { background: #ef4444; }
+
+        /* 숨김 처리 */
+        .hidden { display: none !important; }
 
         /* 차트 셀렉트 박스 */
         .chart-select { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
@@ -94,13 +98,14 @@
 </head>
 <body>
 
-<!-- 로그인 모달 -->
+<!-- 로그인 / 계정 생성 모달 -->
 <div id="login-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>📈 AI 모의 주식 투자</h2>
-        <p>주가 변동 주기: <b>5초</b> | AI 뉴스 발행 주기: <b>시간당 5개(12분마다)</b><br>실시간으로 참가자 간 자산 순위가 집계됩니다!</p>
-        <input type="text" id="user-name-input" placeholder="이름(실명)을 입력하세요">
-        <button class="btn-start" onclick="login()">투자 시작하기 (1,000만원)</button>
+        <p>닉네임과 비밀번호를 입력하세요.<br>(처음 입력 시 자동으로 고유 계정이 생성됩니다.)</p>
+        <input type="text" id="user-name-input" placeholder="닉네임을 입력하세요">
+        <input type="password" id="user-pw-input" placeholder="비밀번호를 입력하세요">
+        <button class="btn-start" onclick="login()">로그인 / 계정 생성</button>
     </div>
 </div>
 
@@ -128,12 +133,15 @@
 
 <header>
     <h1>📈 AI 모의 주식 투자 System</h1>
-    <div class="user-badge" id="user-display-name">접속 대기 중</div>
+    <div class="user-badge" id="user-display-name">
+        <span>접속 대기 중</span>
+    </div>
 </header>
 
-<div class="ai-control-panel">
+<!-- 어드민 전용 컨트롤 패널 (기본 숨김 처리) -->
+<div id="admin-panel" class="ai-control-panel hidden">
     <div>
-        ⏱️ <strong>주가 상태: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span> (5초 주기)</strong> | 📰 <strong>뉴스: 1시간당 5개 자동 발행</strong>
+        👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 상태: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span> (5초 주기)</strong>
     </div>
     <div>
         <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()">🧊 주가 얼리기 (일시정지)</button>
@@ -208,12 +216,12 @@
         <h2>🏆 전체 투자자 자산/수익률 랭킹</h2>
         <table>
             <thead>
-                <tr>
+                <tr id="leaderboard-header">
                     <th>순위</th>
                     <th>이름</th>
                     <th>총 자산</th>
                     <th>수익률</th>
-                    <th>관리자 기능</th>
+                    <th class="admin-only-col hidden">관리자 기능</th>
                 </tr>
             </thead>
             <tbody id="leaderboard-list"></tbody>
@@ -242,6 +250,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // 관리자 비밀번호
     const ADMIN_PASSWORD = "eerf";
 
     const PRESET_STOCKS = [
@@ -254,13 +263,12 @@
 
     let currentUser = { name: "", balance: 10000000, holdings: {}, buyPrices: {} };
     let userId = null;
+    let isAdmin = false;
     let stockDataMap = {};
     let allUsersData = [];
 
     let stockHistoryMap = {};
     let stockChart = null;
-
-    // 주가 얼리기 (일시정지) 상태 관리 변수
     let isStocksFrozen = false;
 
     const AI_NEWS_POOL = [
@@ -310,26 +318,51 @@
 
     async function login() {
         const name = document.getElementById('user-name-input').value.trim();
-        if (!name) return alert("이름을 입력해 주세요.");
-        
+        const password = document.getElementById('user-pw-input').value.trim();
+
+        if (!name || !password) return alert("닉네임과 비밀번호를 모두 입력하세요.");
+
         userId = `user_${name}`;
         await ensurePresetStocks();
         await ensureSystemSettings();
 
+        // 관리자 패스워드 입력 검증
+        if (password === ADMIN_PASSWORD) {
+            isAdmin = true;
+        }
+
         const userRef = db.collection('users').doc(userId);
         const doc = await userRef.get();
+
         if (!doc.exists) {
+            // 신규 사용자 계정 등록
             await userRef.set({
                 name: name,
+                password: password,
                 balance: 10000000,
                 holdings: {},
                 buyPrices: {},
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+            alert(`'${name}' 님의 계정이 정상 생성되었습니다.`);
+        } else {
+            // 기존 계정 비밀번호 검증 (어드민 비밀번호 입력 시 예외 허용)
+            const userData = doc.data();
+            if (userData.password !== password && !isAdmin) {
+                return alert("비밀번호가 일치하지 않습니다.");
+            }
         }
 
         document.getElementById('login-modal').style.display = 'none';
-        document.getElementById('user-display-name').innerText = `👤 ${name} 님`;
+        
+        // 어드민 전용 화면 노출 제어
+        if (isAdmin) {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.querySelectorAll('.admin-only-col').forEach(el => el.classList.remove('hidden'));
+            document.getElementById('user-display-name').innerHTML = `👑 <b>[관리자] ${name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
+        } else {
+            document.getElementById('user-display-name').innerHTML = `👤 <b>${name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
+        }
 
         initChart();
         initRealtimeData();
@@ -376,25 +409,18 @@
                     pointHoverRadius: 6,
                     pointBackgroundColor: '#dc2626',
                     fill: true,
-                    tension: 0,
-                    stepped: false
+                    tension: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: { duration: 300 },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
+                interaction: { mode: 'index', intersect: false },
                 scales: {
-                    x: {
-                        grid: { color: '#f1f5f9', drawBorder: true },
-                        ticks: { font: { size: 10 }, color: '#64748b' }
-                    },
+                    x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#64748b' } },
                     y: {
-                        grid: { color: '#e2e8f0', drawBorder: true },
+                        grid: { color: '#e2e8f0' },
                         ticks: {
                             font: { size: 11, weight: 'bold' },
                             color: '#334155',
@@ -406,14 +432,9 @@
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
-                        titleFont: { size: 12 },
-                        bodyFont: { size: 13, weight: 'bold' },
-                        padding: 10,
                         displayColors: false,
                         callbacks: {
-                            label: function(context) {
-                                return ` 주가: ${context.parsed.y.toLocaleString()} 원`;
-                            }
+                            label: function(context) { return ` 주가: ${context.parsed.y.toLocaleString()} 원`; }
                         }
                     }
                 }
@@ -422,7 +443,6 @@
     }
 
     function initRealtimeData() {
-        // 주가 동결 상태 실시간 감지
         db.collection('system').doc('config').onSnapshot(doc => {
             if (doc.exists) {
                 isStocksFrozen = doc.data().isFrozen || false;
@@ -434,9 +454,7 @@
             const currentQtyMap = {};
             snapshot.forEach(doc => {
                 const inputEl = document.getElementById(`trade-qty-${doc.id}`);
-                if (inputEl) {
-                    currentQtyMap[doc.id] = inputEl.value;
-                }
+                if (inputEl) currentQtyMap[doc.id] = inputEl.value;
             });
 
             stockDataMap = {};
@@ -453,9 +471,7 @@
                 const data = doc.data();
                 stockDataMap[doc.id] = data;
 
-                if (!stockHistoryMap[doc.id]) {
-                    stockHistoryMap[doc.id] = [];
-                }
+                if (!stockHistoryMap[doc.id]) stockHistoryMap[doc.id] = [];
                 
                 const history = stockHistoryMap[doc.id];
                 if (history.length === 0 || history[history.length - 1].time !== nowTime) {
@@ -496,8 +512,6 @@
         db.collection('users').doc(userId).onSnapshot(doc => {
             if (doc.exists) {
                 currentUser = doc.data();
-            } else {
-                currentUser = { name: "", balance: 0, holdings: {}, buyPrices: {} };
             }
             updateUserUI();
         });
@@ -515,11 +529,9 @@
             newsContainer.innerHTML = '';
 
             if (snapshot.empty) {
-                newsContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.85rem; padding: 10px;">아직 발행된 뉴스가 없습니다.</div>';
+                newsContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.85rem; padding: 10px;">발행된 뉴스가 없습니다.</div>';
                 return;
             }
-
-            const isAdmin = sessionStorage.getItem('admin_authenticated') === 'true';
 
             snapshot.forEach(doc => {
                 const newsId = doc.id;
@@ -555,7 +567,7 @@
                 if (isAdmin) {
                     const adminBtn = document.createElement('button');
                     adminBtn.className = `btn-fake-toggle ${isFake ? 'active' : ''}`;
-                    adminBtn.innerText = isFake ? '가짜뉴스(클릭시 변경)' : '진짜뉴스(클릭시 변경)';
+                    adminBtn.innerText = isFake ? '가짜' : '진짜';
                     adminBtn.onclick = (e) => {
                         e.stopPropagation();
                         adminToggleFakeNews(newsId, isFake);
@@ -586,14 +598,10 @@
     }
 
     async function adminToggleFreeze() {
-        if (!verifyAdminPassword()) return;
-
+        if (!isAdmin) return;
         const newState = !isStocksFrozen;
-        await db.collection('system').doc('config').set({
-            isFrozen: newState
-        }, { merge: true });
-
-        alert(newState ? "주가 변동이 일시 중지(얼림) 되었습니다." : "주가 변동이 다시 시작되었습니다.");
+        await db.collection('system').doc('config').set({ isFrozen: newState }, { merge: true });
+        alert(newState ? "주가 변동이 일시 중지(얼림) 되었습니다." : "주가 변동이 재개되었습니다.");
     }
 
     function renderStockChart() {
@@ -633,9 +641,7 @@
     }
 
     async function adminResetStockPrices() {
-        if (!confirm("모든 주식의 가격을 초기 주가(최초 설정가)로 리셋하시겠습니까?")) return;
-        if (!verifyAdminPassword()) return;
-
+        if (!isAdmin || !confirm("모든 주가를 초기 가격으로 원복하시겠습니까?")) return;
         const batch = db.batch();
         for (let stock of PRESET_STOCKS) {
             const ref = db.collection('stocks').doc(stock.id);
@@ -648,45 +654,31 @@
             stockHistoryMap[stock.id] = [{ time: new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), price: stock.initialPrice }];
         }
         await batch.commit();
-        alert("모든 주가가 초기 설정값으로 복구되었습니다.");
+        alert("주가가 원복되었습니다.");
     }
 
     async function adminToggleFakeNews(newsId, currentIsFake) {
-        if (!verifyAdminPassword()) return;
-
-        const targetState = !currentIsFake;
-        await db.collection('news').doc(newsId).update({
-            isFake: targetState
-        });
-
-        alert(`해당 뉴스가 [${targetState ? '🚨 가짜뉴스' : '✅ 진짜뉴스'}] 상태로 전환되었습니다.`);
+        if (!isAdmin) return;
+        await db.collection('news').doc(newsId).update({ isFake: !currentIsFake });
     }
 
     function setMaxBuyQty(stockId) {
         if (!stockDataMap[stockId]) return;
         const price = stockDataMap[stockId].currentPrice;
         const maxQty = Math.floor(currentUser.balance / price);
-        
         const inputEl = document.getElementById(`trade-qty-${stockId}`);
-        if (inputEl) {
-            inputEl.value = maxQty > 0 ? maxQty : 1;
-        }
+        if (inputEl) inputEl.value = maxQty > 0 ? maxQty : 1;
     }
 
     function setMaxSellQty(stockId) {
         const holdings = currentUser.holdings || {};
         const myQty = holdings[stockId] || 0;
-        
         const inputEl = document.getElementById(`trade-qty-${stockId}`);
-        if (inputEl) {
-            inputEl.value = myQty > 0 ? myQty : 1;
-        }
+        if (inputEl) inputEl.value = myQty > 0 ? myQty : 1;
     }
 
     function openNewsModal(newsId, title, content, stockName, time, isFake) {
-        const isAdmin = sessionStorage.getItem('admin_authenticated') === 'true';
         const fakeBadge = isAdmin ? (isFake ? ' <span style="color: #ef4444; font-weight: bold;">[🚨 가짜뉴스]</span>' : ' <span style="color: #059669; font-weight: bold;">[✅ 진짜뉴스]</span>') : '';
-        
         document.getElementById('modal-news-tag').innerHTML = `[${stockName}] | ${time} 발행${fakeBadge}`;
         document.getElementById('modal-news-title').innerText = title;
         document.getElementById('modal-news-content').innerText = content;
@@ -701,13 +693,8 @@
         document.getElementById('news-modal').style.display = 'flex';
     }
 
-    function closeNewsModal() {
-        document.getElementById('news-modal').style.display = 'none';
-    }
-
-    function closeUserInfoModal() {
-        document.getElementById('user-info-modal').style.display = 'none';
-    }
+    function closeNewsModal() { document.getElementById('news-modal').style.display = 'none'; }
+    function closeUserInfoModal() { document.getElementById('user-info-modal').style.display = 'none'; }
 
     function updateUserUI() {
         if (!currentUser) return;
@@ -750,7 +737,6 @@
         const totalProfitRate = balance === 0 && stockEvalTotal === 0 ? 0 : ((totalAsset - 10000000) / 10000000) * 100;
 
         document.getElementById('total-asset').innerText = `${totalAsset.toLocaleString()} 원`;
-        
         const totalProfitEl = document.getElementById('total-profit-rate');
         totalProfitEl.innerText = `${totalProfitRate > 0 ? '+' : ''}${totalProfitRate.toFixed(2)}%`;
         totalProfitEl.className = `val ${totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '')}`;
@@ -762,7 +748,7 @@
 
         if (allUsersData.length === 0) {
             document.getElementById('my-rank-display').innerText = `- 위`;
-            leaderboardList.innerHTML = `<tr><td colspan="5" style="color: #94a3b8;">등록된 투자자가 없습니다.</td></tr>`;
+            leaderboardList.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="color: #94a3b8;">등록된 투자자가 없습니다.</td></tr>`;
             return;
         }
 
@@ -780,12 +766,7 @@
             const totalAsset = (u.balance || 0) + evalTotal;
             const profitRate = ((totalAsset - 10000000) / 10000000) * 100;
 
-            return {
-                id: u.id,
-                name: u.name || '익명',
-                totalAsset: totalAsset,
-                profitRate: profitRate
-            };
+            return { id: u.id, name: u.name || '익명', totalAsset, profitRate };
         });
 
         rankedUsers.sort((a, b) => b.totalAsset - a.totalAsset);
@@ -802,23 +783,27 @@
                 document.getElementById('my-rank-display').innerText = `${rank} 위 / ${rankedUsers.length} 명`;
             }
 
+            let adminButtonsHtml = '';
+            if (isAdmin) {
+                adminButtonsHtml = `
+                    <td class="admin-only-col">
+                        <button class="admin-action-btn btn-admin-info" onclick="adminViewUserInfo('${u.id}')">조회</button>
+                        <button class="admin-action-btn btn-admin-reset" onclick="adminResetUserAssets('${u.id}', '${u.name}')">초기화</button>
+                        <button class="admin-action-btn btn-admin-delete" onclick="adminDeleteSingleUser('${u.id}', '${u.name}')">삭제</button>
+                    </td>`;
+            }
+
             leaderboardList.innerHTML += `
                 <tr class="${isMe ? 'my-rank-row' : ''}">
                     <td><strong>${rank}위</strong></td>
                     <td>${u.name}${isMe ? ' (나)' : ''}</td>
                     <td>${Math.round(u.totalAsset).toLocaleString()}원</td>
                     <td class="${colorClass}">${u.profitRate > 0 ? '+' : ''}${u.profitRate.toFixed(2)}%</td>
-                    <td>
-                        <button class="admin-action-btn btn-admin-info" onclick="adminViewUserInfo('${u.id}')">조회</button>
-                        <button class="admin-action-btn btn-admin-reset" onclick="adminResetUserAssets('${u.id}', '${u.name}')">자산 초기화</button>
-                        <button class="admin-action-btn btn-admin-delete" onclick="adminDeleteSingleUser('${u.id}', '${u.name}')">삭제</button>
-                    </td>
+                    ${adminButtonsHtml}
                 </tr>`;
         });
 
-        if (!myFound) {
-            document.getElementById('my-rank-display').innerText = `- 위`;
-        }
+        if (!myFound) document.getElementById('my-rank-display').innerText = `- 위`;
     }
 
     async function tradeStock(stockId, type) {
@@ -834,7 +819,7 @@
         const userRef = db.collection('users').doc(userId);
 
         if (type === 'BUY') {
-            if (currentUser.balance < totalPrice) return alert("예수금(현금)이 부족합니다!");
+            if (currentUser.balance < totalPrice) return alert("예수금이 부족합니다!");
 
             const newTotalQty = currentQty + qty;
             const newAvgPrice = ((currentQty * currentAvgPrice) + (qty * stock.currentPrice)) / newTotalQty;
@@ -858,47 +843,15 @@
     }
 
     function startLoops() {
-        // 1. 주가 일반 변동 (5초 주기)
-        setInterval(() => {
-            triggerStockPriceChangeNow();
-        }, 5000);
-
-        // 2. AI 뉴스 자동 발행 (1시간당 5개 = 12분 마다)
-        setInterval(() => {
-            triggerAINewsNow();
-        }, 720000); 
+        setInterval(() => triggerStockPriceChangeNow(), 5000);
+        setInterval(() => triggerAINewsNow(), 720000);
     }
 
-    function verifyAdminPassword() {
-        if (sessionStorage.getItem('admin_authenticated') === 'true') {
-            return true;
-        }
-
-        const inputPw = prompt("관리자 비밀번호를 입력하세요:");
-        if (inputPw === ADMIN_PASSWORD) {
-            sessionStorage.setItem('admin_authenticated', 'true');
-            return true;
-        } else {
-            alert("비밀번호가 올바르지 않습니다.");
-            return false;
-        }
-    }
-
-    function adminTriggerStock() {
-        if (verifyAdminPassword()) {
-            triggerStockPriceChangeNow(true);
-        }
-    }
-
-    function adminTriggerNews() {
-        if (verifyAdminPassword()) {
-            triggerAINewsNow();
-        }
-    }
+    function adminTriggerStock() { if (isAdmin) triggerStockPriceChangeNow(true); }
+    function adminTriggerNews() { if (isAdmin) triggerAINewsNow(); }
 
     async function adminViewUserInfo(targetUserId) {
-        if (!verifyAdminPassword()) return;
-
+        if (!isAdmin) return;
         const doc = await db.collection('users').doc(targetUserId).get();
         if (!doc.exists) return alert("존재하지 않는 계정입니다.");
 
@@ -921,72 +874,49 @@
             }
         }
 
-        if (!hasHoldings) {
-            html += `<li>현재 보유 중인 주식이 없습니다.</li>`;
-        }
+        if (!hasHoldings) html += `<li>보유 주식 없음</li>`;
         html += `</ul>`;
 
-        document.getElementById('info-modal-title').innerText = `🔍 [${uData.name}] 님의 포트폴리오`;
+        document.getElementById('info-modal-title').innerText = `🔍 [${uData.name}] 포트폴리오`;
         document.getElementById('info-modal-body').innerHTML = html;
         document.getElementById('user-info-modal').style.display = 'flex';
     }
 
     async function adminResetUserAssets(targetUserId, targetUserName) {
-        if (confirm(`'${targetUserName}' 참가자의 자산을 1,000만원(예수금 1,000만원 / 보유주식 0주)으로 초기화하시겠습니까?`)) {
-            if (verifyAdminPassword()) {
-                await db.collection('users').doc(targetUserId).update({
-                    balance: 10000000,
-                    holdings: {},
-                    buyPrices: {}
-                });
-                alert(`'${targetUserName}' 님의 자산이 초기화되었습니다.`);
-            }
+        if (isAdmin && confirm(`'${targetUserName}' 참가자의 자산을 초기화하시겠습니까?`)) {
+            await db.collection('users').doc(targetUserId).update({ balance: 10000000, holdings: {}, buyPrices: {} });
+            alert("초기화 완료");
         }
     }
 
     async function adminResetAllUserAssets() {
-        if (confirm("⚠️ 모든 참가자의 자산을 초기 자금(1,000만 원, 보유 주식 0주)으로 일괄 초기화하시겠습니까?")) {
-            if (verifyAdminPassword()) {
-                const snapshot = await db.collection('users').get();
-                const batch = db.batch();
-                snapshot.forEach(doc => {
-                    batch.update(doc.ref, {
-                        balance: 10000000,
-                        holdings: {},
-                        buyPrices: {}
-                    });
-                });
-                await batch.commit();
-                alert("모든 투자자의 자산이 1,000만 원으로 일괄 초기화되었습니다.");
-            }
+        if (isAdmin && confirm("⚠️ 모든 참가자의 자산을 1,000만원으로 일괄 초기화하시겠습니까?")) {
+            const snapshot = await db.collection('users').get();
+            const batch = db.batch();
+            snapshot.forEach(doc => batch.update(doc.ref, { balance: 10000000, holdings: {}, buyPrices: {} }));
+            await batch.commit();
+            alert("전체 초기화 완료");
         }
     }
 
     async function adminDeleteSingleUser(targetUserId, targetUserName) {
-        if (confirm(`'${targetUserName}' 참가자의 계정 및 자산 데이터를 정말 삭제하시겠습니까?`)) {
-            if (verifyAdminPassword()) {
-                await db.collection('users').doc(targetUserId).delete();
-                alert(`'${targetUserName}' 님의 데이터가 성공적으로 삭제되었습니다.`);
-            }
+        if (isAdmin && confirm(`'${targetUserName}' 계정을 삭제하시겠습니까?`)) {
+            await db.collection('users').doc(targetUserId).delete();
+            alert("삭제 완료");
         }
     }
 
     async function adminDeleteAllUsers() {
-        if (confirm("⚠️ 경고: 등록된 모든 참가자의 계정을 완전 삭제하시겠습니까? (복구 불가)")) {
-            if (verifyAdminPassword()) {
-                const snapshot = await db.collection('users').get();
-                const batch = db.batch();
-                snapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                await batch.commit();
-                alert("모든 투자자의 계정 데이터가 삭제되었습니다.");
-            }
+        if (isAdmin && confirm("⚠️ 전체 유저 계정을 완전히 삭제하시겠습니까?")) {
+            const snapshot = await db.collection('users').get();
+            const batch = db.batch();
+            snapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            alert("전체 삭제 완료");
         }
     }
 
     async function triggerStockPriceChangeNow(isForce = false) {
-        // 주가가 얼어 있는 상태이고 강제 변경 요청이 아닌 경우 주가 변동 스킵
         if (isStocksFrozen && !isForce) return;
 
         const stockKeys = Object.keys(stockDataMap);
@@ -995,7 +925,6 @@
         for (let sId of stockKeys) {
             const stock = stockDataMap[sId];
             let randomDelta = (Math.random() * 0.05) - 0.025; 
-            
             let newPrice = Math.round(stock.currentPrice * (1 + randomDelta));
             if (newPrice < 1000) newPrice = 1000;
 
@@ -1014,15 +943,11 @@
         const stockKeys = Object.keys(stockDataMap);
         if (stockKeys.length === 0) return;
 
-        // 최근 발행된 뉴스 5개 목록 가져오기 (동일 한 타임 내 중복 방지용)
         const recentNewsSnap = await db.collection('news').orderBy('createdAt', 'desc').limit(5).get();
         const recentTitles = [];
         recentNewsSnap.forEach(doc => recentTitles.push(doc.data().title));
 
-        // 중복되지 않는 뉴스 후보군 선별
         const availableNews = AI_NEWS_POOL.filter(n => !recentTitles.includes(n.title));
-        
-        // 만약 모든 뉴스가 다 나왔다면 풀 전체에서 선택
         const poolToChoose = availableNews.length > 0 ? availableNews : AI_NEWS_POOL;
         const baseNews = poolToChoose[Math.floor(Math.random() * poolToChoose.length)];
 
@@ -1031,21 +956,14 @@
             targetStockId = PRESET_STOCKS[baseNews.stockIndex].id;
         }
 
-        // 1. 진짜/가짜 뉴스 무작위 (50% 확률)
         const isFake = Math.random() < 0.5;
 
-        // 2. 종목 주가 영향 계산 (주가가 얼어있지 않을 경우에만 반영)
         if (!isStocksFrozen && targetStockId && stockDataMap[targetStockId]) {
             const stock = stockDataMap[targetStockId];
-            
-            // 기존 뉴스 영향 상쇄 역산
             const prevImpact = stock.lastImpact || 0;
             let restoredPrice = stock.currentPrice;
-            if (prevImpact !== 0) {
-                restoredPrice = Math.round(stock.currentPrice / (1 + prevImpact));
-            }
+            if (prevImpact !== 0) restoredPrice = Math.round(stock.currentPrice / (1 + prevImpact));
 
-            // 신규 뉴스 영향력 계산
             let newImpactFactor = baseNews.impact;
             if (isFake) {
                 newImpactFactor = -newImpactFactor * (0.8 + Math.random() * 0.4);
@@ -1053,7 +971,6 @@
                 newImpactFactor = newImpactFactor * (0.9 + Math.random() * 0.3);
             }
 
-            // 이전 뉴스 영향을 제외한 주가에 신규 영향 적용
             let newPrice = Math.round(restoredPrice * (1 + newImpactFactor));
             if (newPrice < 1000) newPrice = 1000;
 
@@ -1068,7 +985,6 @@
             });
         }
 
-        // 3. 뉴스 저장
         await db.collection('news').add({
             title: baseNews.title,
             content: baseNews.content,
