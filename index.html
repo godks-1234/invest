@@ -19,6 +19,27 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-color); color: #1e293b; padding: 20px; }
 
+        /* 긴급 속보 패널 (안전안내문자 스타일) */
+        .breaking-news-banner {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        .breaking-title { font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .breaking-body { font-size: 0.95rem; margin-top: 4px; opacity: 0.95; }
+
         /* 모달 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 28px; border-radius: 16px; width: 90%; max-width: 520px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
@@ -54,7 +75,7 @@
         .my-rank-row { background-color: #eff6ff; font-weight: bold; }
 
         /* 거래 및 관리 버튼 */
-        .trade-btn { padding: 5px 6px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.75rem; margin: 0 1px; }
+        .trade-btn { padding: 6px 8px; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; font-size: 0.75rem; margin: 0 1px; }
         .btn-buy { background: var(--profit); }
         .btn-sell { background: var(--loss); }
         .btn-max-buy { background: #059669; }
@@ -71,14 +92,9 @@
         .news-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .news-item-container { background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding-right: 12px; }
         .news-item-title { padding: 12px 16px; flex-grow: 1; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .news-item-title:hover { background: #e2e8f0; border-radius: 8px 0 0 8px; }
-        .news-tag { font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #334155; color: white; margin-right: 8px; }
-        .fake-news-tag { background: #dc2626; color: white; }
-        .real-news-tag { background: #059669; color: white; }
+        .news-item-title:hover { background: #e2e8f0; border-radius: 8px; }
+        .news-tag { font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #2563eb; color: white; margin-right: 8px; }
         .news-time { font-size: 0.75rem; color: #94a3b8; }
-        
-        .btn-fake-toggle { background: #475569; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; cursor: pointer; font-weight: bold; }
-        .btn-fake-toggle.active { background: #dc2626; }
 
         /* AI 조종판 (어드민 전용) */
         .ai-control-panel { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
@@ -112,10 +128,7 @@
 <!-- 뉴스 상세보기 모달 -->
 <div id="news-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <div style="font-size: 0.8rem; color: #64748b;" id="modal-news-tag">관련종목 / 타임스탬프</div>
-            <div id="modal-admin-fake-btn-area"></div>
-        </div>
+        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;" id="modal-news-tag">관련종목 / 타임스탬프</div>
         <h2 id="modal-news-title" style="word-break: keep-all;">뉴스 제목</h2>
         <p id="modal-news-content" style="white-space: pre-line; color: #334155; max-height: 350px; overflow-y: auto; text-align: justify;"></p>
         <button class="btn-close" onclick="closeNewsModal()" style="margin-top: 15px;">창 닫기</button>
@@ -131,6 +144,15 @@
     </div>
 </div>
 
+<!-- 긴급 속보 팝업 (이벤트 시 실시간 노출) -->
+<div id="breaking-news-area" class="breaking-news-banner hidden">
+    <div>
+        <div class="breaking-title">🚨 [긴급 속보 이벤트 발현] <span id="breaking-stock-name"></span></div>
+        <div class="breaking-body" id="breaking-news-title"></div>
+    </div>
+    <button onclick="document.getElementById('breaking-news-area').classList.add('hidden')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">닫기</button>
+</div>
+
 <header>
     <h1>📈 AI 모의 주식 투자 System</h1>
     <div class="user-badge" id="user-display-name">
@@ -138,16 +160,17 @@
     </div>
 </header>
 
-<!-- 어드민 전용 컨트롤 패널 (기본 숨김 처리) -->
+<!-- 어드민 전용 컨트롤 패널 -->
 <div id="admin-panel" class="ai-control-panel hidden">
     <div>
-        👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 상태: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span> (5초 주기)</strong>
+        👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 변동 주기: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span> (서킷브레이커: 10초)</strong>
     </div>
     <div>
         <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()">🧊 주가 얼리기 (일시정지)</button>
         <button class="ai-control-btn" onclick="adminTriggerStock()">📈 즉시 주가 변동</button>
         <button class="ai-control-btn warning" onclick="adminResetStockPrices()">📉 주가 초기화</button>
-        <button class="ai-control-btn" onclick="adminTriggerNews()">📰 즉시 AI 뉴스 생성</button>
+        <button class="ai-control-btn" onclick="adminTriggerNews()">📰 즉시 AI 뉴스 생성 (3분 주기)</button>
+        <button class="ai-control-btn danger" onclick="adminTriggerBreakingNews()">🚨 긴급 속보 강제 발령</button>
         <button class="ai-control-btn warning" onclick="adminResetAllUserAssets()">💰 전체 유저 자산 초기화</button>
         <button class="ai-control-btn danger" onclick="adminDeleteAllUsers()">🧹 전체 유저 계정 삭제</button>
     </div>
@@ -165,7 +188,7 @@
         </div>
     </div>
 
-    <!-- 실시간 주가 꺾은선 변동 차트 -->
+    <!-- 실시간 주가 차트 -->
     <div class="card" style="grid-column: 1 / -1;">
         <h2>
             <span>📉 실시간 거래소 주가 변동 차트</span>
@@ -179,7 +202,7 @@
 
     <!-- 주식 시장 -->
     <div class="card">
-        <h2>📊 AI 주식 시장 (5초마다 변동)</h2>
+        <h2>📊 AI 주식 시장 (10초마다 변동)</h2>
         <table>
             <thead>
                 <tr>
@@ -230,7 +253,7 @@
 
     <!-- AI 실시간 속보 헤드라인 -->
     <div class="card" style="grid-column: 1 / -1;">
-        <h2>📰 실시간 뉴스 및 시장 헤드라인 (클릭하여 읽기)</h2>
+        <h2>📰 실시간 뉴스 및 시장 헤드라인 (3분 주기 업데이트 / 클릭하여 읽기)</h2>
         <div class="news-list" id="ai-news-feed"></div>
     </div>
 </div>
@@ -250,7 +273,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 관리자 비밀번호
     const ADMIN_PASSWORD = "eerf";
 
     const PRESET_STOCKS = [
@@ -271,48 +293,65 @@
     let stockChart = null;
     let isStocksFrozen = false;
 
+    // 뉴스 풀 (주가 영향력 증대: 15%~25% 수준)
     const AI_NEWS_POOL = [
         { 
             stockIndex: 0, 
-            type: 'positive',
-            impact: 0.08, 
-            title: "[단독] 삼성전자, 글로벌 빅테크기업과 차세대 반도체 장기 공급 계약 임박", 
-            content: "여의도 증권가 출처에 따르면, 삼성전자가 실리콘밸리 글로벌 빅테크 기업과 대규모 차세대 반도체 장기 위탁생산 계약 체결을 눈앞에 두고 있습니다." 
+            impact: 0.18, 
+            title: "[단독] 삼성전자, 차세대 반도체 글로벌 빅테크와 50조원 대규모 수주 계약", 
+            content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 반도체 공급 계약을 체결했습니다. 시장에서는 향후 수년간 안정적인 실적 모멘텀을 확보했다고 평가합니다." 
         },
         { 
             stockIndex: 0, 
-            type: 'negative',
-            impact: -0.05, 
-            title: "삼성전자 파운드리 수율 논란 재점화... 증권가 우려 확산", 
-            content: "해외 IT 전문 매체를 중심으로 삼성전자의 선단 공정 수율 하락 가능성이 제기되면서 일부 시장의 우려가 증대되고 있습니다." 
+            impact: -0.15, 
+            title: "삼성전자, 주요 파운드리 생산라인 수율 악화 악재 발생... 주가 비상", 
+            content: "선단 공정 수율 하락 이슈가 불거지며 핵심 고객사의 물량이 경쟁사로 이탈할 수 있다는 전망이 우세해지고 있습니다." 
         },
         { 
             stockIndex: 1, 
-            type: 'positive',
-            impact: 0.06,
-            title: "현대차, 북미 친환경차 판매량 분기 최대치 경신... 시장점유율 폭발", 
-            content: "현대자동차의 북미 시장 판매 실적이 대형 SUV 및 차세대 하이브리드 라인업의 판매 호조에 힘입어 분기 기준 역대 최대 수치를 경신했습니다." 
+            impact: 0.20,
+            title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", 
+            content: "현대자동차가 북미 및 유럽 시장에서 폭발적인 판매 성장을 기록하며 주요 해외 증권가 목표주가가 대폭 상향 조정되었습니다." 
         },
         { 
             stockIndex: 2, 
-            type: 'positive',
-            impact: 0.10, 
-            title: "[속보] SK하이닉스, 차세대 HBM3E 메모리 세계 최초 독점 공급 성공", 
-            content: "SK하이닉스가 차세대 인공지능(AI) 반도체 시장의 핵심 부품인 초고속 HBM 메모리 제품의 세계 최초 양산 및 독점 공급 체제 구축에 성공했다고 밝혔다." 
+            impact: 0.22, 
+            title: "[속보] SK하이닉스, 차세대 HBM4 세계 최초 독점 양산 공급 성공", 
+            content: "AI 반도체 메모리 분야의 압도적 1위 위치를 다지는 대형 계약 성공으로 분기 실적 급증이 확실시되고 있습니다." 
         },
         { 
             stockIndex: 3, 
-            type: 'negative',
-            impact: -0.07,
-            title: "카카오 플랫폼 규제안 국회 본회의 통과... 단기 수익성 악화 우려", 
-            content: "플랫폼 기업 대상 규제 강화 법안이 통과됨에 따라 주요 플랫폼 서비스의 마케팅 및 수익성 지표에 단기 악영향이 불가피할 것으로 전망됩니다." 
+            impact: -0.18,
+            title: "카카오, 정부 강도 높은 독과점 및 금융 규제안 최종 가결 소식", 
+            content: "핵심 수익원 서비스들에 대한 정부 규제 법안이 본회의를 통과하면서 플랫폼 사업의 단기 수익성 악화 우려가 확산되고 있습니다." 
         },
         { 
             stockIndex: 4, 
-            type: 'positive',
-            impact: 0.12, 
-            title: "에코프로, 북미 광산기업과 핵심 2차전지 원자재 장기 공급계약 체결", 
-            content: "2차전지 소재 선도 기업 에코프로가 북미 주요 광산기업과의 협상을 거쳐 핵심 양극재 원자재의 장기 안정적 수급망을 확보하는 데 성공했다고 발표했습니다." 
+            impact: 0.25, 
+            title: "에코프로, 핵심 2차전지 양극재 원자재 북미 대형 광산 독점권 확보", 
+            content: "배터리 원가 절감 및 생산능력 확대를 이끌 초대형 공급망 확보에 성공하며 주식 시장의 모든 자금이 집중되고 있습니다." 
+        }
+    ];
+
+    // 긴급 속보 이벤트 풀 (초대형 영향력: 30%~40%)
+    const BREAKING_NEWS_POOL = [
+        {
+            stockIndex: 0,
+            impact: 0.35,
+            title: "💥 [초대형 호재] 삼성전자, 차세대 AI 반도체 혁신 기술 세계 최초 상용화 성공!",
+            content: "전 세계 IT 업계를 뒤흔들 혁신적인 초저전력 반도체 설계에 성공하여 주가가 폭발적 폭등세를 보이고 있습니다."
+        },
+        {
+            stockIndex: 2,
+            impact: 0.32,
+            title: "🔥 [대형 속보] SK하이닉스, 세계 최대 AI 기업과 전략적 지분 인수 합작 발표",
+            content: "글로벌 대형 AI 기업과의 전격 합작 발표로 주식 시장에서 매수 잔량이 폭주하고 있습니다."
+        },
+        {
+            stockIndex: 3,
+            impact: -0.30,
+            title: "⚠️ [국가 비상] 카카오 서버 데이터센터 전면 마비 사태 발생",
+            content: "전국 서비스가 전면 중단되는 사태가 발생하여 투자심리가 급격히 냉각되고 투매 물량이 쏟아지고 있습니다."
         }
     ];
 
@@ -326,7 +365,6 @@
         await ensurePresetStocks();
         await ensureSystemSettings();
 
-        // 관리자 패스워드 입력 검증
         if (password === ADMIN_PASSWORD) {
             isAdmin = true;
         }
@@ -335,7 +373,6 @@
         const doc = await userRef.get();
 
         if (!doc.exists) {
-            // 신규 사용자 계정 등록
             await userRef.set({
                 name: name,
                 password: password,
@@ -346,7 +383,6 @@
             });
             alert(`'${name}' 님의 계정이 정상 생성되었습니다.`);
         } else {
-            // 기존 계정 비밀번호 검증 (어드민 비밀번호 입력 시 예외 허용)
             const userData = doc.data();
             if (userData.password !== password && !isAdmin) {
                 return alert("비밀번호가 일치하지 않습니다.");
@@ -355,7 +391,6 @@
 
         document.getElementById('login-modal').style.display = 'none';
         
-        // 어드민 전용 화면 노출 제어
         if (isAdmin) {
             document.getElementById('admin-panel').classList.remove('hidden');
             document.querySelectorAll('.admin-only-col').forEach(el => el.classList.remove('hidden'));
@@ -395,7 +430,6 @@
 
     function initChart() {
         const ctx = document.getElementById('stockHistoryChart').getContext('2d');
-        
         stockChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -472,7 +506,6 @@
                 stockDataMap[doc.id] = data;
 
                 if (!stockHistoryMap[doc.id]) stockHistoryMap[doc.id] = [];
-                
                 const history = stockHistoryMap[doc.id];
                 if (history.length === 0 || history[history.length - 1].time !== nowTime) {
                     history.push({ time: nowTime, price: data.currentPrice });
@@ -496,10 +529,10 @@
                         <td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td>
                         <td><input type="number" id="trade-qty-${doc.id}" class="trade-input" value="${savedQty}" min="1"></td>
                         <td>
-                            <button class="trade-btn btn-max-buy" onclick="setMaxBuyQty('${doc.id}')">최대매수</button>
-                            <button class="trade-btn btn-max-sell" onclick="setMaxSellQty('${doc.id}')">최대매도</button>
                             <button class="trade-btn btn-buy" onclick="tradeStock('${doc.id}', 'BUY')">매수</button>
                             <button class="trade-btn btn-sell" onclick="tradeStock('${doc.id}', 'SELL')">매도</button>
+                            <button class="trade-btn btn-max-buy" onclick="directMaxBuy('${doc.id}')">전량매수</button>
+                            <button class="trade-btn btn-max-sell" onclick="directMaxSell('${doc.id}')">전량매도</button>
                         </td>
                     </tr>`;
             });
@@ -534,47 +567,25 @@
             }
 
             snapshot.forEach(doc => {
-                const newsId = doc.id;
                 const news = doc.data();
                 const stockName = news.targetStockId && stockDataMap[news.targetStockId] ? stockDataMap[news.targetStockId].name : '거시경제';
                 const timeStr = news.createdAt ? new Date(news.createdAt.toDate()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '방금 전';
-                const isFake = news.isFake === true;
 
                 const newsItemContainer = document.createElement('div');
                 newsItemContainer.className = 'news-item-container';
 
                 const newsEl = document.createElement('div');
                 newsEl.className = 'news-item-title';
-                newsEl.onclick = () => openNewsModal(newsId, news.title, news.content, stockName, timeStr, isFake);
-                
-                let adminTagHtml = '';
-                if (isAdmin) {
-                    adminTagHtml = isFake 
-                        ? '<span class="news-tag fake-news-tag">🚨 가짜뉴스</span>' 
-                        : '<span class="news-tag real-news-tag">✅ 진짜뉴스</span>';
-                }
+                newsEl.onclick = () => openNewsModal(news.title, news.content, stockName, timeStr);
 
                 newsEl.innerHTML = `
                     <div>
-                        <span class="news-tag">뉴스</span>
-                        ${adminTagHtml}
+                        <span class="news-tag">${news.isBreaking ? '🚨 긴급속보' : '뉴스'}</span>
                         <strong>[${stockName}] ${news.title}</strong>
                     </div>
                     <span class="news-time">${timeStr}</span>`;
                 
                 newsItemContainer.appendChild(newsEl);
-
-                if (isAdmin) {
-                    const adminBtn = document.createElement('button');
-                    adminBtn.className = `btn-fake-toggle ${isFake ? 'active' : ''}`;
-                    adminBtn.innerText = isFake ? '가짜' : '진짜';
-                    adminBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        adminToggleFakeNews(newsId, isFake);
-                    };
-                    newsItemContainer.appendChild(adminBtn);
-                }
-
                 newsContainer.appendChild(newsItemContainer);
             });
         });
@@ -657,39 +668,32 @@
         alert("주가가 원복되었습니다.");
     }
 
-    async function adminToggleFakeNews(newsId, currentIsFake) {
-        if (!isAdmin) return;
-        await db.collection('news').doc(newsId).update({ isFake: !currentIsFake });
-    }
-
-    function setMaxBuyQty(stockId) {
+    /* 5번 수정사항: 최대매수 / 최대매도 즉시 구매/판매 처리 */
+    async function directMaxBuy(stockId) {
         if (!stockDataMap[stockId]) return;
         const price = stockDataMap[stockId].currentPrice;
         const maxQty = Math.floor(currentUser.balance / price);
-        const inputEl = document.getElementById(`trade-qty-${stockId}`);
-        if (inputEl) inputEl.value = maxQty > 0 ? maxQty : 1;
+        
+        if (maxQty <= 0) return alert("매수 가능한 예수금이 부족합니다!");
+        if (confirm(`현재 잔액으로 구매 가능한 최대 수량(${maxQty}주)을 즉시 매수하시겠습니까?`)) {
+            await executeTrade(stockId, maxQty, 'BUY');
+        }
     }
 
-    function setMaxSellQty(stockId) {
+    async function directMaxSell(stockId) {
         const holdings = currentUser.holdings || {};
         const myQty = holdings[stockId] || 0;
-        const inputEl = document.getElementById(`trade-qty-${stockId}`);
-        if (inputEl) inputEl.value = myQty > 0 ? myQty : 1;
+        
+        if (myQty <= 0) return alert("보유한 주식이 없습니다!");
+        if (confirm(`보유한 전량(${myQty}주)을 즉시 매도하시겠습니까?`)) {
+            await executeTrade(stockId, myQty, 'SELL');
+        }
     }
 
-    function openNewsModal(newsId, title, content, stockName, time, isFake) {
-        const fakeBadge = isAdmin ? (isFake ? ' <span style="color: #ef4444; font-weight: bold;">[🚨 가짜뉴스]</span>' : ' <span style="color: #059669; font-weight: bold;">[✅ 진짜뉴스]</span>') : '';
-        document.getElementById('modal-news-tag').innerHTML = `[${stockName}] | ${time} 발행${fakeBadge}`;
+    function openNewsModal(title, content, stockName, time) {
+        document.getElementById('modal-news-tag').innerText = `[${stockName}] | ${time} 발행`;
         document.getElementById('modal-news-title').innerText = title;
         document.getElementById('modal-news-content').innerText = content;
-
-        const adminArea = document.getElementById('modal-admin-fake-btn-area');
-        if (isAdmin) {
-            adminArea.innerHTML = `<button class="btn-fake-toggle ${isFake ? 'active' : ''}" onclick="adminToggleFakeNews('${newsId}', ${isFake})">${isFake ? '🚨 가짜뉴스 (변경)' : '✅ 진짜뉴스 (변경)'}</button>`;
-        } else {
-            adminArea.innerHTML = '';
-        }
-
         document.getElementById('news-modal').style.display = 'flex';
     }
 
@@ -807,10 +811,13 @@
     }
 
     async function tradeStock(stockId, type) {
-        if (!stockDataMap[stockId]) return;
         const qty = Number(document.getElementById(`trade-qty-${stockId}`).value);
         if (qty <= 0 || isNaN(qty)) return alert("올바른 수량을 입력하세요.");
+        await executeTrade(stockId, qty, type);
+    }
 
+    async function executeTrade(stockId, qty, type) {
+        if (!stockDataMap[stockId]) return;
         const stock = stockDataMap[stockId];
         const totalPrice = stock.currentPrice * qty;
         const currentQty = (currentUser.holdings && currentUser.holdings[stockId]) || 0;
@@ -843,12 +850,19 @@
     }
 
     function startLoops() {
-        setInterval(() => triggerStockPriceChangeNow(), 5000);
-        setInterval(() => triggerAINewsNow(), 720000);
+        /* 4번 수정사항: 주가 변동속도 10초(서킷브레이커)로 설정 */
+        setInterval(() => triggerStockPriceChangeNow(), 10000);
+
+        /* 3번 수정사항: AI 뉴스 주기를 3분(180초)으로 단축 */
+        setInterval(() => triggerAINewsNow(), 180000);
+
+        /* 6번 수정사항: 긴급 속보 이벤트 약 15분(900초) 주기 발령 */
+        setInterval(() => triggerBreakingNewsNow(), 900000);
     }
 
     function adminTriggerStock() { if (isAdmin) triggerStockPriceChangeNow(true); }
     function adminTriggerNews() { if (isAdmin) triggerAINewsNow(); }
+    function adminTriggerBreakingNews() { if (isAdmin) triggerBreakingNewsNow(); }
 
     async function adminViewUserInfo(targetUserId) {
         if (!isAdmin) return;
@@ -924,7 +938,7 @@
 
         for (let sId of stockKeys) {
             const stock = stockDataMap[sId];
-            let randomDelta = (Math.random() * 0.05) - 0.025; 
+            let randomDelta = (Math.random() * 0.04) - 0.02; // 일반 변동폭 2% 수준
             let newPrice = Math.round(stock.currentPrice * (1 + randomDelta));
             if (newPrice < 1000) newPrice = 1000;
 
@@ -939,39 +953,23 @@
         }
     }
 
+    /* 3번 수정사항: 뉴스 영향력 대폭 확대 */
     async function triggerAINewsNow() {
         const stockKeys = Object.keys(stockDataMap);
         if (stockKeys.length === 0) return;
 
-        const recentNewsSnap = await db.collection('news').orderBy('createdAt', 'desc').limit(5).get();
-        const recentTitles = [];
-        recentNewsSnap.forEach(doc => recentTitles.push(doc.data().title));
-
-        const availableNews = AI_NEWS_POOL.filter(n => !recentTitles.includes(n.title));
-        const poolToChoose = availableNews.length > 0 ? availableNews : AI_NEWS_POOL;
-        const baseNews = poolToChoose[Math.floor(Math.random() * poolToChoose.length)];
+        const baseNews = AI_NEWS_POOL[Math.floor(Math.random() * AI_NEWS_POOL.length)];
 
         let targetStockId = null;
         if (baseNews.stockIndex >= 0 && PRESET_STOCKS[baseNews.stockIndex]) {
             targetStockId = PRESET_STOCKS[baseNews.stockIndex].id;
         }
 
-        const isFake = Math.random() < 0.5;
-
         if (!isStocksFrozen && targetStockId && stockDataMap[targetStockId]) {
             const stock = stockDataMap[targetStockId];
-            const prevImpact = stock.lastImpact || 0;
-            let restoredPrice = stock.currentPrice;
-            if (prevImpact !== 0) restoredPrice = Math.round(stock.currentPrice / (1 + prevImpact));
+            let impactFactor = baseNews.impact * (0.9 + Math.random() * 0.2); // 크게 주가 반영
 
-            let newImpactFactor = baseNews.impact;
-            if (isFake) {
-                newImpactFactor = -newImpactFactor * (0.8 + Math.random() * 0.4);
-            } else {
-                newImpactFactor = newImpactFactor * (0.9 + Math.random() * 0.3);
-            }
-
-            let newPrice = Math.round(restoredPrice * (1 + newImpactFactor));
+            let newPrice = Math.round(stock.currentPrice * (1 + impactFactor));
             if (newPrice < 1000) newPrice = 1000;
 
             const initialPrice = stock.initialPrice || stock.currentPrice;
@@ -980,7 +978,6 @@
             await db.collection('stocks').doc(targetStockId).update({
                 currentPrice: newPrice,
                 changeRate: changeRate,
-                lastImpact: newImpactFactor,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
@@ -988,7 +985,42 @@
         await db.collection('news').add({
             title: baseNews.title,
             content: baseNews.content,
-            isFake: isFake,
+            isBreaking: false,
+            targetStockId: targetStockId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
+
+    /* 6번 수정사항: 긴급 속보 이벤트 */
+    async function triggerBreakingNewsNow() {
+        const event = BREAKING_NEWS_POOL[Math.floor(Math.random() * BREAKING_NEWS_POOL.length)];
+        const targetStockId = PRESET_STOCKS[event.stockIndex].id;
+        const stockName = PRESET_STOCKS[event.stockIndex].name;
+
+        if (!isStocksFrozen && stockDataMap[targetStockId]) {
+            const stock = stockDataMap[targetStockId];
+            let newPrice = Math.round(stock.currentPrice * (1 + event.impact));
+            if (newPrice < 1000) newPrice = 1000;
+
+            const initialPrice = stock.initialPrice || stock.currentPrice;
+            const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
+
+            await db.collection('stocks').doc(targetStockId).update({
+                currentPrice: newPrice,
+                changeRate: changeRate,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // 긴급 속보 배너 화면 노출
+        document.getElementById('breaking-stock-name').innerText = stockName;
+        document.getElementById('breaking-news-title').innerText = event.title;
+        document.getElementById('breaking-news-area').classList.remove('hidden');
+
+        await db.collection('news').add({
+            title: event.title,
+            content: event.content,
+            isBreaking: true,
             targetStockId: targetStockId,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
