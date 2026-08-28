@@ -59,6 +59,10 @@
         .card { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
+        /* 차트 전용 카드 스타일 (가로폭 조정) */
+        .chart-card-wrapper { grid-column: 1 / -1; display: flex; justify-content: center; }
+        .chart-card { width: 100%; max-width: 850px; }
+
         /* 자산 요약 박스 */
         .asset-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .asset-box { background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #f1f5f9; text-align: center; }
@@ -109,7 +113,7 @@
 
         /* 차트 셀렉트 박스 */
         .chart-select { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
-        .chart-container { position: relative; height: 320px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
+        .chart-container { position: relative; height: 350px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
     </style>
 </head>
 <body>
@@ -188,15 +192,17 @@
         </div>
     </div>
 
-    <!-- 실시간 주가 차트 -->
-    <div class="card" style="grid-column: 1 / -1;">
-        <h2>
-            <span>📉 실시간 거래소 주가 변동 차트</span>
-            <select id="chart-stock-select" class="chart-select" onchange="renderStockChart()">
-            </select>
-        </h2>
-        <div class="chart-container">
-            <canvas id="stockHistoryChart"></canvas>
+    <!-- 실시간 주가 차트 (가로폭 조정 및 Y축 그리드 고정) -->
+    <div class="chart-card-wrapper">
+        <div class="card chart-card">
+            <h2>
+                <span>📉 실시간 거래소 주가 변동 차트</span>
+                <select id="chart-stock-select" class="chart-select" onchange="renderStockChart()">
+                </select>
+            </h2>
+            <div class="chart-container">
+                <canvas id="stockHistoryChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -293,7 +299,7 @@
     let stockChart = null;
     let isStocksFrozen = false;
 
-    // 뉴스 풀 (주가 영향력 증대: 15%~25% 수준)
+    // 뉴스 풀
     const AI_NEWS_POOL = [
         { 
             stockIndex: 0, 
@@ -309,7 +315,7 @@
         },
         { 
             stockIndex: 1, 
-            impact: 0.20,
+            impact: 0.20, 
             title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", 
             content: "현대자동차가 북미 및 유럽 시장에서 폭발적인 판매 성장을 기록하며 주요 해외 증권가 목표주가가 대폭 상향 조정되었습니다." 
         },
@@ -321,7 +327,7 @@
         },
         { 
             stockIndex: 3, 
-            impact: -0.18,
+            impact: -0.18, 
             title: "카카오, 정부 강도 높은 독과점 및 금융 규제안 최종 가결 소식", 
             content: "핵심 수익원 서비스들에 대한 정부 규제 법안이 본회의를 통과하면서 플랫폼 사업의 단기 수익성 악화 우려가 확산되고 있습니다." 
         },
@@ -333,7 +339,7 @@
         }
     ];
 
-    // 긴급 속보 이벤트 풀 (초대형 영향력: 30%~40%)
+    // 긴급 속보 이벤트 풀
     const BREAKING_NEWS_POOL = [
         {
             stockIndex: 0,
@@ -428,6 +434,7 @@
         }
     }
 
+    /* 차트 초기화 (Y축 고정 및 안정된 그리드 설정) */
     function initChart() {
         const ctx = document.getElementById('stockHistoryChart').getContext('2d');
         stockChart = new Chart(ctx, {
@@ -439,11 +446,11 @@
                     data: [],
                     borderColor: '#dc2626',
                     borderWidth: 2.5,
-                    pointRadius: 2,
+                    pointRadius: 3,
                     pointHoverRadius: 6,
                     pointBackgroundColor: '#dc2626',
                     fill: true,
-                    tension: 0
+                    tension: 0.1
                 }]
             },
             options: {
@@ -615,6 +622,7 @@
         alert(newState ? "주가 변동이 일시 중지(얼림) 되었습니다." : "주가 변동이 재개되었습니다.");
     }
 
+    /* 차트 렌더링 (Y축 고정 및 그리드 이동 방지 적용) */
     function renderStockChart() {
         const selectEl = document.getElementById('chart-stock-select');
         const selectedStockId = selectEl.value || Object.keys(stockDataMap)[0];
@@ -635,12 +643,20 @@
         gradient.addColorStop(0, isUp ? 'rgba(220, 38, 38, 0.25)' : 'rgba(37, 99, 235, 0.25)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
 
+        // Y축 고정 스케일 계산 (기초 주가 기준 ±35% 고정하여 눈금 요동 방지)
+        const initialPrice = stock.initialPrice || stock.currentPrice;
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
-        const margin = Math.max((maxPrice - minPrice) * 0.15, 500);
 
-        stockChart.options.scales.y.min = Math.floor(minPrice - margin);
-        stockChart.options.scales.y.max = Math.ceil(maxPrice + margin);
+        // 기본 범위: 최초가의 ±35% 고정, 단 주가가 이 범위를 넘어설 경우 자동 확장
+        let yMin = Math.round(initialPrice * 0.65);
+        let yMax = Math.round(initialPrice * 1.35);
+
+        if (minPrice < yMin) yMin = Math.round(minPrice * 0.9);
+        if (maxPrice > yMax) yMax = Math.round(maxPrice * 1.1);
+
+        stockChart.options.scales.y.min = yMin;
+        stockChart.options.scales.y.max = yMax;
 
         stockChart.data.labels = labels;
         stockChart.data.datasets[0].data = prices;
@@ -668,7 +684,6 @@
         alert("주가가 원복되었습니다.");
     }
 
-    /* 5번 수정사항: 최대매수 / 최대매도 즉시 구매/판매 처리 */
     async function directMaxBuy(stockId) {
         if (!stockDataMap[stockId]) return;
         const price = stockDataMap[stockId].currentPrice;
@@ -850,13 +865,8 @@
     }
 
     function startLoops() {
-        /* 4번 수정사항: 주가 변동속도 10초(서킷브레이커)로 설정 */
         setInterval(() => triggerStockPriceChangeNow(), 10000);
-
-        /* 3번 수정사항: AI 뉴스 주기를 3분(180초)으로 단축 */
         setInterval(() => triggerAINewsNow(), 180000);
-
-        /* 6번 수정사항: 긴급 속보 이벤트 약 15분(900초) 주기 발령 */
         setInterval(() => triggerBreakingNewsNow(), 900000);
     }
 
@@ -938,7 +948,7 @@
 
         for (let sId of stockKeys) {
             const stock = stockDataMap[sId];
-            let randomDelta = (Math.random() * 0.04) - 0.02; // 일반 변동폭 2% 수준
+            let randomDelta = (Math.random() * 0.04) - 0.02;
             let newPrice = Math.round(stock.currentPrice * (1 + randomDelta));
             if (newPrice < 1000) newPrice = 1000;
 
@@ -953,7 +963,6 @@
         }
     }
 
-    /* 3번 수정사항: 뉴스 영향력 대폭 확대 */
     async function triggerAINewsNow() {
         const stockKeys = Object.keys(stockDataMap);
         if (stockKeys.length === 0) return;
@@ -967,7 +976,7 @@
 
         if (!isStocksFrozen && targetStockId && stockDataMap[targetStockId]) {
             const stock = stockDataMap[targetStockId];
-            let impactFactor = baseNews.impact * (0.9 + Math.random() * 0.2); // 크게 주가 반영
+            let impactFactor = baseNews.impact * (0.9 + Math.random() * 0.2);
 
             let newPrice = Math.round(stock.currentPrice * (1 + impactFactor));
             if (newPrice < 1000) newPrice = 1000;
@@ -991,7 +1000,6 @@
         });
     }
 
-    /* 6번 수정사항: 긴급 속보 이벤트 */
     async function triggerBreakingNewsNow() {
         const event = BREAKING_NEWS_POOL[Math.floor(Math.random() * BREAKING_NEWS_POOL.length)];
         const targetStockId = PRESET_STOCKS[event.stockIndex].id;
@@ -1012,7 +1020,6 @@
             });
         }
 
-        // 긴급 속보 배너 화면 노출
         document.getElementById('breaking-stock-name').innerText = stockName;
         document.getElementById('breaking-news-title').innerText = event.title;
         document.getElementById('breaking-news-area').classList.remove('hidden');
