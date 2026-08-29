@@ -19,7 +19,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-color); color: #1e293b; padding: 20px; }
 
-        /* 긴급 속보 패널 (안전안내문자 스타일) */
+        /* 긴급 속보 패널 */
         .breaking-news-banner {
             background: linear-gradient(135deg, #dc2626, #b91c1c);
             color: white;
@@ -57,9 +57,9 @@
         /* 대시보드 그리드 레이아웃 */
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
         .card { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 
-        /* 차트 전용 카드 스타일 (가로폭 조정) */
+        /* 차트 카드 영역 */
         .chart-card-wrapper { grid-column: 1 / -1; display: flex; justify-content: center; }
         .chart-card { width: 100%; max-width: 850px; }
 
@@ -92,15 +92,15 @@
 
         .trade-input { width: 45px; text-align: center; padding: 5px; border: 1px solid var(--border); border-radius: 6px; }
 
-        /* 뉴스 피드 */
-        .news-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        /* 뉴스 피드 높이 조정 */
+        .news-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .news-item-container { background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding-right: 12px; }
-        .news-item-title { padding: 12px 16px; flex-grow: 1; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .news-item-title { padding: 10px 14px; flex-grow: 1; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
         .news-item-title:hover { background: #e2e8f0; border-radius: 8px; }
         .news-tag { font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #2563eb; color: white; margin-right: 8px; }
         .news-time { font-size: 0.75rem; color: #94a3b8; }
 
-        /* AI 조종판 (어드민 전용) */
+        /* AI 조종판 (어드민) */
         .ai-control-panel { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
         .ai-control-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
         .ai-control-btn.freeze { background: #0284c7; }
@@ -108,17 +108,33 @@
         .ai-control-btn.warning { background: #d97706; }
         .ai-control-btn.danger { background: #ef4444; }
 
-        /* 숨김 처리 */
         .hidden { display: none !important; }
 
-        /* 차트 셀렉트 박스 */
-        .chart-select { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
+        /* 차트 셀렉트 옵션 바 */
+        .chart-controls { display: flex; gap: 8px; align-items: center; }
+        .chart-select { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
         .chart-container { position: relative; height: 350px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
+
+        /* 랭킹 접기/펼치기 버튼 */
+        .toggle-rank-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 8px;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-rank-btn:hover { background: #e2e8f0; }
     </style>
 </head>
 <body>
 
-<!-- 로그인 / 계정 생성 모달 -->
+<!-- 로그인 모달 -->
 <div id="login-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>📈 AI 모의 주식 투자</h2>
@@ -129,7 +145,7 @@
     </div>
 </div>
 
-<!-- 뉴스 상세보기 모달 -->
+<!-- 뉴스 모달 -->
 <div id="news-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;" id="modal-news-tag">관련종목 / 타임스탬프</div>
@@ -139,7 +155,7 @@
     </div>
 </div>
 
-<!-- 관리자용 계정 상세정보 조회 모달 -->
+<!-- 사용자 상세 모달 -->
 <div id="user-info-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h2 id="info-modal-title">🔍 계정 상세 정보</h2>
@@ -148,10 +164,10 @@
     </div>
 </div>
 
-<!-- 긴급 속보 팝업 (이벤트 시 실시간 노출) -->
+<!-- 긴급 속보 팝업 -->
 <div id="breaking-news-area" class="breaking-news-banner hidden">
     <div>
-        <div class="breaking-title">🚨 [긴급 속보 이벤트 발현] <span id="breaking-stock-name"></span></div>
+        <div class="breaking-title">🚨 [긴급 속보 이벤트] <span id="breaking-stock-name"></span></div>
         <div class="breaking-body" id="breaking-news-title"></div>
     </div>
     <button onclick="document.getElementById('breaking-news-area').classList.add('hidden')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">닫기</button>
@@ -164,24 +180,30 @@
     </div>
 </header>
 
-<!-- 어드민 전용 컨트롤 패널 -->
+<!-- 어드민 컨트롤 패널 -->
 <div id="admin-panel" class="ai-control-panel hidden">
     <div>
-        👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 변동 주기: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span> (서킷브레이커: 10초)</strong>
+        👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 변동: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span></strong>
     </div>
     <div>
-        <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()">🧊 주가 얼리기 (일시정지)</button>
+        <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()">🧊 주가 얼리기</button>
         <button class="ai-control-btn" onclick="adminTriggerStock()">📈 즉시 주가 변동</button>
         <button class="ai-control-btn warning" onclick="adminResetStockPrices()">📉 주가 초기화</button>
-        <button class="ai-control-btn" onclick="adminTriggerNews()">📰 즉시 AI 뉴스 생성 (3분 주기)</button>
-        <button class="ai-control-btn danger" onclick="adminTriggerBreakingNews()">🚨 긴급 속보 강제 발령</button>
-        <button class="ai-control-btn warning" onclick="adminResetAllUserAssets()">💰 전체 유저 자산 초기화</button>
-        <button class="ai-control-btn danger" onclick="adminDeleteAllUsers()">🧹 전체 유저 계정 삭제</button>
+        <button class="ai-control-btn" onclick="adminTriggerNews()">📰 AI 뉴스 생성</button>
+        <button class="ai-control-btn danger" onclick="adminTriggerBreakingNews()">🚨 속보 발령</button>
+        <button class="ai-control-btn warning" onclick="adminResetAllUserAssets()">💰 자산 초기화</button>
+        <button class="ai-control-btn danger" onclick="adminDeleteAllUsers()">🧹 계정 삭제</button>
     </div>
 </div>
 
 <div class="dashboard">
-    <!-- 자산 요약 -->
+    <!-- 1. AI 실시간 속보 헤드라인 -->
+    <div class="card" style="grid-column: 1 / -1;">
+        <h2>📰 실시간 뉴스 및 시장 이슈 (클릭하여 전체 읽기)</h2>
+        <div class="news-list" id="ai-news-feed"></div>
+    </div>
+
+    <!-- 2. 내 투자 요약 & 실시간 자산 Status -->
     <div class="card" style="grid-column: 1 / -1;">
         <h2>내 투자 요약 & 실시간 자산 Status</h2>
         <div class="asset-summary">
@@ -192,13 +214,18 @@
         </div>
     </div>
 
-    <!-- 실시간 주가 차트 (가로폭 조정 및 Y축 그리드 고정) -->
+    <!-- 3. 실시간 주가 차트 -->
     <div class="chart-card-wrapper">
         <div class="card chart-card">
             <h2>
-                <span>📉 실시간 거래소 주가 변동 차트</span>
-                <select id="chart-stock-select" class="chart-select" onchange="renderStockChart()">
-                </select>
+                <span>📉 실시간 거래소 주가 차트</span>
+                <div class="chart-controls">
+                    <select id="chart-stock-select" class="chart-select" onchange="renderStockChart()"></select>
+                    <select id="chart-type-select" class="chart-select" onchange="changeChartType()">
+                        <option value="line">📈 꺾은선 그래프</option>
+                        <option value="bar">📊 막대 그래프</option>
+                    </select>
+                </div>
             </h2>
             <div class="chart-container">
                 <canvas id="stockHistoryChart"></canvas>
@@ -240,7 +267,7 @@
         </table>
     </div>
 
-    <!-- 실시간 투자자 순위표 -->
+    <!-- 투자자 랭킹 (1~5위 기본 / 전체보기 지원) -->
     <div class="card">
         <h2>🏆 전체 투자자 자산/수익률 랭킹</h2>
         <table>
@@ -255,12 +282,8 @@
             </thead>
             <tbody id="leaderboard-list"></tbody>
         </table>
-    </div>
-
-    <!-- AI 실시간 속보 헤드라인 -->
-    <div class="card" style="grid-column: 1 / -1;">
-        <h2>📰 실시간 뉴스 및 시장 헤드라인 (3분 주기 업데이트 / 클릭하여 읽기)</h2>
-        <div class="news-list" id="ai-news-feed"></div>
+        <!-- 랭킹 전체보기/접기 버튼 추가 -->
+        <button id="toggle-rank-btn" class="toggle-rank-btn hidden" onclick="toggleLeaderboardExpand()">🔍 전체보기 (TOP 5 보는 중)</button>
     </div>
 </div>
 
@@ -298,67 +321,25 @@
     let stockHistoryMap = {};
     let stockChart = null;
     let isStocksFrozen = false;
+    let currentChartType = 'line';
+    let isLoopStarted = false;
+    
+    /* 랭킹 전체보기 상태 플래그 */
+    let isLeaderboardExpanded = false;
 
-    // 뉴스 풀
     const AI_NEWS_POOL = [
-        { 
-            stockIndex: 0, 
-            impact: 0.18, 
-            title: "[단독] 삼성전자, 차세대 반도체 글로벌 빅테크와 50조원 대규모 수주 계약", 
-            content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 반도체 공급 계약을 체결했습니다. 시장에서는 향후 수년간 안정적인 실적 모멘텀을 확보했다고 평가합니다." 
-        },
-        { 
-            stockIndex: 0, 
-            impact: -0.15, 
-            title: "삼성전자, 주요 파운드리 생산라인 수율 악화 악재 발생... 주가 비상", 
-            content: "선단 공정 수율 하락 이슈가 불거지며 핵심 고객사의 물량이 경쟁사로 이탈할 수 있다는 전망이 우세해지고 있습니다." 
-        },
-        { 
-            stockIndex: 1, 
-            impact: 0.20, 
-            title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", 
-            content: "현대자동차가 북미 및 유럽 시장에서 폭발적인 판매 성장을 기록하며 주요 해외 증권가 목표주가가 대폭 상향 조정되었습니다." 
-        },
-        { 
-            stockIndex: 2, 
-            impact: 0.22, 
-            title: "[속보] SK하이닉스, 차세대 HBM4 세계 최초 독점 양산 공급 성공", 
-            content: "AI 반도체 메모리 분야의 압도적 1위 위치를 다지는 대형 계약 성공으로 분기 실적 급증이 확실시되고 있습니다." 
-        },
-        { 
-            stockIndex: 3, 
-            impact: -0.18, 
-            title: "카카오, 정부 강도 높은 독과점 및 금융 규제안 최종 가결 소식", 
-            content: "핵심 수익원 서비스들에 대한 정부 규제 법안이 본회의를 통과하면서 플랫폼 사업의 단기 수익성 악화 우려가 확산되고 있습니다." 
-        },
-        { 
-            stockIndex: 4, 
-            impact: 0.25, 
-            title: "에코프로, 핵심 2차전지 양극재 원자재 북미 대형 광산 독점권 확보", 
-            content: "배터리 원가 절감 및 생산능력 확대를 이끌 초대형 공급망 확보에 성공하며 주식 시장의 모든 자금이 집중되고 있습니다." 
-        }
+        { stockIndex: 0, impact: 0.18, title: "[단독] 삼성전자, 차세대 반도체 글로벌 빅테크와 50조원 대규모 수주 계약", content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 반도체 공급 계약을 체결했습니다." },
+        { stockIndex: 0, impact: -0.15, title: "삼성전자, 주요 파운드리 생산라인 수율 악화 악재 발생... 주가 비상", content: "선단 공정 수율 하락 이슈가 불거지며 핵심 고객사의 물량이 경쟁사로 이탈할 수 있다는 전망이 우세해지고 있습니다." },
+        { stockIndex: 1, impact: 0.20, title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", content: "현대자동차가 북미 및 유럽 시장에서 폭발적인 판매 성장을 기록하며 주요 해외 증권가 목표주가가 대폭 상향 조정되었습니다." },
+        { stockIndex: 2, impact: 0.22, title: "[속보] SK하이닉스, 차세대 HBM4 세계 최초 독점 양산 공급 성공", content: "AI 반도체 메모리 분야의 압도적 1위 위치를 다지는 대형 계약 성공으로 분기 실적 급증이 확실시되고 있습니다." },
+        { stockIndex: 3, impact: -0.18, title: "카카오, 정부 강도 높은 독과점 및 금융 규제안 최종 가결 소식", content: "핵심 수익원 서비스들에 대한 정부 규제 법안이 본회의를 통과하면서 플랫폼 사업의 단기 수익성 악화 우려가 확산되고 있습니다." },
+        { stockIndex: 4, impact: 0.25, title: "에코프로, 핵심 2차전지 양극재 원자재 북미 대형 광산 독점권 확보", content: "배터리 원가 절감 및 생산능력 확대를 이끌 초대형 공급망 확보에 성공하며 주식 시장의 모든 자금이 집중되고 있습니다." }
     ];
 
-    // 긴급 속보 이벤트 풀
     const BREAKING_NEWS_POOL = [
-        {
-            stockIndex: 0,
-            impact: 0.35,
-            title: "💥 [초대형 호재] 삼성전자, 차세대 AI 반도체 혁신 기술 세계 최초 상용화 성공!",
-            content: "전 세계 IT 업계를 뒤흔들 혁신적인 초저전력 반도체 설계에 성공하여 주가가 폭발적 폭등세를 보이고 있습니다."
-        },
-        {
-            stockIndex: 2,
-            impact: 0.32,
-            title: "🔥 [대형 속보] SK하이닉스, 세계 최대 AI 기업과 전략적 지분 인수 합작 발표",
-            content: "글로벌 대형 AI 기업과의 전격 합작 발표로 주식 시장에서 매수 잔량이 폭주하고 있습니다."
-        },
-        {
-            stockIndex: 3,
-            impact: -0.30,
-            title: "⚠️ [국가 비상] 카카오 서버 데이터센터 전면 마비 사태 발생",
-            content: "전국 서비스가 전면 중단되는 사태가 발생하여 투자심리가 급격히 냉각되고 투매 물량이 쏟아지고 있습니다."
-        }
+        { stockIndex: 0, impact: 0.35, title: "💥 [초대형 호재] 삼성전자, 차세대 AI 반도체 혁신 기술 세계 최초 상용화 성공!", content: "전 세계 IT 업계를 뒤흔들 혁신적인 초저전력 반도체 설계에 성공하여 주가가 폭발적 폭등세를 보이고 있습니다." },
+        { stockIndex: 2, impact: 0.32, title: "🔥 [대형 속보] SK하이닉스, 세계 최대 AI 기업과 전략적 지분 인수 합작 발표", content: "글로벌 대형 AI 기업과의 전격 합작 발표로 주식 시장에서 매수 잔량이 폭주하고 있습니다." },
+        { stockIndex: 3, impact: -0.30, title: "⚠️ [국가 비상] 카카오 서버 데이터센터 전면 마비 사태 발생", content: "전국 서비스가 전면 중단되는 사태가 발생하여 투자심리가 급격히 냉각되고 투매 물량이 쏟아지고 있습니다." }
     ];
 
     async function login() {
@@ -371,9 +352,7 @@
         await ensurePresetStocks();
         await ensureSystemSettings();
 
-        if (password === ADMIN_PASSWORD) {
-            isAdmin = true;
-        }
+        if (password === ADMIN_PASSWORD) isAdmin = true;
 
         const userRef = db.collection('users').doc(userId);
         const doc = await userRef.get();
@@ -390,9 +369,7 @@
             alert(`'${name}' 님의 계정이 정상 생성되었습니다.`);
         } else {
             const userData = doc.data();
-            if (userData.password !== password && !isAdmin) {
-                return alert("비밀번호가 일치하지 않습니다.");
-            }
+            if (userData.password !== password && !isAdmin) return alert("비밀번호가 일치하지 않습니다.");
         }
 
         document.getElementById('login-modal').style.display = 'none';
@@ -429,26 +406,22 @@
     async function ensureSystemSettings() {
         const sysRef = db.collection('system').doc('config');
         const doc = await sysRef.get();
-        if (!doc.exists) {
-            await sysRef.set({ isFrozen: false });
-        }
+        if (!doc.exists) await sysRef.set({ isFrozen: false });
     }
 
-    /* 차트 초기화 (Y축 고정 및 안정된 그리드 설정) */
     function initChart() {
         const ctx = document.getElementById('stockHistoryChart').getContext('2d');
         stockChart = new Chart(ctx, {
-            type: 'line',
+            type: currentChartType,
             data: {
                 labels: [],
                 datasets: [{
                     label: '현재 주가',
                     data: [],
                     borderColor: '#dc2626',
-                    borderWidth: 2.5,
+                    backgroundColor: '#dc2626',
+                    borderWidth: 2,
                     pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#dc2626',
                     fill: true,
                     tension: 0.1
                 }]
@@ -475,12 +448,68 @@
                         backgroundColor: '#0f172a',
                         displayColors: false,
                         callbacks: {
-                            label: function(context) { return ` 주가: ${context.parsed.y.toLocaleString()} 원`; }
+                            label: context => ` 주가: ${context.parsed.y.toLocaleString()} 원`
                         }
                     }
                 }
             }
         });
+    }
+
+    function changeChartType() {
+        const select = document.getElementById('chart-type-select');
+        currentChartType = select.value;
+        if (stockChart) stockChart.destroy();
+        initChart();
+        renderStockChart();
+    }
+
+    function renderStockChart() {
+        const selectEl = document.getElementById('chart-stock-select');
+        const selectedStockId = selectEl.value || Object.keys(stockDataMap)[0];
+
+        if (!selectedStockId || !stockHistoryMap[selectedStockId]) return;
+
+        const historyData = stockHistoryMap[selectedStockId];
+        const labels = historyData.map(h => h.time);
+        const prices = historyData.map(h => h.price);
+
+        const stock = stockDataMap[selectedStockId];
+        const isUp = stock && stock.changeRate >= 0;
+
+        const themeColor = isUp ? '#dc2626' : '#2563eb';
+        const ctx = document.getElementById('stockHistoryChart').getContext('2d');
+        
+        let bgStyle;
+        if (currentChartType === 'line') {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, isUp ? 'rgba(220, 38, 38, 0.3)' : 'rgba(37, 99, 235, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+            bgStyle = gradient;
+        } else {
+            bgStyle = isUp ? 'rgba(220, 38, 38, 0.75)' : 'rgba(37, 99, 235, 0.75)';
+        }
+
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        const currMin = stockChart.options.scales.y.min;
+        const currMax = stockChart.options.scales.y.max;
+
+        if (currMin === undefined || currMax === undefined || minPrice <= currMin || maxPrice >= currMax) {
+            const range = Math.max(maxPrice - minPrice, prices[0] * 0.05);
+            const padding = range * 0.15;
+            
+            stockChart.options.scales.y.min = Math.floor((minPrice - padding) / 100) * 100;
+            stockChart.options.scales.y.max = Math.ceil((maxPrice + padding) / 100) * 100;
+        }
+
+        stockChart.data.labels = labels;
+        stockChart.data.datasets[0].data = prices;
+        stockChart.data.datasets[0].borderColor = themeColor;
+        stockChart.data.datasets[0].pointBackgroundColor = themeColor;
+        stockChart.data.datasets[0].backgroundColor = bgStyle;
+
+        stockChart.update('none');
     }
 
     function initRealtimeData() {
@@ -550,17 +579,13 @@
         });
 
         db.collection('users').doc(userId).onSnapshot(doc => {
-            if (doc.exists) {
-                currentUser = doc.data();
-            }
+            if (doc.exists) currentUser = doc.data();
             updateUserUI();
         });
 
         db.collection('users').onSnapshot(snapshot => {
             allUsersData = [];
-            snapshot.forEach(doc => {
-                allUsersData.push({ id: doc.id, ...doc.data() });
-            });
+            snapshot.forEach(doc => allUsersData.push({ id: doc.id, ...doc.data() }));
             updateLeaderboard();
         });
 
@@ -603,14 +628,14 @@
         const btnEl = document.getElementById('freeze-toggle-btn');
 
         if (isStocksFrozen) {
-            textEl.innerText = '[🧊 주가 얼림(일시정지 중)]';
+            textEl.innerText = '[🧊 주가 얼림(일시정지)]';
             textEl.style.color = '#dc2626';
-            btnEl.innerText = '🔥 주가 얼리기 해제 (재개)';
+            btnEl.innerText = '🔥 얼리기 해제';
             btnEl.className = 'ai-control-btn unfreeze';
         } else {
             textEl.innerText = '[실시간 변동 중]';
             textEl.style.color = '#059669';
-            btnEl.innerText = '🧊 주가 얼리기 (일시정지)';
+            btnEl.innerText = '🧊 주가 얼리기';
             btnEl.className = 'ai-control-btn freeze';
         }
     }
@@ -619,52 +644,6 @@
         if (!isAdmin) return;
         const newState = !isStocksFrozen;
         await db.collection('system').doc('config').set({ isFrozen: newState }, { merge: true });
-        alert(newState ? "주가 변동이 일시 중지(얼림) 되었습니다." : "주가 변동이 재개되었습니다.");
-    }
-
-    /* 차트 렌더링 (Y축 고정 및 그리드 이동 방지 적용) */
-    function renderStockChart() {
-        const selectEl = document.getElementById('chart-stock-select');
-        const selectedStockId = selectEl.value || Object.keys(stockDataMap)[0];
-
-        if (!selectedStockId || !stockHistoryMap[selectedStockId]) return;
-
-        const historyData = stockHistoryMap[selectedStockId];
-        const labels = historyData.map(h => h.time);
-        const prices = historyData.map(h => h.price);
-
-        const stock = stockDataMap[selectedStockId];
-        const isUp = stock && stock.changeRate >= 0;
-
-        const mainColor = isUp ? '#dc2626' : '#2563eb';
-        const ctx = document.getElementById('stockHistoryChart').getContext('2d');
-        
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, isUp ? 'rgba(220, 38, 38, 0.25)' : 'rgba(37, 99, 235, 0.25)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-
-        // Y축 고정 스케일 계산 (기초 주가 기준 ±35% 고정하여 눈금 요동 방지)
-        const initialPrice = stock.initialPrice || stock.currentPrice;
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
-
-        // 기본 범위: 최초가의 ±35% 고정, 단 주가가 이 범위를 넘어설 경우 자동 확장
-        let yMin = Math.round(initialPrice * 0.65);
-        let yMax = Math.round(initialPrice * 1.35);
-
-        if (minPrice < yMin) yMin = Math.round(minPrice * 0.9);
-        if (maxPrice > yMax) yMax = Math.round(maxPrice * 1.1);
-
-        stockChart.options.scales.y.min = yMin;
-        stockChart.options.scales.y.max = yMax;
-
-        stockChart.data.labels = labels;
-        stockChart.data.datasets[0].data = prices;
-        stockChart.data.datasets[0].borderColor = mainColor;
-        stockChart.data.datasets[0].pointBackgroundColor = mainColor;
-        stockChart.data.datasets[0].backgroundColor = gradient;
-
-        stockChart.update('none');
     }
 
     async function adminResetStockPrices() {
@@ -681,7 +660,7 @@
             stockHistoryMap[stock.id] = [{ time: new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), price: stock.initialPrice }];
         }
         await batch.commit();
-        alert("주가가 원복되었습니다.");
+        alert("주가가 초기화되었습니다.");
     }
 
     async function directMaxBuy(stockId) {
@@ -690,7 +669,7 @@
         const maxQty = Math.floor(currentUser.balance / price);
         
         if (maxQty <= 0) return alert("매수 가능한 예수금이 부족합니다!");
-        if (confirm(`현재 잔액으로 구매 가능한 최대 수량(${maxQty}주)을 즉시 매수하시겠습니까?`)) {
+        if (confirm(`최대 수량(${maxQty}주)을 매수하시겠습니까?`)) {
             await executeTrade(stockId, maxQty, 'BUY');
         }
     }
@@ -700,7 +679,7 @@
         const myQty = holdings[stockId] || 0;
         
         if (myQty <= 0) return alert("보유한 주식이 없습니다!");
-        if (confirm(`보유한 전량(${myQty}주)을 즉시 매도하시겠습니까?`)) {
+        if (confirm(`보유한 전량(${myQty}주)을 매도하시겠습니까?`)) {
             await executeTrade(stockId, myQty, 'SELL');
         }
     }
@@ -761,13 +740,22 @@
         totalProfitEl.className = `val ${totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '')}`;
     }
 
+    /* 랭킹 전체보기 토글 함수 */
+    function toggleLeaderboardExpand() {
+        isLeaderboardExpanded = !isLeaderboardExpanded;
+        updateLeaderboard();
+    }
+
+    /* 랭킹 렌더링 (1~5위 기본 / 전체보기 제어 적용) */
     function updateLeaderboard() {
         const leaderboardList = document.getElementById('leaderboard-list');
+        const toggleBtn = document.getElementById('toggle-rank-btn');
         leaderboardList.innerHTML = '';
 
         if (allUsersData.length === 0) {
             document.getElementById('my-rank-display').innerText = `- 위`;
             leaderboardList.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="color: #94a3b8;">등록된 투자자가 없습니다.</td></tr>`;
+            toggleBtn.classList.add('hidden');
             return;
         }
 
@@ -792,8 +780,24 @@
 
         let myFound = false;
 
-        rankedUsers.forEach((u, index) => {
-            const rank = index + 1;
+        // 전체유저가 5명 초과일 때만 버튼 노출
+        if (rankedUsers.length > 5) {
+            toggleBtn.classList.remove('hidden');
+            if (isLeaderboardExpanded) {
+                toggleBtn.innerText = `🔼 상위 5위만 보기 (전체 ${rankedUsers.length}명 표시 중)`;
+            } else {
+                toggleBtn.innerText = `🔍 전체 랭킹 보기 (전체 ${rankedUsers.length}명)`;
+            }
+        } else {
+            toggleBtn.classList.add('hidden');
+        }
+
+        // 전체보기 모드이면 전체 출력, 아닐 경우 상위 5명만 잘라서 출력
+        const displayUsers = isLeaderboardExpanded ? rankedUsers : rankedUsers.slice(0, 5);
+
+        displayUsers.forEach((u) => {
+            // 원본 배열 전체에서 순위 산출
+            const rank = rankedUsers.findIndex(item => item.id === u.id) + 1;
             const isMe = u.id === userId;
             const colorClass = u.profitRate > 0 ? 'text-profit' : (u.profitRate < 0 ? 'text-loss' : '');
 
@@ -822,7 +826,14 @@
                 </tr>`;
         });
 
-        if (!myFound) document.getElementById('my-rank-display').innerText = `- 위`;
+        if (!myFound) {
+            const myIndex = rankedUsers.findIndex(u => u.id === userId);
+            if (myIndex !== -1) {
+                document.getElementById('my-rank-display').innerText = `${myIndex + 1} 위 / ${rankedUsers.length} 명`;
+            } else {
+                document.getElementById('my-rank-display').innerText = `- 위`;
+            }
+        }
     }
 
     async function tradeStock(stockId, type) {
@@ -865,6 +876,9 @@
     }
 
     function startLoops() {
+        if (isLoopStarted) return;
+        isLoopStarted = true;
+
         setInterval(() => triggerStockPriceChangeNow(), 10000);
         setInterval(() => triggerAINewsNow(), 180000);
         setInterval(() => triggerBreakingNewsNow(), 900000);
@@ -914,7 +928,7 @@
     }
 
     async function adminResetAllUserAssets() {
-        if (isAdmin && confirm("⚠️ 모든 참가자의 자산을 1,000만원으로 일괄 초기화하시겠습니까?")) {
+        if (isAdmin && confirm("⚠️ 모든 참가자의 자산을 초기화하시겠습니까?")) {
             const snapshot = await db.collection('users').get();
             const batch = db.batch();
             snapshot.forEach(doc => batch.update(doc.ref, { balance: 10000000, holdings: {}, buyPrices: {} }));
@@ -931,7 +945,7 @@
     }
 
     async function adminDeleteAllUsers() {
-        if (isAdmin && confirm("⚠️ 전체 유저 계정을 완전히 삭제하시겠습니까?")) {
+        if (isAdmin && confirm("⚠️ 전체 유저 계정을 삭제하시겠습니까?")) {
             const snapshot = await db.collection('users').get();
             const batch = db.batch();
             snapshot.forEach(doc => batch.delete(doc.ref));
