@@ -119,7 +119,7 @@
         .chart-select { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
         .chart-container { position: relative; height: 350px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
 
-        .toggle-rank-btn {
+        .toggle-expand-btn {
             width: 100%;
             margin-top: 12px;
             padding: 8px;
@@ -132,7 +132,7 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .toggle-rank-btn:hover { background: #e2e8f0; }
+        .toggle-expand-btn:hover { background: #e2e8f0; }
     </style>
 </head>
 <body>
@@ -237,7 +237,7 @@
         </div>
     </div>
 
-    <!-- 주식 시장 -->
+    <!-- 주식 시장 (내 보유 상위 종목 우선 정렬, 상위 5개 표시) -->
     <div class="card">
         <h2>📊 AI 주식 시장 (10초마다 변동)</h2>
         <table>
@@ -252,6 +252,7 @@
             </thead>
             <tbody id="stock-market-list"></tbody>
         </table>
+        <button id="toggle-market-btn" class="toggle-expand-btn hidden" onclick="toggleMarketExpand()">🔍 더보기 (TOP 5 보는 중)</button>
     </div>
 
     <!-- 내 포트폴리오 (최대 보유 수량순 정렬) -->
@@ -286,7 +287,7 @@
             </thead>
             <tbody id="leaderboard-list"></tbody>
         </table>
-        <button id="toggle-rank-btn" class="toggle-rank-btn hidden" onclick="toggleLeaderboardExpand()">🔍 전체보기 (TOP 5 보는 중)</button>
+        <button id="toggle-rank-btn" class="toggle-expand-btn hidden" onclick="toggleLeaderboardExpand()">🔍 전체보기 (TOP 5 보는 중)</button>
     </div>
 </div>
 
@@ -307,9 +308,10 @@
 
     const ADMIN_PASSWORD = "eerf";
 
-    // 엔터테인먼트 기업(하이브, JYP, SM) 포함 사전 설정 종목
+    // SK하이닉스(s12) 포함 사전 설정 종목 목록
     const PRESET_STOCKS = [
         { id: "s1", name: "삼성전자", category: "IT/반도체", currentPrice: 72000, initialPrice: 72000, changeRate: 0, lastImpact: 0 },
+        { id: "s12", name: "SK하이닉스", category: "IT/반도체", currentPrice: 175000, initialPrice: 175000, changeRate: 0, lastImpact: 0 },
         { id: "s2", name: "카카오", category: "플랫폼", currentPrice: 52000, initialPrice: 52000, changeRate: 0, lastImpact: 0 },
         { id: "s3", name: "CJ제일제당", category: "식품/바이오", currentPrice: 310000, initialPrice: 310000, changeRate: 0, lastImpact: 0 },
         { id: "s4", name: "삼성바이오로직스", category: "의약/제약", currentPrice: 780000, initialPrice: 780000, changeRate: 0, lastImpact: 0 },
@@ -333,8 +335,9 @@
     let isStocksFrozen = false;
     let currentChartType = 'line';
     let isLeaderboardExpanded = false;
+    let isMarketExpanded = false;
 
-    // 안전한 싱글톤 타이머 관리
+    // 타이머 객체
     let stockIntervalTimer = null;
     let aiNewsIntervalTimer = null;
     let breakingNewsIntervalTimer = null;
@@ -345,6 +348,7 @@
 
     const AI_NEWS_POOL = [
         { stockId: "s1", impact: 0.18, title: "[단독] 삼성전자, 차세대 AI 반도체 글로벌 빅테크와 50조 대규모 수주 계약", content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 메모리 공급 계약을 체결했습니다." },
+        { stockId: "s12", impact: 0.22, title: "SK하이닉스, 차세대 HBM 메모리 수주 싹쓸이… 영업이익 급증 전망", content: "글로벌 AI 반도체 선도 기업들에 대한 차세대 고대역폭메모리(HBM) 독점 공급 계약 소식에 고성장 기대감이 증폭되고 있습니다." },
         { stockId: "s2", impact: 0.15, title: "카카오, 신규 인공지능 플랫폼 출시로 이용자 지표 폭발적 상승", content: "카카오의 고도화된 AI 서비스에 힘입어 신규 플랫폼 유입자 및 광고 매출이 대폭 늘어나고 있습니다." },
         { stockId: "s3", impact: 0.15, title: "CJ제일제당, K-푸드 글로벌 열풍에 북미 매출 사상 최대 달성", content: "해외 법인의 만두 및 냉동식품 판매량이 급증하여 영업이익이 전년 대비 대폭 증가했습니다." },
         { stockId: "s4", impact: 0.20, title: "삼성바이오로직스, 글로벌 빅파마와 1.5조원 규모 CMO 계약 체결", content: "세계적 제약사와의 초대형 바이오의약품 위탁생산 계약이 성사되어 공장 가동률이 최대치를 기록 중입니다." },
@@ -358,11 +362,11 @@
     ];
 
     const BREAKING_NEWS_POOL = [
+        { stockId: "s12", impact: 0.38, title: "💥 [초대형 속보] SK하이닉스, 차세대 HBM4 세계 최초 양산 돌입!", content: "글로벌 테크 거물과의 수십조 원 규모 장기 공급 계약이 확정되며 반도체 시장의 주도권을 완전히 가져왔습니다." },
         { stockId: "s9", impact: 0.35, title: "💥 [초대형 속보] 하이브, 글로벌 메이저 음반사와 사상 최대규모 유통 계약!", content: "북미/유럽 시장 전체를 커버하는 초대형 음반 유통 파트너십을 체결하며 폭발적인 성장세를 예약했습니다." },
         { stockId: "s8", impact: 0.35, title: "💥 [초대형 속보] 에코프로비엠, 글로벌 1위 전기차 기업과 20조 원 규모 원소재 공급 합작법인 설립!", content: "전 세계 모빌리티 시장을 선도하는 기업과의 대규모 협업으로 글로벌 배터리 생태계 주도권을 확보했습니다." },
         { stockId: "s4", impact: 0.30, title: "🔥 [대형 속보] 삼성바이오로직스, 획기적 신약 물질 임상 3상 완전 성공!", content: "난치성 질환 치료의 새 지평을 열 신약 물질의 임상 성공 소식에 주가가 급등세를 나타내고 있습니다." },
-        { stockId: "s1", impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." },
-        { stockId: "s10", impact: 0.28, title: "🚀 [속보] JYP Ent., 북미 현지 합작 법인 설립으로 글로벌 매출 극대화!", content: "세계 최대 음악 시장인 미국 현지 레이블과의 대규모 파트너십 체결 소식에 매수세가 몰리고 있습니다." }
+        { stockId: "s1", impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." }
     ];
 
     async function login() {
@@ -424,7 +428,7 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
         }
-        
+
         const snapshot = await db.collection('stocks').get();
         snapshot.forEach(doc => {
             const existsInPreset = PRESET_STOCKS.some(s => s.id === doc.id);
@@ -575,22 +579,9 @@
         });
 
         db.collection('stocks').onSnapshot(snapshot => {
-            const currentQtyMap = {};
-            snapshot.forEach(doc => {
-                const inputEl = document.getElementById(`trade-qty-${doc.id}`);
-                if (inputEl) currentQtyMap[doc.id] = inputEl.value;
-            });
-
-            stockDataMap = {};
-            const marketList = document.getElementById('stock-market-list');
-            marketList.innerHTML = '';
-
-            const chartSelect = document.getElementById('chart-stock-select');
-            const currentSelectedStock = chartSelect.value;
-            chartSelect.innerHTML = '';
-
             const nowTime = new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+            stockDataMap = {};
             snapshot.forEach(doc => {
                 const data = doc.data();
                 stockDataMap[doc.id] = data;
@@ -601,45 +592,20 @@
                     history.push({ time: nowTime, price: data.currentPrice });
                     if (history.length > 25) history.shift();
                 }
-
-                const option = document.createElement('option');
-                option.value = doc.id;
-                option.innerText = `[${data.category || '종목'}] ${data.name} (${data.currentPrice.toLocaleString()}원)`;
-                if (doc.id === currentSelectedStock) option.selected = true;
-                chartSelect.appendChild(option);
-
-                const rate = data.changeRate || 0;
-                const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
-                const savedQty = (currentQtyMap[doc.id] !== undefined && currentQtyMap[doc.id] !== "") ? currentQtyMap[doc.id] : 1;
-
-                marketList.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="stock-info-cell">
-                                <span class="stock-title">${data.name}</span>
-                                <span class="stock-category">${data.category || '기타'}</span>
-                            </div>
-                        </td>
-                        <td>${data.currentPrice.toLocaleString()}원</td>
-                        <td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td>
-                        <td><input type="number" id="trade-qty-${doc.id}" class="trade-input" value="${savedQty}" min="1"></td>
-                        <td>
-                            <button class="trade-btn btn-buy" onclick="tradeStock('${doc.id}', 'BUY')">매수</button>
-                            <button class="trade-btn btn-sell" onclick="tradeStock('${doc.id}', 'SELL')">매도</button>
-                            <button class="trade-btn btn-max-buy" onclick="directMaxBuy('${doc.id}')">전량매수</button>
-                            <button class="trade-btn btn-max-sell" onclick="directMaxSell('${doc.id}')">전량매도</button>
-                        </td>
-                    </tr>`;
             });
 
+            renderStockMarketList();
             renderStockChart();
             updateUserUI();
             updateLeaderboard();
         });
 
         db.collection('users').doc(userId).onSnapshot(doc => {
-            if (doc.exists) currentUser = doc.data();
-            updateUserUI();
+            if (doc.exists) {
+                currentUser = doc.data();
+                renderStockMarketList();
+                updateUserUI();
+            }
         });
 
         db.collection('users').onSnapshot(snapshot => {
@@ -679,6 +645,84 @@
                 newsItemContainer.appendChild(newsEl);
                 newsContainer.appendChild(newsItemContainer);
             });
+        });
+    }
+
+    function toggleMarketExpand() {
+        isMarketExpanded = !isMarketExpanded;
+        renderStockMarketList();
+    }
+
+    function renderStockMarketList() {
+        const currentQtyMap = {};
+        Object.keys(stockDataMap).forEach(sId => {
+            const inputEl = document.getElementById(`trade-qty-${sId}`);
+            if (inputEl) currentQtyMap[sId] = inputEl.value;
+        });
+
+        const marketList = document.getElementById('stock-market-list');
+        marketList.innerHTML = '';
+
+        const chartSelect = document.getElementById('chart-stock-select');
+        const currentSelectedStock = chartSelect.value;
+        chartSelect.innerHTML = '';
+
+        const myHoldings = (currentUser && currentUser.holdings) ? currentUser.holdings : {};
+
+        const sortedStockIds = Object.keys(stockDataMap).sort((a, b) => {
+            const qtyA = myHoldings[a] || 0;
+            const qtyB = myHoldings[b] || 0;
+            if (qtyB !== qtyA) return qtyB - qtyA; // 보유 수량이 큰 종목 상단 배치
+            return (stockDataMap[b].currentPrice * qtyB) - (stockDataMap[a].currentPrice * qtyA);
+        });
+
+        sortedStockIds.forEach(sId => {
+            const data = stockDataMap[sId];
+            const option = document.createElement('option');
+            option.value = sId;
+            option.innerText = `[${data.category || '종목'}] ${data.name} (${data.currentPrice.toLocaleString()}원)`;
+            if (sId === currentSelectedStock) option.selected = true;
+            chartSelect.appendChild(option);
+        });
+
+        const toggleMarketBtn = document.getElementById('toggle-market-btn');
+        if (sortedStockIds.length > 5) {
+            toggleMarketBtn.classList.remove('hidden');
+            if (isMarketExpanded) {
+                toggleMarketBtn.innerText = `🔼 접기 (전체 ${sortedStockIds.length}개 표시 중)`;
+            } else {
+                toggleMarketBtn.innerText = `🔍 더보기 (보유 상위 5개 표시 중 / 전체 ${sortedStockIds.length}개)`;
+            }
+        } else {
+            toggleMarketBtn.classList.add('hidden');
+        }
+
+        const displayStockIds = isMarketExpanded ? sortedStockIds : sortedStockIds.slice(0, 5);
+
+        displayStockIds.forEach(sId => {
+            const data = stockDataMap[sId];
+            const rate = data.changeRate || 0;
+            const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
+            const savedQty = (currentQtyMap[sId] !== undefined && currentQtyMap[sId] !== "") ? currentQtyMap[sId] : 1;
+
+            marketList.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="stock-info-cell">
+                            <span class="stock-title">${data.name}</span>
+                            <span class="stock-category">${data.category || '기타'}</span>
+                        </div>
+                    </td>
+                    <td>${data.currentPrice.toLocaleString()}원</td>
+                    <td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td>
+                    <td><input type="number" id="trade-qty-${sId}" class="trade-input" value="${savedQty}" min="1"></td>
+                    <td>
+                        <button class="trade-btn btn-buy" onclick="tradeStock('${sId}', 'BUY')">매수</button>
+                        <button class="trade-btn btn-sell" onclick="tradeStock('${sId}', 'SELL')">매도</button>
+                        <button class="trade-btn btn-max-buy" onclick="directMaxBuy('${sId}')">전량매수</button>
+                        <button class="trade-btn btn-max-sell" onclick="directMaxSell('${sId}')">전량매도</button>
+                    </td>
+                </tr>`;
         });
     }
 
@@ -726,13 +770,10 @@
         if (!isAdmin || !confirm("⚠️ 지금까지 발생한 모든 뉴스 데이터를 삭제하시겠습니까?")) return;
         try {
             const snapshot = await db.collection('news').get();
-            if (snapshot.empty) {
-                return alert("삭제할 뉴스가 없습니다.");
-            }
+            if (snapshot.empty) return alert("삭제할 뉴스가 없습니다.");
+
             const batch = db.batch();
-            snapshot.forEach(doc => {
-                batch.delete(doc.ref);
-            });
+            snapshot.forEach(doc => batch.delete(doc.ref));
             await batch.commit();
             
             document.getElementById('breaking-news-area').classList.add('hidden');
@@ -868,14 +909,12 @@
 
         rankedUsers.sort((a, b) => b.totalAsset - a.totalAsset);
 
-        let myFound = false;
-
         if (rankedUsers.length > 5) {
             toggleBtn.classList.remove('hidden');
             if (isLeaderboardExpanded) {
-                toggleBtn.innerText = `🔼 상위 5위만 보기 (전체 ${rankedUsers.length}명 표시 중)`;
+                toggleBtn.innerText = `🔼 접기 (전체 ${rankedUsers.length}명 표시 중)`;
             } else {
-                toggleBtn.innerText = `🔍 전체 랭킹 보기 (전체 ${rankedUsers.length}명)`;
+                toggleBtn.innerText = `🔍 전체 랭킹 보기 (상위 5명 표시 중 / 전체 ${rankedUsers.length}명)`;
             }
         } else {
             toggleBtn.classList.add('hidden');
@@ -908,13 +947,11 @@
                 </tr>`;
         });
 
-        if (!myFound) {
-            const myIndex = rankedUsers.findIndex(u => u.id === userId);
-            if (myIndex !== -1) {
-                document.getElementById('my-rank-display').innerText = `${myIndex + 1} 위 / ${rankedUsers.length} 명`;
-            } else {
-                document.getElementById('my-rank-display').innerText = `- 위`;
-            }
+        const myIndex = rankedUsers.findIndex(u => u.id === userId);
+        if (myIndex !== -1) {
+            document.getElementById('my-rank-display').innerText = `${myIndex + 1} 위 / ${rankedUsers.length} 명`;
+        } else {
+            document.getElementById('my-rank-display').innerText = `- 위`;
         }
     }
 
@@ -958,7 +995,6 @@
     }
 
     function startLoops() {
-        // 기존 실행 타이머 초기화 (연속 실행 방지)
         if (stockIntervalTimer) clearInterval(stockIntervalTimer);
         if (aiNewsIntervalTimer) clearInterval(aiNewsIntervalTimer);
         if (breakingNewsIntervalTimer) clearInterval(breakingNewsIntervalTimer);
@@ -1038,7 +1074,6 @@
         }
     }
 
-    // 주가 일괄 변경 (Batch 처리 적용으로 튀는 현상 제거)
     async function triggerStockPriceChangeNow(isForce = false) {
         if ((isStocksFrozen && !isForce) || isStockChanging) return;
 
