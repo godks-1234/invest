@@ -307,7 +307,7 @@
 
     const ADMIN_PASSWORD = "eerf";
 
-    // 에코프로 단일화 (에코프로비엠 하나로 통합 설정)
+    // 엔터테인먼트 기업(하이브, JYP, SM) 포함 사전 설정 종목
     const PRESET_STOCKS = [
         { id: "s1", name: "삼성전자", category: "IT/반도체", currentPrice: 72000, initialPrice: 72000, changeRate: 0, lastImpact: 0 },
         { id: "s2", name: "카카오", category: "플랫폼", currentPrice: 52000, initialPrice: 52000, changeRate: 0, lastImpact: 0 },
@@ -316,7 +316,10 @@
         { id: "s5", name: "현대차", category: "자동차", currentPrice: 240000, initialPrice: 240000, changeRate: 0, lastImpact: 0 },
         { id: "s6", name: "NAVER", category: "IT/플랫폼", currentPrice: 190000, initialPrice: 190000, changeRate: 0, lastImpact: 0 },
         { id: "s7", name: "유한양행", category: "의약/제약", currentPrice: 75000, initialPrice: 75000, changeRate: 0, lastImpact: 0 },
-        { id: "s8", name: "에코프로비엠", category: "2차전지 소재", currentPrice: 185000, initialPrice: 185000, changeRate: 0, lastImpact: 0 }
+        { id: "s8", name: "에코프로비엠", category: "2차전지 소재", currentPrice: 185000, initialPrice: 185000, changeRate: 0, lastImpact: 0 },
+        { id: "s9", name: "하이브", category: "엔터테인먼트", currentPrice: 210000, initialPrice: 210000, changeRate: 0, lastImpact: 0 },
+        { id: "s10", name: "JYP Ent.", category: "엔터테인먼트", currentPrice: 68000, initialPrice: 68000, changeRate: 0, lastImpact: 0 },
+        { id: "s11", name: "SM Ent.", category: "엔터테인먼트", currentPrice: 85000, initialPrice: 85000, changeRate: 0, lastImpact: 0 }
     ];
 
     let currentUser = { name: "", balance: 10000000, holdings: {}, buyPrices: {} };
@@ -329,8 +332,13 @@
     let stockChart = null;
     let isStocksFrozen = false;
     let currentChartType = 'line';
-    let isLoopStarted = false;
     let isLeaderboardExpanded = false;
+
+    // 안전한 싱글톤 타이머 관리
+    let stockIntervalTimer = null;
+    let aiNewsIntervalTimer = null;
+    let breakingNewsIntervalTimer = null;
+    let isStockChanging = false;
 
     let lastNewsIndex = -1;
     let lastBreakingIndex = -1;
@@ -338,21 +346,23 @@
     const AI_NEWS_POOL = [
         { stockId: "s1", impact: 0.18, title: "[단독] 삼성전자, 차세대 AI 반도체 글로벌 빅테크와 50조 대규모 수주 계약", content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 메모리 공급 계약을 체결했습니다." },
         { stockId: "s2", impact: 0.15, title: "카카오, 신규 인공지능 플랫폼 출시로 이용자 지표 폭발적 상승", content: "카카오의 고도화된 AI 서비스에 힘입어 신규 플랫폼 유입자 및 광고 매출이 대폭 늘어나고 있습니다." },
-        { stockId: "s2", impact: -0.12, title: "카카오, 주요 계열사 규제 리스크 논란에 단기 약세", content: "플랫폼 공정거래 규제안 논란으로 인해 시장 불확실성이 확대되고 있습니다." },
         { stockId: "s3", impact: 0.15, title: "CJ제일제당, K-푸드 글로벌 열풍에 북미 매출 사상 최대 달성", content: "해외 법인의 만두 및 냉동식품 판매량이 급증하여 영업이익이 전년 대비 대폭 증가했습니다." },
         { stockId: "s4", impact: 0.20, title: "삼성바이오로직스, 글로벌 빅파마와 1.5조원 규모 CMO 계약 체결", content: "세계적 제약사와의 초대형 바이오의약품 위탁생산 계약이 성사되어 공장 가동률이 최대치를 기록 중입니다." },
         { stockId: "s5", impact: 0.16, title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", content: "북미 및 유럽 시장에서의 폭발적인 판매 성장을 기록하며 글로벌 증권가 목표주가가 상향 조정되었습니다." },
         { stockId: "s6", impact: -0.12, title: "NAVER, AI 검색 시장 경쟁 과열로 마케팅 비용 증가 우려", content: "생성형 AI 시장 선점을 위한 인프라 투자 확대로 단기 영업이익률 하락이 예상됩니다." },
         { stockId: "s7", impact: 0.25, title: "유한양행, 신규 폐암 신약 미국 FDA 최종 승인 획득!", content: "국산 항암제 최초로 미국 FDA 승인을 통과하면서 로열티 유입 및 글로벌 매출 확대가 기대됩니다." },
-        { stockId: "s8", impact: 0.21, title: "에코프로비엠, 해외 생산 기지 가동 본격화로 매출 증대 가속", content: "북미 및 유럽 핵심 거점 증설 완료에 따라 양극재 출하량이 사상 최대치를 돌파할 전망입니다." }
+        { stockId: "s8", impact: 0.21, title: "에코프로비엠, 해외 생산 기지 가동 본격화로 매출 증대 가속", content: "북미 및 유럽 핵심 거점 증설 완료에 따라 양극재 출하량이 사상 최대치를 돌파할 전망입니다." },
+        { stockId: "s9", impact: 0.22, title: "하이브, 월드투어 전체 매진 기록! 글로벌 음원 차트 석권", content: "소속 아티스트의 월드투어 전석 매진과 빌보드 상위권 입성에 따라 실적 기대감이 고조되고 있습니다." },
+        { stockId: "s10", impact: 0.18, title: "JYP Ent., 신인 글로벌 걸그룹 음원 차트 돌풍!", content: "북미 및 글로벌 시장을 겨냥한 신인 그룹이 초반 흥행에 성공하며 해외 음원 수익이 급증하고 있습니다." },
+        { stockId: "s11", impact: 0.19, title: "SM Ent., 글로벌 팬덤 플랫폼 확장으로 플랫폼 매출 폭승", content: "자체 팬 커뮤니티 플랫폼 가입자 및 굿즈 판매량이 사상 최대치를 돌파하며 실적 개선세를 가속화하고 있습니다." }
     ];
 
     const BREAKING_NEWS_POOL = [
+        { stockId: "s9", impact: 0.35, title: "💥 [초대형 속보] 하이브, 글로벌 메이저 음반사와 사상 최대규모 유통 계약!", content: "북미/유럽 시장 전체를 커버하는 초대형 음반 유통 파트너십을 체결하며 폭발적인 성장세를 예약했습니다." },
         { stockId: "s8", impact: 0.35, title: "💥 [초대형 속보] 에코프로비엠, 글로벌 1위 전기차 기업과 20조 원 규모 원소재 공급 합작법인 설립!", content: "전 세계 모빌리티 시장을 선도하는 기업과의 대규모 협업으로 글로벌 배터리 생태계 주도권을 확보했습니다." },
         { stockId: "s4", impact: 0.30, title: "🔥 [대형 속보] 삼성바이오로직스, 획기적 신약 물질 임상 3상 완전 성공!", content: "난치성 질환 치료의 새 지평을 열 신약 물질의 임상 성공 소식에 주가가 급등세를 나타내고 있습니다." },
-        { stockId: "s7", impact: -0.28, title: "⚠️ [속보] 유한양행 핵심 임상 단계를 둘러싼 허가 지연 논란 발생", content: "글로벌 임상 과정에서 추가 데이터 제출 요구를 받으며 주가가 급격한 하락세를 보이고 있습니다." },
         { stockId: "s1", impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." },
-        { stockId: "s5", impact: 0.28, title: "🚀 [속보] 현대차, 자율주행 기술 혁신으로 글로벌 1위 자동차 그룹과 전략적 동맹", content: "미래 자율주행 시장 동맹 체결을 발표하며 주가가 가파른 상승세를 기록하고 있습니다." }
+        { stockId: "s10", impact: 0.28, title: "🚀 [속보] JYP Ent., 북미 현지 합작 법인 설립으로 글로벌 매출 극대화!", content: "세계 최대 음악 시장인 미국 현지 레이블과의 대규모 파트너십 체결 소식에 매수세가 몰리고 있습니다." }
     ];
 
     async function login() {
@@ -415,7 +425,6 @@
             }, { merge: true });
         }
         
-        // 삭제된 구 에코프로 종목(s8 구버전 등) 정리를 위한 추가 처리
         const snapshot = await db.collection('stocks').get();
         snapshot.forEach(doc => {
             const existsInPreset = PRESET_STOCKS.some(s => s.id === doc.id);
@@ -765,7 +774,6 @@
     function closeNewsModal() { document.getElementById('news-modal').style.display = 'none'; }
     function closeUserInfoModal() { document.getElementById('user-info-modal').style.display = 'none'; }
 
-    // 내가 가장 많이 소유한 주식이 상단에 오도록 정렬 로직 적용
     function updateUserUI() {
         if (!currentUser) return;
 
@@ -779,7 +787,6 @@
         const portList = document.getElementById('my-portfolio-list');
         portList.innerHTML = '';
 
-        // 보유한 주식 항목을 수량(qty) 순으로 내림차순 정렬
         const sortedHoldings = Object.keys(holdings)
             .filter(sId => holdings[sId] > 0 && stockDataMap[sId])
             .map(sId => ({
@@ -787,7 +794,7 @@
                 qty: holdings[sId],
                 buyPrice: buyPrices[sId] || stockDataMap[sId].currentPrice
             }))
-            .sort((a, b) => b.qty - a.qty); // 보유 수량 최대값 우선 정렬
+            .sort((a, b) => b.qty - a.qty);
 
         sortedHoldings.forEach(item => {
             const stock = stockDataMap[item.sId];
@@ -951,12 +958,14 @@
     }
 
     function startLoops() {
-        if (isLoopStarted) return;
-        isLoopStarted = true;
+        // 기존 실행 타이머 초기화 (연속 실행 방지)
+        if (stockIntervalTimer) clearInterval(stockIntervalTimer);
+        if (aiNewsIntervalTimer) clearInterval(aiNewsIntervalTimer);
+        if (breakingNewsIntervalTimer) clearInterval(breakingNewsIntervalTimer);
 
-        setInterval(() => triggerStockPriceChangeNow(), 10000);
-        setInterval(() => triggerAINewsNow(), 180000);
-        setInterval(() => triggerBreakingNewsNow(), 900000);
+        stockIntervalTimer = setInterval(() => triggerStockPriceChangeNow(), 10000);
+        aiNewsIntervalTimer = setInterval(() => triggerAINewsNow(), 180000);
+        breakingNewsIntervalTimer = setInterval(() => triggerBreakingNewsNow(), 900000);
     }
 
     function adminTriggerStock() { if (isAdmin) triggerStockPriceChangeNow(true); }
@@ -1029,26 +1038,40 @@
         }
     }
 
+    // 주가 일괄 변경 (Batch 처리 적용으로 튀는 현상 제거)
     async function triggerStockPriceChangeNow(isForce = false) {
-        if (isStocksFrozen && !isForce) return;
+        if ((isStocksFrozen && !isForce) || isStockChanging) return;
 
-        const stockKeys = Object.keys(stockDataMap);
-        if (stockKeys.length === 0) return;
+        isStockChanging = true;
 
-        for (let sId of stockKeys) {
-            const stock = stockDataMap[sId];
-            let randomDelta = (Math.random() * 0.04) - 0.02;
-            let newPrice = Math.round(stock.currentPrice * (1 + randomDelta));
-            if (newPrice < 1000) newPrice = 1000;
+        try {
+            const stockKeys = Object.keys(stockDataMap);
+            if (stockKeys.length === 0) return;
 
-            const initialPrice = stock.initialPrice || stock.currentPrice;
-            const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
+            const batch = db.batch();
 
-            await db.collection('stocks').doc(sId).update({
-                currentPrice: newPrice,
-                changeRate: changeRate,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            for (let sId of stockKeys) {
+                const stock = stockDataMap[sId];
+                let randomDelta = (Math.random() * 0.04) - 0.02;
+                let newPrice = Math.round(stock.currentPrice * (1 + randomDelta));
+                if (newPrice < 1000) newPrice = 1000;
+
+                const initialPrice = stock.initialPrice || stock.currentPrice;
+                const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
+
+                const stockRef = db.collection('stocks').doc(sId);
+                batch.update(stockRef, {
+                    currentPrice: newPrice,
+                    changeRate: changeRate,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
+            await batch.commit();
+        } catch (error) {
+            console.error("주가 변동 중 오류 발생:", error);
+        } finally {
+            isStockChanging = false;
         }
     }
 
