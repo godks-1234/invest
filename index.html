@@ -115,7 +115,6 @@
         .chart-select { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
         .chart-container { position: relative; height: 350px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
 
-        /* 랭킹 접기/펼치기 버튼 */
         .toggle-rank-btn {
             width: 100%;
             margin-top: 12px;
@@ -267,7 +266,7 @@
         </table>
     </div>
 
-    <!-- 투자자 랭킹 (1~5위 기본 / 전체보기 지원) -->
+    <!-- 투자자 랭킹 -->
     <div class="card">
         <h2>🏆 전체 투자자 자산/수익률 랭킹</h2>
         <table>
@@ -303,7 +302,7 @@
 
     const ADMIN_PASSWORD = "eerf";
 
-    /* 다양한 산업군(엔터, 식품, 바이오, 자동차, 플랫폼, 반도체)으로 확장된 종목 리스트 */
+    /* 명확히 정의된 8개 종목 고유 프리셋 */
     const PRESET_STOCKS = [
         { id: "s1", name: "삼성전자", category: "IT/반도체", currentPrice: 72000, initialPrice: 72000, changeRate: 0, lastImpact: 0 },
         { id: "s2", name: "하이브", category: "엔터테인먼트", currentPrice: 215000, initialPrice: 215000, changeRate: 0, lastImpact: 0 },
@@ -328,25 +327,31 @@
     let isLoopStarted = false;
     let isLeaderboardExpanded = false;
 
-    /* 다양해진 업종별 AI 뉴스 풀 */
+    // 연속 동일 뉴스 중복 방지용 변수
+    let lastNewsIndex = -1;
+    let lastBreakingIndex = -1;
+
+    /* 종목 ID별 정밀 매핑된 뉴스 데이터 */
     const AI_NEWS_POOL = [
-        { stockIndex: 0, impact: 0.18, title: "[단독] 삼성전자, 차세대 반도체 글로벌 빅테크와 50조원 대규모 수주 계약", content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 반도체 공급 계약을 체결했습니다." },
-        { stockIndex: 1, impact: 0.22, title: "하이브, 신인 아티스트 월드투어 전석 매진 및 빌보드 1위 석권!", content: "하이브의 신규 글로벌 아이돌 그룹이 음원 차트를 싹쓸이하며 글로벌 엔터테인먼트 매출이 급증하고 있습니다." },
-        { stockIndex: 1, impact: -0.15, title: "하이브, 주요 아티스트 재계약 난항 소식에 엔터주 약세", content: "간판 아티스트들과의 전속 계약 연장 협상이 지연되며 시장의 불확실성이 확대되고 있습니다." },
-        { stockIndex: 2, impact: 0.15, title: "CJ제일제당, K-푸드 글로벌 열풍에 북미 매출 사상 최대 달성", content: "해외 법인의 만두 및 냉동식품 판매량이 급증하여 영업이익이 전년 대비 대폭 증가했습니다." },
-        { stockIndex: 3, impact: 0.20, title: "삼성바이오로직스, 글로벌 빅파마와 1.5조원 규모 CMO 계약 체결", content: "세계적 제약사와의 초대형 바이오의약품 위탁생산 계약이 성사되어 공장 가동률이 최대치를 기록 중입니다." },
-        { stockIndex: 4, impact: 0.16, title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", content: "북미 및 유럽 시장에서의 폭발적인 판매 성장을 기록하며 글로벌 증권가 목표주가가 상향 조정되었습니다." },
-        { stockIndex: 5, impact: -0.12, title: "NAVER, 글로벌 빅테크와의 AI 검색 경쟁 과열로 마케팅비 증가 우려", content: "생성형 AI 시장 선점을 위한 인프라 투자 확대로 단기 영업이익률 하락이 예상됩니다." },
-        { stockIndex: 6, impact: 0.25, title: "유한양행, 신규 폐암 신약 미국 FDA 최종 승인 획득!", content: "국산 항암제 최초로 미국 FDA 승인을 통과하면서 로열티 유입 및 글로벌 매출 확대가 기대됩니다." },
-        { stockIndex: 7, impact: 0.14, title: "농심, 라면 해외 수출액 10억 달러 돌파... 글로벌 시장 지배력 강화", content: "해외 현지 공장 증설과 K-라면 열풍에 힘입어 분기 최대 실적을 달성했습니다." }
+        { stockId: "s1", impact: 0.18, title: "[단독] 삼성전자, 차세대 AI 반도체 글로벌 빅테크와 50조 대규모 수주 계약", content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 메모리 공급 계약을 체결했습니다." },
+        { stockId: "s2", impact: 0.22, title: "하이브, 신인 아티스트 월드투어 전석 매진 및 빌보드 1위 석권!", content: "하이브의 신규 글로벌 아이돌 그룹이 음원 차트를 싹쓸이하며 글로벌 엔터테인먼트 매출이 급증하고 있습니다." },
+        { stockId: "s2", impact: -0.15, title: "하이브, 주요 아티스트 재계약 난항 소식에 엔터주 단기 약세", content: "간판 아티스트들과의 전속 계약 연장 협상이 지연되며 시장의 불확실성이 확대되고 있습니다." },
+        { stockId: "s3", impact: 0.15, title: "CJ제일제당, K-푸드 글로벌 열풍에 북미 매출 사상 최대 달성", content: "해외 법인의 만두 및 냉동식품 판매량이 급증하여 영업이익이 전년 대비 대폭 증가했습니다." },
+        { stockId: "s4", impact: 0.20, title: "삼성바이오로직스, 글로벌 빅파마와 1.5조원 규모 CMO 계약 체결", content: "세계적 제약사와의 초대형 바이오의약품 위탁생산 계약이 성사되어 공장 가동률이 최대치를 기록 중입니다." },
+        { stockId: "s5", impact: 0.16, title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", content: "북미 및 유럽 시장에서의 폭발적인 판매 성장을 기록하며 글로벌 증권가 목표주가가 상향 조정되었습니다." },
+        { stockId: "s5", impact: -0.10, title: "현대차, 글로벌 부품 공급망 차질로 일부 라인 생산 일시 중단", content: "해외 부품 수급 일정 차질로 일부 공장의 생산 라인이 단기 정지되었으나 곧 정상화될 예정입니다." },
+        { stockId: "s6", impact: -0.12, title: "NAVER, AI 검색 시장 경쟁 과열로 마케팅 비용 증가 우려", content: "생성형 AI 시장 선점을 위한 인프라 투자 확대로 단기 영업이익률 하락이 예상됩니다." },
+        { stockId: "s7", impact: 0.25, title: "유한양행, 신규 폐암 신약 미국 FDA 최종 승인 획득!", content: "국산 항암제 최초로 미국 FDA 승인을 통과하면서 로열티 유입 및 글로벌 매출 확대가 기대됩니다." },
+        { stockId: "s8", impact: 0.14, title: "농심, 라면 해외 수출액 10억 달러 돌파... 글로벌 시장 지배력 강화", content: "해외 현지 공장 증설과 K-라면 열풍에 힘입어 분기 최대 실적을 달성했습니다." }
     ];
 
-    /* 확장된 긴급 속보 이벤트 풀 */
+    /* 종목 ID별 정밀 매핑된 긴급 속보 데이터 */
     const BREAKING_NEWS_POOL = [
-        { stockIndex: 1, impact: 0.35, title: "💥 [초대형 속보] 하이브, 미국 3대 음반 기획사 전격 인수 합병 발표!", content: "팝 시장의 본고장 미국 대형 기획사를 전격 인수하며 글로벌 엔터 공룡으로 거듭납니다." },
-        { stockIndex: 3, impact: 0.30, title: "🔥 [대형 속보] 삼성바이오로직스, 획기적 신약 물질 임상 3상 완전 성공!", content: "난치성 질환 치료의 새 지평을 열 신약 물질의 임상 성공 소식에 주가가 급등세를 나타내고 있습니다." },
-        { stockIndex: 6, impact: -0.28, title: "⚠️ [속보] 유한양행 핵심 임상 단계를 둘러싼 허가 지연 논란 발생", content: "글로벌 임상 과정에서 추가 데이터 제출 요구를 받으며 주가가 급격한 하락세를 보이고 있습니다." },
-        { stockIndex: 0, impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." }
+        { stockId: "s2", impact: 0.35, title: "💥 [초대형 속보] 하이브, 미국 3대 음반 기획사 전격 인수 합병 발표!", content: "팝 시장의 본고장 미국 대형 기획사를 전격 인수하며 글로벌 엔터 공룡으로 거듭납니다." },
+        { stockId: "s4", impact: 0.30, title: "🔥 [대형 속보] 삼성바이오로직스, 획기적 신약 물질 임상 3상 완전 성공!", content: "난치성 질환 치료의 새 지평을 열 신약 물질의 임상 성공 소식에 주가가 급등세를 나타내고 있습니다." },
+        { stockId: "s7", impact: -0.28, title: "⚠️ [속보] 유한양행 핵심 임상 단계를 둘러싼 허가 지연 논란 발생", content: "글로벌 임상 과정에서 추가 데이터 제출 요구를 받으며 주가가 급격한 하락세를 보이고 있습니다." },
+        { stockId: "s1", impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." },
+        { stockId: "s5", impact: 0.28, title: "🚀 [속보] 현대차, 자율주행 기술 혁신으로 글로벌 1위 자동차 그룹과 전략적 동맹", content: "미래 자율주행 시장 동맹 체결을 발표하며 주가가 가파른 상승세를 기록하고 있습니다." }
     ];
 
     async function login() {
@@ -394,11 +399,14 @@
         startLoops();
     }
 
+    /* 누락된 종목이 있으면 무조건 8개 종목 모두 DB에 보장 등록하는 로직으로 강화 */
     async function ensurePresetStocks() {
-        const snapshot = await db.collection('stocks').get();
-        if (snapshot.empty) {
-            for (let stock of PRESET_STOCKS) {
-                await db.collection('stocks').doc(stock.id).set({
+        const batch = db.batch();
+        for (let stock of PRESET_STOCKS) {
+            const ref = db.collection('stocks').doc(stock.id);
+            const doc = await ref.get();
+            if (!doc.exists) {
+                batch.set(ref, {
                     name: stock.name,
                     category: stock.category,
                     currentPrice: stock.currentPrice,
@@ -409,6 +417,7 @@
                 });
             }
         }
+        await batch.commit();
     }
 
     async function ensureSystemSettings() {
@@ -497,7 +506,6 @@
             stockChart.data.datasets[0].pointBackgroundColor = themeColor;
             stockChart.data.datasets[0].backgroundColor = gradient;
         } else {
-            /* 막대 그래프: 주가 상승(빨강) / 하락(파랑) / 보합(회색) 개별 색상 부여 */
             const barColors = prices.map((price, idx) => {
                 if (idx === 0) return '#dc2626';
                 const prevPrice = prices[idx - 1];
@@ -617,6 +625,7 @@
 
             snapshot.forEach(doc => {
                 const news = doc.data();
+                // 종목 ID 기반 매핑 검증
                 const stockName = news.targetStockId && stockDataMap[news.targetStockId] ? stockDataMap[news.targetStockId].name : '시황 이슈';
                 const timeStr = news.createdAt ? new Date(news.createdAt.toDate()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '방금 전';
 
@@ -989,16 +998,16 @@
         }
     }
 
+    /* 연속 중복 방지가 적용된 일반 AI 뉴스 생성 로직 */
     async function triggerAINewsNow() {
-        const stockKeys = Object.keys(stockDataMap);
-        if (stockKeys.length === 0) return;
-
-        const baseNews = AI_NEWS_POOL[Math.floor(Math.random() * AI_NEWS_POOL.length)];
-
-        let targetStockId = null;
-        if (baseNews.stockIndex >= 0 && PRESET_STOCKS[baseNews.stockIndex]) {
-            targetStockId = PRESET_STOCKS[baseNews.stockIndex].id;
-        }
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * AI_NEWS_POOL.length);
+        } while (randomIndex === lastNewsIndex && AI_NEWS_POOL.length > 1);
+        
+        lastNewsIndex = randomIndex;
+        const baseNews = AI_NEWS_POOL[randomIndex];
+        const targetStockId = baseNews.stockId;
 
         if (!isStocksFrozen && targetStockId && stockDataMap[targetStockId]) {
             const stock = stockDataMap[targetStockId];
@@ -1026,10 +1035,16 @@
         });
     }
 
+    /* 연속 중복 방지가 적용된 긴급 속보 생성 로직 */
     async function triggerBreakingNewsNow() {
-        const event = BREAKING_NEWS_POOL[Math.floor(Math.random() * BREAKING_NEWS_POOL.length)];
-        const targetStockId = PRESET_STOCKS[event.stockIndex].id;
-        const stockName = PRESET_STOCKS[event.stockIndex].name;
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * BREAKING_NEWS_POOL.length);
+        } while (randomIndex === lastBreakingIndex && BREAKING_NEWS_POOL.length > 1);
+
+        lastBreakingIndex = randomIndex;
+        const event = BREAKING_NEWS_POOL[randomIndex];
+        const targetStockId = event.stockId;
 
         if (!isStocksFrozen && stockDataMap[targetStockId]) {
             const stock = stockDataMap[targetStockId];
@@ -1046,6 +1061,7 @@
             });
         }
 
+        const stockName = stockDataMap[targetStockId] ? stockDataMap[targetStockId].name : '시황';
         document.getElementById('breaking-stock-name').innerText = stockName;
         document.getElementById('breaking-news-title').innerText = event.title;
         document.getElementById('breaking-news-area').classList.remove('hidden');
