@@ -254,7 +254,7 @@
         </table>
     </div>
 
-    <!-- 내 포트폴리오 -->
+    <!-- 내 포트폴리오 (최대 보유 수량순 정렬) -->
     <div class="card">
         <h2>💼 내 잔고 및 보유 주식</h2>
         <table>
@@ -307,16 +307,16 @@
 
     const ADMIN_PASSWORD = "eerf";
 
+    // 에코프로 단일화 (에코프로비엠 하나로 통합 설정)
     const PRESET_STOCKS = [
         { id: "s1", name: "삼성전자", category: "IT/반도체", currentPrice: 72000, initialPrice: 72000, changeRate: 0, lastImpact: 0 },
-        { id: "s2", name: "하이브", category: "엔터테인먼트", currentPrice: 215000, initialPrice: 215000, changeRate: 0, lastImpact: 0 },
+        { id: "s2", name: "카카오", category: "플랫폼", currentPrice: 52000, initialPrice: 52000, changeRate: 0, lastImpact: 0 },
         { id: "s3", name: "CJ제일제당", category: "식품/바이오", currentPrice: 310000, initialPrice: 310000, changeRate: 0, lastImpact: 0 },
         { id: "s4", name: "삼성바이오로직스", category: "의약/제약", currentPrice: 780000, initialPrice: 780000, changeRate: 0, lastImpact: 0 },
         { id: "s5", name: "현대차", category: "자동차", currentPrice: 240000, initialPrice: 240000, changeRate: 0, lastImpact: 0 },
         { id: "s6", name: "NAVER", category: "IT/플랫폼", currentPrice: 190000, initialPrice: 190000, changeRate: 0, lastImpact: 0 },
         { id: "s7", name: "유한양행", category: "의약/제약", currentPrice: 75000, initialPrice: 75000, changeRate: 0, lastImpact: 0 },
-        { id: "s8", name: "농심", category: "식품/유통", currentPrice: 395000, initialPrice: 395000, changeRate: 0, lastImpact: 0 },
-        { id: "s9", name: "에코프로", category: "2차전지", currentPrice: 98000, initialPrice: 98000, changeRate: 0, lastImpact: 0 }
+        { id: "s8", name: "에코프로비엠", category: "2차전지 소재", currentPrice: 185000, initialPrice: 185000, changeRate: 0, lastImpact: 0 }
     ];
 
     let currentUser = { name: "", balance: 10000000, holdings: {}, buyPrices: {} };
@@ -337,19 +337,18 @@
 
     const AI_NEWS_POOL = [
         { stockId: "s1", impact: 0.18, title: "[단독] 삼성전자, 차세대 AI 반도체 글로벌 빅테크와 50조 대규모 수주 계약", content: "삼성전자가 세계 최고의 AI 기술 기업과 대규모 위탁생산 및 초고속 메모리 공급 계약을 체결했습니다." },
-        { stockId: "s2", impact: 0.22, title: "하이브, 신인 아티스트 월드투어 전석 매진 및 빌보드 1위 석권!", content: "하이브의 신규 글로벌 아이돌 그룹이 음원 차트를 싹쓸이하며 글로벌 엔터테인먼트 매출이 급증하고 있습니다." },
-        { stockId: "s2", impact: -0.15, title: "하이브, 주요 아티스트 재계약 난항 소식에 엔터주 단기 약세", content: "간판 아티스트들과의 전속 계약 연장 협상이 지연되며 시장의 불확실성이 확대되고 있습니다." },
+        { stockId: "s2", impact: 0.15, title: "카카오, 신규 인공지능 플랫폼 출시로 이용자 지표 폭발적 상승", content: "카카오의 고도화된 AI 서비스에 힘입어 신규 플랫폼 유입자 및 광고 매출이 대폭 늘어나고 있습니다." },
+        { stockId: "s2", impact: -0.12, title: "카카오, 주요 계열사 규제 리스크 논란에 단기 약세", content: "플랫폼 공정거래 규제안 논란으로 인해 시장 불확실성이 확대되고 있습니다." },
         { stockId: "s3", impact: 0.15, title: "CJ제일제당, K-푸드 글로벌 열풍에 북미 매출 사상 최대 달성", content: "해외 법인의 만두 및 냉동식품 판매량이 급증하여 영업이익이 전년 대비 대폭 증가했습니다." },
         { stockId: "s4", impact: 0.20, title: "삼성바이오로직스, 글로벌 빅파마와 1.5조원 규모 CMO 계약 체결", content: "세계적 제약사와의 초대형 바이오의약품 위탁생산 계약이 성사되어 공장 가동률이 최대치를 기록 중입니다." },
         { stockId: "s5", impact: 0.16, title: "현대차, 북미 시장 친환경 전기차 판매량 역대 최고치 경신!", content: "북미 및 유럽 시장에서의 폭발적인 판매 성장을 기록하며 글로벌 증권가 목표주가가 상향 조정되었습니다." },
         { stockId: "s6", impact: -0.12, title: "NAVER, AI 검색 시장 경쟁 과열로 마케팅 비용 증가 우려", content: "생성형 AI 시장 선점을 위한 인프라 투자 확대로 단기 영업이익률 하락이 예상됩니다." },
         { stockId: "s7", impact: 0.25, title: "유한양행, 신규 폐암 신약 미국 FDA 최종 승인 획득!", content: "국산 항암제 최초로 미국 FDA 승인을 통과하면서 로열티 유입 및 글로벌 매출 확대가 기대됩니다." },
-        { stockId: "s8", impact: 0.14, title: "농심, 라면 해외 수출액 10억 달러 돌파... 글로벌 시장 지배력 강화", content: "해외 현지 공장 증설과 K-라면 열풍에 힘입어 분기 최대 실적을 달성했습니다." },
-        { stockId: "s9", impact: 0.19, title: "에코프로, 차세대 양극재 대규모 공급 계약 체결 소식에 강세", content: "글로벌 완성차 업체에 고성능 양극재를 장기 공급하는 대형 수주 계약이 성사되었습니다." }
+        { stockId: "s8", impact: 0.21, title: "에코프로비엠, 해외 생산 기지 가동 본격화로 매출 증대 가속", content: "북미 및 유럽 핵심 거점 증설 완료에 따라 양극재 출하량이 사상 최대치를 돌파할 전망입니다." }
     ];
 
     const BREAKING_NEWS_POOL = [
-        { stockId: "s2", impact: 0.35, title: "💥 [초대형 속보] 하이브, 미국 3대 음반 기획사 전격 인수 합병 발표!", content: "팝 시장의 본고장 미국 대형 기획사를 전격 인수하며 글로벌 엔터 공룡으로 거듭납니다." },
+        { stockId: "s8", impact: 0.35, title: "💥 [초대형 속보] 에코프로비엠, 글로벌 1위 전기차 기업과 20조 원 규모 원소재 공급 합작법인 설립!", content: "전 세계 모빌리티 시장을 선도하는 기업과의 대규모 협업으로 글로벌 배터리 생태계 주도권을 확보했습니다." },
         { stockId: "s4", impact: 0.30, title: "🔥 [대형 속보] 삼성바이오로직스, 획기적 신약 물질 임상 3상 완전 성공!", content: "난치성 질환 치료의 새 지평을 열 신약 물질의 임상 성공 소식에 주가가 급등세를 나타내고 있습니다." },
         { stockId: "s7", impact: -0.28, title: "⚠️ [속보] 유한양행 핵심 임상 단계를 둘러싼 허가 지연 논란 발생", content: "글로벌 임상 과정에서 추가 데이터 제출 요구를 받으며 주가가 급격한 하락세를 보이고 있습니다." },
         { stockId: "s1", impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." },
@@ -405,19 +404,26 @@
         const batch = db.batch();
         for (let stock of PRESET_STOCKS) {
             const ref = db.collection('stocks').doc(stock.id);
-            const doc = await ref.get();
-            if (!doc.exists) {
-                batch.set(ref, {
-                    name: stock.name,
-                    category: stock.category,
-                    currentPrice: stock.currentPrice,
-                    initialPrice: stock.initialPrice,
-                    changeRate: 0,
-                    lastImpact: 0,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
+            batch.set(ref, {
+                name: stock.name,
+                category: stock.category,
+                currentPrice: stock.currentPrice,
+                initialPrice: stock.initialPrice,
+                changeRate: stock.changeRate || 0,
+                lastImpact: 0,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
         }
+        
+        // 삭제된 구 에코프로 종목(s8 구버전 등) 정리를 위한 추가 처리
+        const snapshot = await db.collection('stocks').get();
+        snapshot.forEach(doc => {
+            const existsInPreset = PRESET_STOCKS.some(s => s.id === doc.id);
+            if (!existsInPreset) {
+                batch.delete(doc.ref);
+            }
+        });
+
         await batch.commit();
     }
 
@@ -589,7 +595,7 @@
 
                 const option = document.createElement('option');
                 option.value = doc.id;
-                option.innerText = `[${data.category || '주식'}] ${data.name} (${data.currentPrice.toLocaleString()}원)`;
+                option.innerText = `[${data.category || '종목'}] ${data.name} (${data.currentPrice.toLocaleString()}원)`;
                 if (doc.id === currentSelectedStock) option.selected = true;
                 chartSelect.appendChild(option);
 
@@ -602,7 +608,7 @@
                         <td>
                             <div class="stock-info-cell">
                                 <span class="stock-title">${data.name}</span>
-                                <span class="stock-category">${data.category || '일반종목'}</span>
+                                <span class="stock-category">${data.category || '기타'}</span>
                             </div>
                         </td>
                         <td>${data.currentPrice.toLocaleString()}원</td>
@@ -707,7 +713,6 @@
         alert("주가가 초기화되었습니다.");
     }
 
-    /* 뉴스 전체 삭제 (초기화) 기능 */
     async function adminDeleteAllNews() {
         if (!isAdmin || !confirm("⚠️ 지금까지 발생한 모든 뉴스 데이터를 삭제하시겠습니까?")) return;
         try {
@@ -721,7 +726,6 @@
             });
             await batch.commit();
             
-            /* 긴급속보 팝업창 닫기 */
             document.getElementById('breaking-news-area').classList.add('hidden');
             alert("모든 뉴스가 삭제되었습니다.");
         } catch (e) {
@@ -761,6 +765,7 @@
     function closeNewsModal() { document.getElementById('news-modal').style.display = 'none'; }
     function closeUserInfoModal() { document.getElementById('user-info-modal').style.display = 'none'; }
 
+    // 내가 가장 많이 소유한 주식이 상단에 오도록 정렬 로직 적용
     function updateUserUI() {
         if (!currentUser) return;
 
@@ -774,34 +779,42 @@
         const portList = document.getElementById('my-portfolio-list');
         portList.innerHTML = '';
 
-        for (let sId in holdings) {
-            const qty = holdings[sId];
-            if (qty > 0 && stockDataMap[sId]) {
-                const stock = stockDataMap[sId];
-                const currentPrice = stock.currentPrice;
-                const buyPrice = buyPrices[sId] || currentPrice;
-                const evalVal = currentPrice * qty;
-                const profitVal = (currentPrice - buyPrice) * qty;
-                const profitRate = ((currentPrice - buyPrice) / buyPrice) * 100;
+        // 보유한 주식 항목을 수량(qty) 순으로 내림차순 정렬
+        const sortedHoldings = Object.keys(holdings)
+            .filter(sId => holdings[sId] > 0 && stockDataMap[sId])
+            .map(sId => ({
+                sId: sId,
+                qty: holdings[sId],
+                buyPrice: buyPrices[sId] || stockDataMap[sId].currentPrice
+            }))
+            .sort((a, b) => b.qty - a.qty); // 보유 수량 최대값 우선 정렬
 
-                stockEvalTotal += evalVal;
-                const colorClass = profitVal > 0 ? 'text-profit' : (profitVal < 0 ? 'text-loss' : '');
+        sortedHoldings.forEach(item => {
+            const stock = stockDataMap[item.sId];
+            const qty = item.qty;
+            const currentPrice = stock.currentPrice;
+            const buyPrice = item.buyPrice;
+            const evalVal = currentPrice * qty;
+            const profitVal = (currentPrice - buyPrice) * qty;
+            const profitRate = ((currentPrice - buyPrice) / buyPrice) * 100;
 
-                portList.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="stock-info-cell">
-                                <span class="stock-title">${stock.name}</span>
-                                <span class="stock-category">${stock.category || '일반종목'}</span>
-                            </div>
-                        </td>
-                        <td>${qty}주</td>
-                        <td>${Math.round(buyPrice).toLocaleString()}원</td>
-                        <td>${currentPrice.toLocaleString()}원</td>
-                        <td class="${colorClass}">${profitVal > 0 ? '+' : ''}${Math.round(profitVal).toLocaleString()}원 (${profitRate.toFixed(2)}%)</td>
-                    </tr>`;
-            }
-        }
+            stockEvalTotal += evalVal;
+            const colorClass = profitVal > 0 ? 'text-profit' : (profitVal < 0 ? 'text-loss' : '');
+
+            portList.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="stock-info-cell">
+                            <span class="stock-title">${stock.name}</span>
+                            <span class="stock-category">${stock.category || '기타'}</span>
+                        </div>
+                    </td>
+                    <td>${qty}주</td>
+                    <td>${Math.round(buyPrice).toLocaleString()}원</td>
+                    <td>${currentPrice.toLocaleString()}원</td>
+                    <td class="${colorClass}">${profitVal > 0 ? '+' : ''}${Math.round(profitVal).toLocaleString()}원 (${profitRate.toFixed(2)}%)</td>
+                </tr>`;
+        });
 
         const totalAsset = balance + stockEvalTotal;
         const totalProfitRate = balance === 0 && stockEvalTotal === 0 ? 0 : ((totalAsset - 10000000) / 10000000) * 100;
@@ -867,11 +880,6 @@
             const rank = rankedUsers.findIndex(item => item.id === u.id) + 1;
             const isMe = u.id === userId;
             const colorClass = u.profitRate > 0 ? 'text-profit' : (u.profitRate < 0 ? 'text-loss' : '');
-
-            if (isMe) {
-                myFound = true;
-                document.getElementById('my-rank-display').innerText = `${rank} 위 / ${rankedUsers.length} 명`;
-            }
 
             let adminButtonsHtml = '';
             if (isAdmin) {
