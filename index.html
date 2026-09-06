@@ -42,11 +42,17 @@
 
         /* 모달 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: white; padding: 28px; border-radius: 16px; width: 90%; max-width: 520px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-content { background: white; padding: 28px; border-radius: 16px; width: 90%; max-width: 540px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
         .modal-content h2 { font-size: 1.3rem; margin-bottom: 12px; color: var(--primary); }
         .modal-content p { font-size: 0.95rem; color: #475569; margin-bottom: 20px; line-height: 1.6; }
-        .modal-content input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none; }
+        .modal-content input[type="text"], .modal-content input[type="password"] { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none; }
         .btn-start, .btn-close { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; }
+
+        /* 퀴즈 전용 스타일 */
+        .quiz-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: left; }
+        .quiz-question { font-weight: bold; font-size: 0.95rem; color: var(--primary); margin-bottom: 8px; line-height: 1.4; }
+        .quiz-options { display: flex; flex-direction: column; gap: 6px; }
+        .quiz-options label { font-size: 0.88rem; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 
         /* 상단 헤더 */
         header { background: var(--primary); color: white; padding: 18px 24px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -137,18 +143,81 @@
 </head>
 <body>
 
-<!-- 로그인 모달 -->
+<!-- 1. 로그인 모달 -->
 <div id="login-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>📈 AI 모의 주식 투자</h2>
-        <p>닉네임과 비밀번호를 입력하세요.<br>(처음 입력 시 자동으로 고유 계정이 생성됩니다.)</p>
+        <p>닉네임과 비밀번호를 입력하세요.<br>(처음 입력 시 퀴즈 풀이 후 계정이 생성됩니다.)</p>
         <input type="text" id="user-name-input" placeholder="닉네임을 입력하세요">
         <input type="password" id="user-pw-input" placeholder="비밀번호를 입력하세요">
-        <button class="btn-start" onclick="login()">로그인 / 계정 생성</button>
+        <button class="btn-start" onclick="checkLoginOrStartQuiz()">접속하기 / 시작하기</button>
     </div>
 </div>
 
-<!-- 뉴스 모달 -->
+<!-- 2. 신규 사용자 시드머니 금융 퀴즈 모달 -->
+<div id="quiz-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h2>📝 신규 가입 투자 자격 퀴즈</h2>
+        <p>기본 시드머니 <b>500만원</b>이 기본 지급되며,<br>정답을 맞출 때마다 <b>100만원씩</b> 추가 지급됩니다! (최대 1,000만원)</p>
+        
+        <div id="quiz-container">
+            <!-- 퀴즈 1 -->
+            <div class="quiz-card">
+                <div class="quiz-question">1. 주식을 사고팔 수 있는 곳은?</div>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q1" value="1"> 1) 은행</label>
+                    <label><input type="radio" name="q1" value="2"> 2) 증권시장</label>
+                    <label><input type="radio" name="q1" value="3"> 3) 국제통화기금</label>
+                    <label><input type="radio" name="q1" value="4"> 4) 국회의사당</label>
+                </div>
+            </div>
+            <!-- 퀴즈 2 -->
+            <div class="quiz-card">
+                <div class="quiz-question">2. 주식을 산다는 것은 무엇을 의미할까?</div>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q2" value="1"> 1) 회사의 돈을 빌려준다는 뜻</label>
+                    <label><input type="radio" name="q2" value="2"> 2) 회사의 일부를 소유한다는 뜻</label>
+                    <label><input type="radio" name="q2" value="3"> 3) 물건을 구매한다는 뜻</label>
+                    <label><input type="radio" name="q2" value="4"> 4) 기업가치를 높여준다는 뜻</label>
+                </div>
+            </div>
+            <!-- 퀴즈 3 -->
+            <div class="quiz-card">
+                <div class="quiz-question">3. 다음 중 우리나라의 대표적인 주식시장 지수는?</div>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q3" value="1"> 1) GDP</label>
+                    <label><input type="radio" name="q3" value="2"> 2) IMF</label>
+                    <label><input type="radio" name="q3" value="3"> 3) KOSPI</label>
+                    <label><input type="radio" name="q3" value="4"> 4) KOSDAQ</label>
+                </div>
+            </div>
+            <!-- 퀴즈 4 -->
+            <div class="quiz-card">
+                <div class="quiz-question">4. 다음 중 코스닥에 상장된 주식은?</div>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q4" value="1"> 1) 삼성전자</label>
+                    <label><input type="radio" name="q4" value="2"> 2) SK하이닉스</label>
+                    <label><input type="radio" name="q4" value="3"> 3) 현대모비스</label>
+                    <label><input type="radio" name="q4" value="4"> 4) 알테오젠</label>
+                </div>
+            </div>
+            <!-- 퀴즈 5 -->
+            <div class="quiz-card">
+                <div class="quiz-question">5. 다음 중 주식에 대한 설명으로 가장 적절한 것은?</div>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q5" value="1"> 1) 기업의 실적이 좋아지면 주가는 반드시 상승한다.</label>
+                    <label><input type="radio" name="q5" value="2"> 2) 주가는 현재 기업 실적뿐만 아니라 미래 투자자 기대의 영향을 받는다.</label>
+                    <label><input type="radio" name="q5" value="3"> 3) 주식을 보유하면 기업 이익과 관계없이 일정한 수익을 얻는다.</label>
+                    <label><input type="radio" name="q5" value="4"> 4) 주식 가격이 하락한 기업은 항상 경영 상태가 나쁜 기업이다.</label>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-start" onclick="submitQuizAndCreateAccount()">퀴즈 제출 및 시드머니 받기</button>
+    </div>
+</div>
+
+<!-- 뉴스 상세 모달 -->
 <div id="news-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;" id="modal-news-tag">관련종목 / 타임스탬프</div>
@@ -158,7 +227,7 @@
     </div>
 </div>
 
-<!-- 사용자 상세 모달 -->
+<!-- 사용자 상세 관리 모달 -->
 <div id="user-info-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h2 id="info-modal-title">🔍 계정 상세 정보</h2>
@@ -183,7 +252,7 @@
     </div>
 </header>
 
-<!-- 어드민 컨트롤 패널 -->
+<!-- 어드민 조종 패널 -->
 <div id="admin-panel" class="ai-control-panel hidden">
     <div>
         👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 변동: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span></strong>
@@ -212,8 +281,8 @@
         <h2>내 투자 요약 & 실시간 자산 Status</h2>
         <div class="asset-summary">
             <div class="asset-box"><div class="label">내 현재 순위</div><div class="val" id="my-rank-display">- 위</div></div>
-            <div class="asset-box"><div class="label">총 평가 자산</div><div class="val" id="total-asset">10,000,000 원</div></div>
-            <div class="asset-box"><div class="label">예수금 (현금)</div><div class="val" id="user-balance">10,000,000 원</div></div>
+            <div class="asset-box"><div class="label">총 평가 자산</div><div class="val" id="total-asset">0 원</div></div>
+            <div class="asset-box"><div class="label">예수금 (현금)</div><div class="val" id="user-balance">0 원</div></div>
             <div class="asset-box"><div class="label">총 누적 수익률</div><div class="val" id="total-profit-rate">0.00%</div></div>
         </div>
     </div>
@@ -237,7 +306,7 @@
         </div>
     </div>
 
-    <!-- 주식 시장 (내 보유 상위 종목 우선 정렬, 상위 5개 표시) -->
+    <!-- 주식 시장 (내 보유 상위 종목 우선 정렬) -->
     <div class="card">
         <h2>📊 AI 주식 시장 (10초마다 변동)</h2>
         <table>
@@ -255,7 +324,7 @@
         <button id="toggle-market-btn" class="toggle-expand-btn hidden" onclick="toggleMarketExpand()">🔍 더보기 (TOP 5 보는 중)</button>
     </div>
 
-    <!-- 내 포트폴리오 (최대 보유 수량순 정렬) -->
+    <!-- 내 포트폴리오 -->
     <div class="card">
         <h2>💼 내 잔고 및 보유 주식</h2>
         <table>
@@ -308,7 +377,10 @@
 
     const ADMIN_PASSWORD = "eerf";
 
-    // SK하이닉스(s12) 포함 사전 설정 종목 목록
+    // 퀴즈 정답 설정 (순서대로 2, 2, 3, 4, 2)
+    const QUIZ_ANSWERS = [2, 2, 3, 4, 2];
+
+    // SK하이닉스 포함 사전 구성 주식 종목
     const PRESET_STOCKS = [
         { id: "s1", name: "삼성전자", category: "IT/반도체", currentPrice: 72000, initialPrice: 72000, changeRate: 0, lastImpact: 0 },
         { id: "s12", name: "SK하이닉스", category: "IT/반도체", currentPrice: 175000, initialPrice: 175000, changeRate: 0, lastImpact: 0 },
@@ -324,8 +396,11 @@
         { id: "s11", name: "SM Ent.", category: "엔터테인먼트", currentPrice: 85000, initialPrice: 85000, changeRate: 0, lastImpact: 0 }
     ];
 
-    let currentUser = { name: "", balance: 10000000, holdings: {}, buyPrices: {} };
+    let currentUser = { name: "", balance: 0, initialSeedMoney: 10000000, holdings: {}, buyPrices: {} };
     let userId = null;
+    let pendingName = "";
+    let pendingPassword = "";
+
     let isAdmin = false;
     let stockDataMap = {};
     let allUsersData = [];
@@ -337,7 +412,6 @@
     let isLeaderboardExpanded = false;
     let isMarketExpanded = false;
 
-    // 타이머 객체
     let stockIntervalTimer = null;
     let aiNewsIntervalTimer = null;
     let breakingNewsIntervalTimer = null;
@@ -369,13 +443,17 @@
         { stockId: "s1", impact: 0.32, title: "💥 [속보] 삼성전자, 차세대 AI 메모리 세계 최초 독점 양산 성공!", content: "글로벌 AI 반도체 시장을 독점할 수 있는 초고성능 메모리 공급을 시작했습니다." }
     ];
 
-    async function login() {
+    // 로그인 검증 및 신규 가입 퀴즈 모달 전환
+    async function checkLoginOrStartQuiz() {
         const name = document.getElementById('user-name-input').value.trim();
         const password = document.getElementById('user-pw-input').value.trim();
 
         if (!name || !password) return alert("닉네임과 비밀번호를 모두 입력하세요.");
 
+        pendingName = name;
+        pendingPassword = password;
         userId = `user_${name}`;
+
         await ensurePresetStocks();
         await ensureSystemSettings();
 
@@ -384,29 +462,66 @@
         const userRef = db.collection('users').doc(userId);
         const doc = await userRef.get();
 
-        if (!doc.exists) {
-            await userRef.set({
-                name: name,
-                password: password,
-                balance: 10000000,
-                holdings: {},
-                buyPrices: {},
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert(`'${name}' 님의 계정이 정상 생성되었습니다.`);
-        } else {
+        if (doc.exists) {
             const userData = doc.data();
-            if (userData.password !== password && !isAdmin) return alert("비밀번호가 일치하지 않습니다.");
+            if (userData.password !== password && !isAdmin) {
+                return alert("비밀번호가 일치하지 않습니다.");
+            }
+            // 기존 사용자: 바로 세션 시작
+            startUserSession(userData);
+        } else {
+            // 신규 사용자: 금융 퀴즈 모달 오픈
+            document.getElementById('login-modal').style.display = 'none';
+            document.getElementById('quiz-modal').style.display = 'flex';
+        }
+    }
+
+    // 퀴즈 채점 및 계정 생성
+    async function submitQuizAndCreateAccount() {
+        let correctCount = 0;
+
+        for (let i = 1; i <= 5; i++) {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (!selected) {
+                return alert(`${i}번 문제의 답을 선택해주세요!`);
+            }
+            if (parseInt(selected.value) === QUIZ_ANSWERS[i - 1]) {
+                correctCount++;
+            }
         }
 
+        const baseReward = 5000000; // 다 틀려도 기본 500만원
+        const earnedMoney = baseReward + (correctCount * 1000000); // 정답당 100만원 추가
+
+        const userRef = db.collection('users').doc(userId);
+        const newUserData = {
+            name: pendingName,
+            password: pendingPassword,
+            balance: earnedMoney,
+            initialSeedMoney: earnedMoney, // 수익률 계산 기준 금액
+            holdings: {},
+            buyPrices: {},
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await userRef.set(newUserData);
+
+        alert(`🎉 퀴즈 제출 완료!\n맞춘 문제: ${correctCount} / 5 개\n지급된 시드머니: ${earnedMoney.toLocaleString()} 원으로 투자를 시작합니다!`);
+
+        document.getElementById('quiz-modal').style.display = 'none';
+        startUserSession(newUserData);
+    }
+
+    function startUserSession(userData) {
+        currentUser = userData;
         document.getElementById('login-modal').style.display = 'none';
-        
+
         if (isAdmin) {
             document.getElementById('admin-panel').classList.remove('hidden');
             document.querySelectorAll('.admin-only-col').forEach(el => el.classList.remove('hidden'));
-            document.getElementById('user-display-name').innerHTML = `👑 <b>[관리자] ${name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
+            document.getElementById('user-display-name').innerHTML = `👑 <b>[관리자] ${currentUser.name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
         } else {
-            document.getElementById('user-display-name').innerHTML = `👤 <b>${name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
+            document.getElementById('user-display-name').innerHTML = `👤 <b>${currentUser.name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
         }
 
         initChart();
@@ -778,7 +893,8 @@
         }
 
         const totalAsset = currentUser.balance + stockValuation;
-        const totalProfitRate = ((totalAsset - 10000000) / 10000000) * 100;
+        const baseSeed = currentUser.initialSeedMoney || 10000000;
+        const totalProfitRate = ((totalAsset - baseSeed) / baseSeed) * 100;
         const profitClass = totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '');
         const profitSign = totalProfitRate > 0 ? '+' : '';
 
@@ -807,7 +923,8 @@
                 }
             });
             const total = (u.balance || 0) + stockVal;
-            const rate = ((total - 10000000) / 10000000) * 100;
+            const baseSeed = u.initialSeedMoney || 10000000;
+            const rate = ((total - baseSeed) / baseSeed) * 100;
             return { id: u.id, name: u.name, totalAsset: total, profitRate: rate, rawData: u };
         });
 
@@ -1112,8 +1229,9 @@
         const snapshot = await db.collection('users').get();
         const batch = db.batch();
         snapshot.forEach(doc => {
+            const baseSeed = doc.data().initialSeedMoney || 10000000;
             batch.update(doc.ref, {
-                balance: 10000000,
+                balance: baseSeed,
                 holdings: {},
                 buyPrices: {}
             });
@@ -1123,7 +1241,7 @@
     }
 
     async function adminDeleteAllUsers() {
-        if (!confirm("모든 일반 사용자 계정을 삭제하시겠습니까? (관리자 포함)")) return;
+        if (!confirm("모든 일반 사용자 계정을 삭제하시겠습니까?")) return;
         const snapshot = await db.collection('users').get();
         const batch = db.batch();
         snapshot.forEach(doc => batch.delete(doc.ref));
@@ -1139,6 +1257,7 @@
         let bodyHtml = `
             <p><b>닉네임:</b> ${user.name}</p>
             <p><b>비밀번호:</b> ${user.password || 'N/A'}</p>
+            <p><b>초기 시드머니:</b> ${(user.initialSeedMoney || 10000000).toLocaleString()} 원</p>
             <p><b>예수금:</b> ${Math.round(user.balance || 0).toLocaleString()} 원</p>
             <h4 style="margin-top:15px; margin-bottom:8px;">📦 보유 주식 상세</h4>
         `;
@@ -1168,8 +1287,10 @@
 
     async function adminResetUserAsset(targetUserId) {
         if (!confirm("이 사용자의 자산을 초기화하시겠습니까?")) return;
+        const doc = await db.collection('users').doc(targetUserId).get();
+        const baseSeed = doc.exists && doc.data().initialSeedMoney ? doc.data().initialSeedMoney : 10000000;
         await db.collection('users').doc(targetUserId).update({
-            balance: 10000000,
+            balance: baseSeed,
             holdings: {},
             buyPrices: {}
         });
