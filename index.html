@@ -594,6 +594,7 @@
                 }
             });
 
+            renderStockSelectOptions();
             renderStockMarketList();
             renderStockChart();
             updateUserUI();
@@ -648,6 +649,23 @@
         });
     }
 
+    function renderStockSelectOptions() {
+        const selectEl = document.getElementById('chart-stock-select');
+        const currentVal = selectEl.value;
+        selectEl.innerHTML = '';
+
+        Object.keys(stockDataMap).forEach(id => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = stockDataMap[id].name;
+            selectEl.appendChild(option);
+        });
+
+        if (currentVal && stockDataMap[currentVal]) {
+            selectEl.value = currentVal;
+        }
+    }
+
     function toggleMarketExpand() {
         isMarketExpanded = !isMarketExpanded;
         renderStockMarketList();
@@ -663,214 +681,113 @@
         const marketList = document.getElementById('stock-market-list');
         marketList.innerHTML = '';
 
-        const chartSelect = document.getElementById('chart-stock-select');
-        const currentSelectedStock = chartSelect.value;
-        chartSelect.innerHTML = '';
-
-        const myHoldings = (currentUser && currentUser.holdings) ? currentUser.holdings : {};
-
-        const sortedStockIds = Object.keys(stockDataMap).sort((a, b) => {
-            const qtyA = myHoldings[a] || 0;
-            const qtyB = myHoldings[b] || 0;
-            if (qtyB !== qtyA) return qtyB - qtyA; // 보유 수량이 큰 종목 상단 배치
-            return (stockDataMap[b].currentPrice * qtyB) - (stockDataMap[a].currentPrice * qtyA);
-        });
-
-        sortedStockIds.forEach(sId => {
-            const data = stockDataMap[sId];
-            const option = document.createElement('option');
-            option.value = sId;
-            option.innerText = `[${data.category || '종목'}] ${data.name} (${data.currentPrice.toLocaleString()}원)`;
-            if (sId === currentSelectedStock) option.selected = true;
-            chartSelect.appendChild(option);
-        });
-
-        const toggleMarketBtn = document.getElementById('toggle-market-btn');
-        if (sortedStockIds.length > 5) {
-            toggleMarketBtn.classList.remove('hidden');
-            if (isMarketExpanded) {
-                toggleMarketBtn.innerText = `🔼 접기 (전체 ${sortedStockIds.length}개 표시 중)`;
-            } else {
-                toggleMarketBtn.innerText = `🔍 더보기 (보유 상위 5개 표시 중 / 전체 ${sortedStockIds.length}개)`;
-            }
-        } else {
-            toggleMarketBtn.classList.add('hidden');
-        }
-
-        const displayStockIds = isMarketExpanded ? sortedStockIds : sortedStockIds.slice(0, 5);
-
-        displayStockIds.forEach(sId => {
-            const data = stockDataMap[sId];
-            const rate = data.changeRate || 0;
-            const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
-            const savedQty = (currentQtyMap[sId] !== undefined && currentQtyMap[sId] !== "") ? currentQtyMap[sId] : 1;
-
-            marketList.innerHTML += `
-                <tr>
-                    <td>
-                        <div class="stock-info-cell">
-                            <span class="stock-title">${data.name}</span>
-                            <span class="stock-category">${data.category || '기타'}</span>
-                        </div>
-                    </td>
-                    <td>${data.currentPrice.toLocaleString()}원</td>
-                    <td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td>
-                    <td><input type="number" id="trade-qty-${sId}" class="trade-input" value="${savedQty}" min="1"></td>
-                    <td>
-                        <button class="trade-btn btn-buy" onclick="tradeStock('${sId}', 'BUY')">매수</button>
-                        <button class="trade-btn btn-sell" onclick="tradeStock('${sId}', 'SELL')">매도</button>
-                        <button class="trade-btn btn-max-buy" onclick="directMaxBuy('${sId}')">전량매수</button>
-                        <button class="trade-btn btn-max-sell" onclick="directMaxSell('${sId}')">전량매도</button>
-                    </td>
-                </tr>`;
-        });
-    }
-
-    function updateFreezeUI() {
-        const textEl = document.getElementById('freeze-status-text');
-        const btnEl = document.getElementById('freeze-toggle-btn');
-
-        if (isStocksFrozen) {
-            textEl.innerText = '[🧊 주가 얼림(일시정지)]';
-            textEl.style.color = '#dc2626';
-            btnEl.innerText = '🔥 얼리기 해제';
-            btnEl.className = 'ai-control-btn unfreeze';
-        } else {
-            textEl.innerText = '[실시간 변동 중]';
-            textEl.style.color = '#059669';
-            btnEl.innerText = '🧊 주가 얼리기';
-            btnEl.className = 'ai-control-btn freeze';
-        }
-    }
-
-    async function adminToggleFreeze() {
-        if (!isAdmin) return;
-        const newState = !isStocksFrozen;
-        await db.collection('system').doc('config').set({ isFrozen: newState }, { merge: true });
-    }
-
-    async function adminResetStockPrices() {
-        if (!isAdmin || !confirm("모든 주가를 초기 가격으로 원복하시겠습니까?")) return;
-        const batch = db.batch();
-        for (let stock of PRESET_STOCKS) {
-            const ref = db.collection('stocks').doc(stock.id);
-            batch.update(ref, {
-                currentPrice: stock.initialPrice,
-                changeRate: 0,
-                lastImpact: 0,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            stockHistoryMap[stock.id] = [{ time: new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), price: stock.initialPrice }];
-        }
-        await batch.commit();
-        alert("주가가 초기화되었습니다.");
-    }
-
-    async function adminDeleteAllNews() {
-        if (!isAdmin || !confirm("⚠️ 지금까지 발생한 모든 뉴스 데이터를 삭제하시겠습니까?")) return;
-        try {
-            const snapshot = await db.collection('news').get();
-            if (snapshot.empty) return alert("삭제할 뉴스가 없습니다.");
-
-            const batch = db.batch();
-            snapshot.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            
-            document.getElementById('breaking-news-area').classList.add('hidden');
-            alert("모든 뉴스가 삭제되었습니다.");
-        } catch (e) {
-            console.error("뉴스 삭제 중 오류 발생:", e);
-            alert("뉴스 삭제 중 오류가 발생했습니다.");
-        }
-    }
-
-    async function directMaxBuy(stockId) {
-        if (!stockDataMap[stockId]) return;
-        const price = stockDataMap[stockId].currentPrice;
-        const maxQty = Math.floor(currentUser.balance / price);
-        
-        if (maxQty <= 0) return alert("매수 가능한 예수금이 부족합니다!");
-        if (confirm(`최대 수량(${maxQty}주)을 매수하시겠습니까?`)) {
-            await executeTrade(stockId, maxQty, 'BUY');
-        }
-    }
-
-    async function directMaxSell(stockId) {
         const holdings = currentUser.holdings || {};
-        const myQty = holdings[stockId] || 0;
-        
-        if (myQty <= 0) return alert("보유한 주식이 없습니다!");
-        if (confirm(`보유한 전량(${myQty}주)을 매도하시겠습니까?`)) {
-            await executeTrade(stockId, myQty, 'SELL');
+        const stockKeys = Object.keys(stockDataMap);
+
+        stockKeys.sort((a, b) => {
+            const qtyA = holdings[a] || 0;
+            const qtyB = holdings[b] || 0;
+            if (qtyB !== qtyA) return qtyB - qtyA;
+            return a.localeCompare(b);
+        });
+
+        const toggleBtn = document.getElementById('toggle-market-btn');
+        if (stockKeys.length > 5) {
+            toggleBtn.classList.remove('hidden');
+            toggleBtn.textContent = isMarketExpanded ? "🔼 접기" : `🔍 더보기 (TOP 5 보는 중 / 전체 ${stockKeys.length}개)`;
+        } else {
+            toggleBtn.classList.add('hidden');
         }
-    }
 
-    function openNewsModal(title, content, stockName, time) {
-        document.getElementById('modal-news-tag').innerText = `[${stockName}] | ${time} 발행`;
-        document.getElementById('modal-news-title').innerText = title;
-        document.getElementById('modal-news-content').innerText = content;
-        document.getElementById('news-modal').style.display = 'flex';
-    }
+        const displayKeys = isMarketExpanded ? stockKeys : stockKeys.slice(0, 5);
 
-    function closeNewsModal() { document.getElementById('news-modal').style.display = 'none'; }
-    function closeUserInfoModal() { document.getElementById('user-info-modal').style.display = 'none'; }
+        displayKeys.forEach(sId => {
+            const stock = stockDataMap[sId];
+            const changeSign = stock.changeRate > 0 ? '+' : '';
+            const rateClass = stock.changeRate > 0 ? 'text-profit' : (stock.changeRate < 0 ? 'text-loss' : '');
+            const savedQty = currentQtyMap[sId] !== undefined ? currentQtyMap[sId] : 1;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="stock-info-cell">
+                        <span class="stock-title">${stock.name}</span>
+                        <span class="stock-category">${stock.category}</span>
+                    </div>
+                </td>
+                <td><b>${stock.currentPrice.toLocaleString()}원</b></td>
+                <td class="${rateClass}">${changeSign}${stock.changeRate.toFixed(2)}%</td>
+                <td><input type="number" id="trade-qty-${sId}" class="trade-input" value="${savedQty}" min="1"></td>
+                <td>
+                    <button class="trade-btn btn-buy" onclick="buyStock('${sId}')">매수</button>
+                    <button class="trade-btn btn-max-buy" onclick="buyMaxStock('${sId}')">최대매수</button>
+                    <button class="trade-btn btn-sell" onclick="sellStock('${sId}')">매도</button>
+                    <button class="trade-btn btn-max-sell" onclick="sellMaxStock('${sId}')">전량매도</button>
+                </td>
+            `;
+            marketList.appendChild(tr);
+        });
+    }
 
     function updateUserUI() {
-        if (!currentUser) return;
-
-        const balance = currentUser.balance || 0;
         const holdings = currentUser.holdings || {};
         const buyPrices = currentUser.buyPrices || {};
+        let stockValuation = 0;
 
-        document.getElementById('user-balance').innerText = `${balance.toLocaleString()} 원`;
+        const portfolioList = document.getElementById('my-portfolio-list');
+        portfolioList.innerHTML = '';
 
-        let stockEvalTotal = 0;
-        const portList = document.getElementById('my-portfolio-list');
-        portList.innerHTML = '';
+        const heldStockIds = Object.keys(holdings).filter(sId => holdings[sId] > 0);
+        
+        heldStockIds.sort((a, b) => (holdings[b] || 0) - (holdings[a] || 0));
 
-        const sortedHoldings = Object.keys(holdings)
-            .filter(sId => holdings[sId] > 0 && stockDataMap[sId])
-            .map(sId => ({
-                sId: sId,
-                qty: holdings[sId],
-                buyPrice: buyPrices[sId] || stockDataMap[sId].currentPrice
-            }))
-            .sort((a, b) => b.qty - a.qty);
+        heldStockIds.forEach(sId => {
+            const qty = holdings[sId];
+            const stock = stockDataMap[sId];
+            if (!stock) return;
 
-        sortedHoldings.forEach(item => {
-            const stock = stockDataMap[item.sId];
-            const qty = item.qty;
             const currentPrice = stock.currentPrice;
-            const buyPrice = item.buyPrice;
-            const evalVal = currentPrice * qty;
-            const profitVal = (currentPrice - buyPrice) * qty;
-            const profitRate = ((currentPrice - buyPrice) / buyPrice) * 100;
+            const avgBuyPrice = buyPrices[sId] || currentPrice;
+            
+            const itemValuation = currentPrice * qty;
+            stockValuation += itemValuation;
 
-            stockEvalTotal += evalVal;
-            const colorClass = profitVal > 0 ? 'text-profit' : (profitVal < 0 ? 'text-loss' : '');
+            const profitLoss = (currentPrice - avgBuyPrice) * qty;
+            const profitRate = avgBuyPrice > 0 ? ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100 : 0;
+            const rateClass = profitLoss > 0 ? 'text-profit' : (profitLoss < 0 ? 'text-loss' : '');
+            const sign = profitLoss > 0 ? '+' : '';
 
-            portList.innerHTML += `
-                <tr>
-                    <td>
-                        <div class="stock-info-cell">
-                            <span class="stock-title">${stock.name}</span>
-                            <span class="stock-category">${stock.category || '기타'}</span>
-                        </div>
-                    </td>
-                    <td>${qty}주</td>
-                    <td>${Math.round(buyPrice).toLocaleString()}원</td>
-                    <td>${currentPrice.toLocaleString()}원</td>
-                    <td class="${colorClass}">${profitVal > 0 ? '+' : ''}${Math.round(profitVal).toLocaleString()}원 (${profitRate.toFixed(2)}%)</td>
-                </tr>`;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="stock-info-cell">
+                        <span class="stock-title">${stock.name}</span>
+                        <span class="stock-category">${stock.category}</span>
+                    </div>
+                </td>
+                <td><b>${qty}주</b></td>
+                <td>${Math.round(avgBuyPrice).toLocaleString()}원</td>
+                <td>${currentPrice.toLocaleString()}원</td>
+                <td class="${rateClass}">${sign}${profitLoss.toLocaleString()}원<br>(${sign}${profitRate.toFixed(2)}%)</td>
+            `;
+            portfolioList.appendChild(tr);
         });
 
-        const totalAsset = balance + stockEvalTotal;
-        const totalProfitRate = balance === 0 && stockEvalTotal === 0 ? 0 : ((totalAsset - 10000000) / 10000000) * 100;
+        if (heldStockIds.length === 0) {
+            portfolioList.innerHTML = '<tr><td colspan="5" style="color: #94a3b8; padding: 20px;">보유 중인 주식이 없습니다.</td></tr>';
+        }
 
-        document.getElementById('total-asset').innerText = `${totalAsset.toLocaleString()} 원`;
-        const totalProfitEl = document.getElementById('total-profit-rate');
-        totalProfitEl.innerText = `${totalProfitRate > 0 ? '+' : ''}${totalProfitRate.toFixed(2)}%`;
-        totalProfitEl.className = `val ${totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '')}`;
+        const totalAsset = currentUser.balance + stockValuation;
+        const totalProfitRate = ((totalAsset - 10000000) / 10000000) * 100;
+        const profitClass = totalProfitRate > 0 ? 'text-profit' : (totalProfitRate < 0 ? 'text-loss' : '');
+        const profitSign = totalProfitRate > 0 ? '+' : '';
+
+        document.getElementById('total-asset').textContent = `${Math.round(totalAsset).toLocaleString()} 원`;
+        document.getElementById('user-balance').textContent = `${Math.round(currentUser.balance).toLocaleString()} 원`;
+        
+        const profitRateEl = document.getElementById('total-profit-rate');
+        profitRateEl.textContent = `${profitSign}${totalProfitRate.toFixed(2)}%`;
+        profitRateEl.className = `val ${profitClass}`;
     }
 
     function toggleLeaderboardExpand() {
@@ -879,119 +796,135 @@
     }
 
     function updateLeaderboard() {
-        const leaderboardList = document.getElementById('leaderboard-list');
-        const toggleBtn = document.getElementById('toggle-rank-btn');
-        leaderboardList.innerHTML = '';
+        if (!allUsersData.length) return;
 
-        if (allUsersData.length === 0) {
-            document.getElementById('my-rank-display').innerText = `- 위`;
-            leaderboardList.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="color: #94a3b8;">등록된 투자자가 없습니다.</td></tr>`;
-            toggleBtn.classList.add('hidden');
-            return;
-        }
-
-        const rankedUsers = allUsersData.map(u => {
-            let evalTotal = 0;
+        const leaderboardData = allUsersData.map(u => {
             const holdings = u.holdings || {};
-
-            for (let sId in holdings) {
-                const qty = holdings[sId];
-                if (qty > 0 && stockDataMap[sId]) {
-                    evalTotal += stockDataMap[sId].currentPrice * qty;
+            let stockVal = 0;
+            Object.keys(holdings).forEach(sId => {
+                if (holdings[sId] > 0 && stockDataMap[sId]) {
+                    stockVal += holdings[sId] * stockDataMap[sId].currentPrice;
                 }
-            }
-
-            const totalAsset = (u.balance || 0) + evalTotal;
-            const profitRate = ((totalAsset - 10000000) / 10000000) * 100;
-
-            return { id: u.id, name: u.name || '익명', totalAsset, profitRate };
+            });
+            const total = (u.balance || 0) + stockVal;
+            const rate = ((total - 10000000) / 10000000) * 100;
+            return { id: u.id, name: u.name, totalAsset: total, profitRate: rate, rawData: u };
         });
 
-        rankedUsers.sort((a, b) => b.totalAsset - a.totalAsset);
+        leaderboardData.sort((a, b) => b.totalAsset - a.totalAsset);
 
-        if (rankedUsers.length > 5) {
+        const listEl = document.getElementById('leaderboard-list');
+        listEl.innerHTML = '';
+
+        const myRankIndex = leaderboardData.findIndex(u => u.id === userId);
+        document.getElementById('my-rank-display').textContent = myRankIndex !== -1 ? `${myRankIndex + 1} 위` : '- 위';
+
+        const toggleBtn = document.getElementById('toggle-rank-btn');
+        if (leaderboardData.length > 5) {
             toggleBtn.classList.remove('hidden');
-            if (isLeaderboardExpanded) {
-                toggleBtn.innerText = `🔼 접기 (전체 ${rankedUsers.length}명 표시 중)`;
-            } else {
-                toggleBtn.innerText = `🔍 전체 랭킹 보기 (상위 5명 표시 중 / 전체 ${rankedUsers.length}명)`;
-            }
+            toggleBtn.textContent = isLeaderboardExpanded ? "🔼 접기" : `🔍 전체보기 (TOP 5 보는 중 / 전체 ${leaderboardData.length}명)`;
         } else {
             toggleBtn.classList.add('hidden');
         }
 
-        const displayUsers = isLeaderboardExpanded ? rankedUsers : rankedUsers.slice(0, 5);
+        const displayUsers = isLeaderboardExpanded ? leaderboardData : leaderboardData.slice(0, 5);
 
-        displayUsers.forEach((u) => {
-            const rank = rankedUsers.findIndex(item => item.id === u.id) + 1;
+        displayUsers.forEach((u, index) => {
+            const rank = index + 1;
             const isMe = u.id === userId;
-            const colorClass = u.profitRate > 0 ? 'text-profit' : (u.profitRate < 0 ? 'text-loss' : '');
+            const profitClass = u.profitRate > 0 ? 'text-profit' : (u.profitRate < 0 ? 'text-loss' : '');
+            const sign = u.profitRate > 0 ? '+' : '';
 
-            let adminButtonsHtml = '';
+            let adminButtons = '';
             if (isAdmin) {
-                adminButtonsHtml = `
+                adminButtons = `
                     <td class="admin-only-col">
-                        <button class="admin-action-btn btn-admin-info" onclick="adminViewUserInfo('${u.id}')">조회</button>
-                        <button class="admin-action-btn btn-admin-reset" onclick="adminResetUserAssets('${u.id}', '${u.name}')">초기화</button>
-                        <button class="admin-action-btn btn-admin-delete" onclick="adminDeleteSingleUser('${u.id}', '${u.name}')">삭제</button>
-                    </td>`;
+                        <button class="admin-action-btn btn-admin-info" onclick="adminViewUser('${u.id}')">정보</button>
+                        <button class="admin-action-btn btn-admin-reset" onclick="adminResetUserAsset('${u.id}')">초기화</button>
+                        <button class="admin-action-btn btn-admin-delete" onclick="adminDeleteUser('${u.id}')">삭제</button>
+                    </td>
+                `;
             }
 
-            leaderboardList.innerHTML += `
-                <tr class="${isMe ? 'my-rank-row' : ''}">
-                    <td><strong>${rank}위</strong></td>
-                    <td>${u.name}${isMe ? ' (나)' : ''}</td>
-                    <td>${Math.round(u.totalAsset).toLocaleString()}원</td>
-                    <td class="${colorClass}">${u.profitRate > 0 ? '+' : ''}${u.profitRate.toFixed(2)}%</td>
-                    ${adminButtonsHtml}
-                </tr>`;
+            const tr = document.createElement('tr');
+            if (isMe) tr.className = 'my-rank-row';
+            tr.innerHTML = `
+                <td><b>${rank}</b></td>
+                <td>${u.name} ${isMe ? '(나)' : ''}</td>
+                <td>${Math.round(u.totalAsset).toLocaleString()}원</td>
+                <td class="${profitClass}">${sign}${u.profitRate.toFixed(2)}%</td>
+                ${adminButtons}
+            `;
+            listEl.appendChild(tr);
         });
-
-        const myIndex = rankedUsers.findIndex(u => u.id === userId);
-        if (myIndex !== -1) {
-            document.getElementById('my-rank-display').innerText = `${myIndex + 1} 위 / ${rankedUsers.length} 명`;
-        } else {
-            document.getElementById('my-rank-display').innerText = `- 위`;
-        }
     }
 
-    async function tradeStock(stockId, type) {
-        const qty = Number(document.getElementById(`trade-qty-${stockId}`).value);
-        if (qty <= 0 || isNaN(qty)) return alert("올바른 수량을 입력하세요.");
-        await executeTrade(stockId, qty, type);
-    }
+    async function buyStock(stockId) {
+        const qtyInput = document.getElementById(`trade-qty-${stockId}`);
+        const qty = parseInt(qtyInput.value);
+        if (isNaN(qty) || qty <= 0) return alert("올바른 수량을 입력하세요.");
 
-    async function executeTrade(stockId, qty, type) {
-        if (!stockDataMap[stockId]) return;
         const stock = stockDataMap[stockId];
-        const totalPrice = stock.currentPrice * qty;
-        const currentQty = (currentUser.holdings && currentUser.holdings[stockId]) || 0;
-        const currentAvgPrice = (currentUser.buyPrices && currentUser.buyPrices[stockId]) || stock.currentPrice;
+        const cost = stock.currentPrice * qty;
 
-        const userRef = db.collection('users').doc(userId);
+        if (currentUser.balance < cost) return alert("예수금이 부족합니다.");
 
-        if (type === 'BUY') {
-            if (currentUser.balance < totalPrice) return alert("예수금이 부족합니다!");
+        const holdings = currentUser.holdings || {};
+        const buyPrices = currentUser.buyPrices || {};
 
-            const newTotalQty = currentQty + qty;
-            const newAvgPrice = ((currentQty * currentAvgPrice) + (qty * stock.currentPrice)) / newTotalQty;
+        const currentQty = holdings[stockId] || 0;
+        const currentAvg = buyPrices[stockId] || 0;
 
-            await userRef.update({
-                balance: currentUser.balance - totalPrice,
-                [`holdings.${stockId}`]: newTotalQty,
-                [`buyPrices.${stockId}`]: newAvgPrice
-            });
-            alert(`${stock.name} ${qty}주 매수 완료!`);
-        } else {
-            if (currentQty < qty) return alert("보유 수량이 부족합니다!");
+        const newQty = currentQty + qty;
+        const newAvg = ((currentQty * currentAvg) + cost) / newQty;
 
-            const newQty = currentQty - qty;
-            await userRef.update({
-                balance: currentUser.balance + totalPrice,
-                [`holdings.${stockId}`]: newQty
-            });
-            alert(`${stock.name} ${qty}주 매도 완료!`);
-        }
+        holdings[stockId] = newQty;
+        buyPrices[stockId] = newAvg;
+
+        await db.collection('users').doc(userId).update({
+            balance: currentUser.balance - cost,
+            holdings: holdings,
+            buyPrices: buyPrices
+        });
+    }
+
+    async function buyMaxStock(stockId) {
+        const stock = stockDataMap[stockId];
+        const maxQty = Math.floor(currentUser.balance / stock.currentPrice);
+        if (maxQty <= 0) return alert("매수할 수 있는 예수금이 부족합니다.");
+
+        document.getElementById(`trade-qty-${stockId}`).value = maxQty;
+        await buyStock(stockId);
+    }
+
+    async function sellStock(stockId) {
+        const qtyInput = document.getElementById(`trade-qty-${stockId}`);
+        const qty = parseInt(qtyInput.value);
+        if (isNaN(qty) || qty <= 0) return alert("올바른 수량을 입력하세요.");
+
+        const holdings = currentUser.holdings || {};
+        const currentQty = holdings[stockId] || 0;
+
+        if (currentQty < qty) return alert("보유 수량이 부족합니다.");
+
+        const stock = stockDataMap[stockId];
+        const income = stock.currentPrice * qty;
+
+        holdings[stockId] = currentQty - qty;
+
+        await db.collection('users').doc(userId).update({
+            balance: currentUser.balance + income,
+            holdings: holdings
+        });
+    }
+
+    async function sellMaxStock(stockId) {
+        const holdings = currentUser.holdings || {};
+        const currentQty = holdings[stockId] || 0;
+        if (currentQty <= 0) return alert("보유 주식이 없습니다.");
+
+        document.getElementById(`trade-qty-${stockId}`).value = currentQty;
+        await sellStock(stockId);
     }
 
     function startLoops() {
@@ -999,190 +932,254 @@
         if (aiNewsIntervalTimer) clearInterval(aiNewsIntervalTimer);
         if (breakingNewsIntervalTimer) clearInterval(breakingNewsIntervalTimer);
 
-        stockIntervalTimer = setInterval(() => triggerStockPriceChangeNow(), 10000);
-        aiNewsIntervalTimer = setInterval(() => triggerAINewsNow(), 180000);
-        breakingNewsIntervalTimer = setInterval(() => triggerBreakingNewsNow(), 900000);
+        stockIntervalTimer = setInterval(() => {
+            if (!isStocksFrozen) triggerRandomStockChange();
+        }, 10000);
+
+        aiNewsIntervalTimer = setInterval(() => {
+            if (!isStocksFrozen) triggerAINews();
+        }, 30000);
+
+        breakingNewsIntervalTimer = setInterval(() => {
+            if (!isStocksFrozen && Math.random() < 0.4) triggerBreakingNews();
+        }, 90000);
     }
 
-    function adminTriggerStock() { if (isAdmin) triggerStockPriceChangeNow(true); }
-    function adminTriggerNews() { if (isAdmin) triggerAINewsNow(); }
-    function adminTriggerBreakingNews() { if (isAdmin) triggerBreakingNewsNow(); }
-
-    async function adminViewUserInfo(targetUserId) {
-        if (!isAdmin) return;
-        const doc = await db.collection('users').doc(targetUserId).get();
-        if (!doc.exists) return alert("존재하지 않는 계정입니다.");
-
-        const uData = doc.data();
-        const holdings = uData.holdings || {};
-        const buyPrices = uData.buyPrices || {};
-
-        let html = `<p><b>참가자명:</b> ${uData.name}</p>`;
-        html += `<p><b>현재 예수금:</b> ${Math.round(uData.balance || 0).toLocaleString()} 원</p><hr style="margin: 10px 0; border: none; border-top: 1px solid #e2e8f0;">`;
-        html += `<b>[ 보유 주식 목록 ]</b><br><ul style="padding-left: 20px; margin-top: 8px;">`;
-
-        let hasHoldings = false;
-        for (let sId in holdings) {
-            const qty = holdings[sId];
-            if (qty > 0 && stockDataMap[sId]) {
-                hasHoldings = true;
-                const stock = stockDataMap[sId];
-                const avgPrice = buyPrices[sId] || 0;
-                html += `<li style="margin-bottom: 6px;"><b>${stock.name}</b>: ${qty}주 (평단가: ${Math.round(avgPrice).toLocaleString()}원 / 현재가: ${stock.currentPrice.toLocaleString()}원)</li>`;
-            }
-        }
-
-        if (!hasHoldings) html += `<li>보유 주식 없음</li>`;
-        html += `</ul>`;
-
-        document.getElementById('info-modal-title').innerText = `🔍 [${uData.name}] 포트폴리오`;
-        document.getElementById('info-modal-body').innerHTML = html;
-        document.getElementById('user-info-modal').style.display = 'flex';
-    }
-
-    async function adminResetUserAssets(targetUserId, targetUserName) {
-        if (isAdmin && confirm(`'${targetUserName}' 참가자의 자산을 초기화하시겠습니까?`)) {
-            await db.collection('users').doc(targetUserId).update({ balance: 10000000, holdings: {}, buyPrices: {} });
-            alert("초기화 완료");
-        }
-    }
-
-    async function adminResetAllUserAssets() {
-        if (isAdmin && confirm("⚠️ 모든 참가자의 자산을 초기화하시겠습니까?")) {
-            const snapshot = await db.collection('users').get();
-            const batch = db.batch();
-            snapshot.forEach(doc => batch.update(doc.ref, { balance: 10000000, holdings: {}, buyPrices: {} }));
-            await batch.commit();
-            alert("전체 초기화 완료");
-        }
-    }
-
-    async function adminDeleteSingleUser(targetUserId, targetUserName) {
-        if (isAdmin && confirm(`'${targetUserName}' 계정을 삭제하시겠습니까?`)) {
-            await db.collection('users').doc(targetUserId).delete();
-            alert("삭제 완료");
-        }
-    }
-
-    async function adminDeleteAllUsers() {
-        if (isAdmin && confirm("⚠️ 전체 유저 계정을 삭제하시겠습니까?")) {
-            const snapshot = await db.collection('users').get();
-            const batch = db.batch();
-            snapshot.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            alert("전체 삭제 완료");
-        }
-    }
-
-    async function triggerStockPriceChangeNow(isForce = false) {
-        if ((isStocksFrozen && !isForce) || isStockChanging) return;
-
+    async function triggerRandomStockChange() {
+        if (isStockChanging) return;
         isStockChanging = true;
 
         try {
-            const stockKeys = Object.keys(stockDataMap);
-            if (stockKeys.length === 0) return;
-
             const batch = db.batch();
-
-            for (let sId of stockKeys) {
+            Object.keys(stockDataMap).forEach(sId => {
                 const stock = stockDataMap[sId];
-                let randomDelta = (Math.random() * 0.04) - 0.02;
-                let newPrice = Math.round(stock.currentPrice * (1 + randomDelta));
+                let changePercent = (Math.random() * 0.08) - 0.038;
+
+                if (stock.lastImpact && stock.lastImpact !== 0) {
+                    changePercent += stock.lastImpact;
+                }
+
+                let newPrice = Math.round(stock.currentPrice * (1 + changePercent));
                 if (newPrice < 1000) newPrice = 1000;
 
-                const initialPrice = stock.initialPrice || stock.currentPrice;
-                const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
+                const changeRate = ((newPrice - stock.initialPrice) / stock.initialPrice) * 100;
 
-                const stockRef = db.collection('stocks').doc(sId);
-                batch.update(stockRef, {
+                const ref = db.collection('stocks').doc(sId);
+                batch.update(ref, {
                     currentPrice: newPrice,
                     changeRate: changeRate,
+                    lastImpact: 0,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            }
-
+            });
             await batch.commit();
-        } catch (error) {
-            console.error("주가 변동 중 오류 발생:", error);
         } finally {
             isStockChanging = false;
         }
     }
 
-    async function triggerAINewsNow() {
-        let randomIndex;
+    async function triggerAINews() {
+        let nextIndex;
         do {
-            randomIndex = Math.floor(Math.random() * AI_NEWS_POOL.length);
-        } while (randomIndex === lastNewsIndex && AI_NEWS_POOL.length > 1);
+            nextIndex = Math.floor(Math.random() * AI_NEWS_POOL.length);
+        } while (nextIndex === lastNewsIndex && AI_NEWS_POOL.length > 1);
+        lastNewsIndex = nextIndex;
+
+        const item = AI_NEWS_POOL[nextIndex];
         
-        lastNewsIndex = randomIndex;
-        const baseNews = AI_NEWS_POOL[randomIndex];
-        const targetStockId = baseNews.stockId;
-
-        if (!isStocksFrozen && targetStockId && stockDataMap[targetStockId]) {
-            const stock = stockDataMap[targetStockId];
-            let impactFactor = baseNews.impact * (0.9 + Math.random() * 0.2);
-
-            let newPrice = Math.round(stock.currentPrice * (1 + impactFactor));
-            if (newPrice < 1000) newPrice = 1000;
-
-            const initialPrice = stock.initialPrice || stock.currentPrice;
-            const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
-
-            await db.collection('stocks').doc(targetStockId).update({
-                currentPrice: newPrice,
-                changeRate: changeRate,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-
         await db.collection('news').add({
-            title: baseNews.title,
-            content: baseNews.content,
+            title: item.title,
+            content: item.content,
+            targetStockId: item.stockId,
             isBreaking: false,
-            targetStockId: targetStockId,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }
 
-    async function triggerBreakingNewsNow() {
-        let randomIndex;
-        do {
-            randomIndex = Math.floor(Math.random() * BREAKING_NEWS_POOL.length);
-        } while (randomIndex === lastBreakingIndex && BREAKING_NEWS_POOL.length > 1);
-
-        lastBreakingIndex = randomIndex;
-        const event = BREAKING_NEWS_POOL[randomIndex];
-        const targetStockId = event.stockId;
-
-        if (!isStocksFrozen && stockDataMap[targetStockId]) {
-            const stock = stockDataMap[targetStockId];
-            let newPrice = Math.round(stock.currentPrice * (1 + event.impact));
-            if (newPrice < 1000) newPrice = 1000;
-
-            const initialPrice = stock.initialPrice || stock.currentPrice;
-            const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
-
-            await db.collection('stocks').doc(targetStockId).update({
-                currentPrice: newPrice,
-                changeRate: changeRate,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        if (stockDataMap[item.stockId]) {
+            await db.collection('stocks').doc(item.stockId).update({
+                lastImpact: item.impact
             });
         }
+    }
 
-        const stockName = stockDataMap[targetStockId] ? stockDataMap[targetStockId].name : '시황';
-        document.getElementById('breaking-stock-name').innerText = stockName;
-        document.getElementById('breaking-news-title').innerText = event.title;
+    async function triggerBreakingNews() {
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * BREAKING_NEWS_POOL.length);
+        } while (nextIndex === lastBreakingIndex && BREAKING_NEWS_POOL.length > 1);
+        lastBreakingIndex = nextIndex;
+
+        const item = BREAKING_NEWS_POOL[nextIndex];
+        const stockName = stockDataMap[item.stockId] ? stockDataMap[item.stockId].name : '주요 종목';
+
+        document.getElementById('breaking-stock-name').textContent = stockName;
+        document.getElementById('breaking-news-title').textContent = item.title;
         document.getElementById('breaking-news-area').classList.remove('hidden');
 
         await db.collection('news').add({
-            title: event.title,
-            content: event.content,
+            title: item.title,
+            content: item.content,
+            targetStockId: item.stockId,
             isBreaking: true,
-            targetStockId: targetStockId,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+
+        if (stockDataMap[item.stockId]) {
+            await db.collection('stocks').doc(item.stockId).update({
+                lastImpact: item.impact
+            });
+        }
+    }
+
+    function openNewsModal(title, content, stockName, timeStr) {
+        document.getElementById('modal-news-tag').textContent = `관련종목: ${stockName} | ${timeStr}`;
+        document.getElementById('modal-news-title').textContent = title;
+        document.getElementById('modal-news-content').textContent = content;
+        document.getElementById('news-modal').style.display = 'flex';
+    }
+
+    function closeNewsModal() {
+        document.getElementById('news-modal').style.display = 'none';
+    }
+
+    function closeUserInfoModal() {
+        document.getElementById('user-info-modal').style.display = 'none';
+    }
+
+    function updateFreezeUI() {
+        const statusText = document.getElementById('freeze-status-text');
+        const toggleBtn = document.getElementById('freeze-toggle-btn');
+        if (!statusText || !toggleBtn) return;
+
+        if (isStocksFrozen) {
+            statusText.textContent = '[주가 얼림 (일시정지)]';
+            statusText.style.color = '#ef4444';
+            toggleBtn.textContent = '🔥 주가 얼음 해제';
+            toggleBtn.className = 'ai-control-btn unfreeze';
+        } else {
+            statusText.textContent = '[실시간 변동 중]';
+            statusText.style.color = '#059669';
+            toggleBtn.textContent = '🧊 주가 얼리기';
+            toggleBtn.className = 'ai-control-btn freeze';
+        }
+    }
+
+    async function adminToggleFreeze() {
+        await db.collection('system').doc('config').update({ isFrozen: !isStocksFrozen });
+    }
+
+    async function adminTriggerStock() {
+        await triggerRandomStockChange();
+        alert("주가가 즉시 변동되었습니다.");
+    }
+
+    async function adminResetStockPrices() {
+        if (!confirm("모든 주가를 초기 가격으로 리셋하시겠습니까?")) return;
+        const batch = db.batch();
+        PRESET_STOCKS.forEach(stock => {
+            const ref = db.collection('stocks').doc(stock.id);
+            batch.update(ref, {
+                currentPrice: stock.initialPrice,
+                changeRate: 0,
+                lastImpact: 0,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        await batch.commit();
+        alert("모든 주가가 초기화되었습니다.");
+    }
+
+    async function adminTriggerNews() {
+        await triggerAINews();
+        alert("AI 뉴스가 발행되었습니다.");
+    }
+
+    async function adminTriggerBreakingNews() {
+        await triggerBreakingNews();
+    }
+
+    async function adminDeleteAllNews() {
+        if (!confirm("모든 뉴스 데이터를 삭제하시겠습니까?")) return;
+        const snapshot = await db.collection('news').get();
+        const batch = db.batch();
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("모든 뉴스가 삭제되었습니다.");
+    }
+
+    async function adminResetAllUserAssets() {
+        if (!confirm("모든 사용자의 자산과 보유 주식을 초기화하시겠습니까?")) return;
+        const snapshot = await db.collection('users').get();
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+            batch.update(doc.ref, {
+                balance: 10000000,
+                holdings: {},
+                buyPrices: {}
+            });
+        });
+        await batch.commit();
+        alert("모든 사용자 자산이 초기화되었습니다.");
+    }
+
+    async function adminDeleteAllUsers() {
+        if (!confirm("모든 일반 사용자 계정을 삭제하시겠습니까? (관리자 포함)")) return;
+        const snapshot = await db.collection('users').get();
+        const batch = db.batch();
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("모든 계정이 삭제되었습니다. 페이지를 새로고침합니다.");
+        location.reload();
+    }
+
+    function adminViewUser(targetUserId) {
+        const user = allUsersData.find(u => u.id === targetUserId);
+        if (!user) return alert("사용자 정보를 찾을 수 없습니다.");
+
+        let bodyHtml = `
+            <p><b>닉네임:</b> ${user.name}</p>
+            <p><b>비밀번호:</b> ${user.password || 'N/A'}</p>
+            <p><b>예수금:</b> ${Math.round(user.balance || 0).toLocaleString()} 원</p>
+            <h4 style="margin-top:15px; margin-bottom:8px;">📦 보유 주식 상세</h4>
+        `;
+
+        const holdings = user.holdings || {};
+        const buyPrices = user.buyPrices || {};
+        const heldKeys = Object.keys(holdings).filter(k => holdings[k] > 0);
+
+        if (heldKeys.length === 0) {
+            bodyHtml += `<p style="color:#94a3b8;">보유한 주식이 없습니다.</p>`;
+        } else {
+            bodyHtml += `<ul style="padding-left:20px;">`;
+            heldKeys.forEach(sId => {
+                const stock = stockDataMap[sId];
+                const name = stock ? stock.name : sId;
+                const qty = holdings[sId];
+                const avg = Math.round(buyPrices[sId] || 0);
+                bodyHtml += `<li><b>${name}:</b> ${qty}주 (평단가: ${avg.toLocaleString()}원)</li>`;
+            });
+            bodyHtml += `</ul>`;
+        }
+
+        document.getElementById('info-modal-title').textContent = `🔍 [${user.name}] 계정 정보`;
+        document.getElementById('info-modal-body').innerHTML = bodyHtml;
+        document.getElementById('user-info-modal').style.display = 'flex';
+    }
+
+    async function adminResetUserAsset(targetUserId) {
+        if (!confirm("이 사용자의 자산을 초기화하시겠습니까?")) return;
+        await db.collection('users').doc(targetUserId).update({
+            balance: 10000000,
+            holdings: {},
+            buyPrices: {}
+        });
+        alert("사용자 자산이 초기화되었습니다.");
+    }
+
+    async function adminDeleteUser(targetUserId) {
+        if (!confirm("이 사용자 계정을 정말로 삭제하시겠습니까?")) return;
+        await db.collection('users').doc(targetUserId).delete();
+        alert("계정이 삭제되었습니다.");
     }
 </script>
 </body>
