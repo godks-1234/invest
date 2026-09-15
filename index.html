@@ -3,161 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 자동 운용 모의 주식 투자 시스템</title>
+    <title>invest. | 모의 주식 투자</title>
     <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        :root {
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --profit: #dc2626; /* 한국 주식 시장: 빨강 상승 */
-            --loss: #2563eb;   /* 한국 주식 시장: 파랑 하락 */
-            --border: #e2e8f0;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background-color: var(--bg-color); color: #1e293b; padding: 20px; }
+:root{--bg-color:#f5f6f3;--card-bg:#fff;--primary:#182b26;--accent:#245c47;--profit:#c64c47;--loss:#356db5;--border:#e5e9e3;--muted:#778078}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:95px}
+body{background:var(--bg-color);color:#28332d;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR","Malgun Gothic",sans-serif;font-size:14px;line-height:1.5;letter-spacing:-.025em;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}button,a,input,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer;transition:background .16s,color .16s,border-color .16s}button:disabled{opacity:.55;cursor:wait}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #78a891;outline-offset:3px}button:hover{filter:brightness(.96)}a{color:inherit;text-decoration:none}.hidden{display:none!important}
+header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;border-bottom:1px solid var(--border);padding:0 max(28px,calc((100vw - 1400px)/2));position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:11px;white-space:nowrap}.brand-mark{width:32px;height:32px;display:inline-flex;align-items:flex-end;justify-content:center;gap:3px;background:var(--accent);padding:8px;border-radius:5px}.brand-mark i{display:block;width:3px;background:#fff}.brand-mark i:nth-child(1){height:6px}.brand-mark i:nth-child(2){height:11px}.brand-mark i:nth-child(3){height:16px}header h1{font-size:21px;font-weight:750;letter-spacing:-.06em}.brand-caption{font-size:11px;color:var(--muted);font-weight:500;border-left:1px solid var(--border);padding-left:12px;margin-left:2px;letter-spacing:0}
+.top-nav{height:100%;display:flex;gap:28px;align-items:center}.top-nav a{height:100%;display:flex;align-items:center;font-size:13px;color:#747c76;border-bottom:2px solid transparent;padding-top:2px}.top-nav a:first-child{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}.top-nav a:hover{color:var(--accent)}.user-badge{margin-left:auto;font-size:12px;color:#536158;white-space:nowrap}.logout-btn{margin-left:12px;border:1px solid var(--border);background:#fff;color:#6b756e;padding:6px 10px;border-radius:5px;font-size:11px}
+.app-shell{max-width:1456px;margin:auto;padding:38px 28px 28px}.page-intro{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px}.eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;color:#7b867c;margin-bottom:8px}.page-intro h2{font-size:29px;line-height:1.3;font-weight:700;letter-spacing:-.055em}.page-intro p{font-size:13px;color:#7a827c;margin-top:8px}.market-caption{font-size:11px;color:#637269;border:1px solid #dce3db;padding:6px 11px;border-radius:4px;background:#edf1eb}
+.dashboard{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px;align-items:start}.card{min-width:0;background:var(--card-bg);border:1px solid var(--border);border-radius:9px;padding:24px;scroll-margin-top:95px}.card h2{font-size:16px;font-weight:700;color:var(--primary);display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;line-height:1.5}.section-note{font-size:10px;color:#91998f;font-weight:400;white-space:nowrap;letter-spacing:0}.summary-card{grid-column:1/-1!important;order:0;padding:0;overflow:hidden}.summary-card h2{padding:17px 24px;margin:0;border-bottom:1px solid var(--border);font-size:13px}.asset-summary{display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr;min-height:125px}.asset-box{padding:23px 26px;position:relative;display:flex;flex-direction:column;justify-content:center}.asset-box+.asset-box:before{content:"";width:1px;height:45%;position:absolute;left:0;top:28%;background:var(--border)}.asset-box:nth-child(1){order:4}.asset-box:nth-child(2){order:1;background:#f1f5ef}.asset-box:nth-child(3){order:2}.asset-box:nth-child(4){order:3}.asset-box .label{color:#79837b;font-size:11px;margin-bottom:8px}.asset-box .val{font-size:25px;letter-spacing:-.055em;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.3}.asset-box:nth-child(2) .val{font-size:31px;color:var(--accent)}
+.chart-card-wrapper{grid-column:span 8;order:1;min-width:0}.chart-card{width:100%;height:386px}.chart-controls{display:flex;gap:7px;align-items:center}.chart-select{border:1px solid var(--border);border-radius:5px;padding:7px 25px 7px 10px;font-size:11px;max-width:180px;background:#fff;color:#56645b;cursor:pointer}.chart-container{position:relative;height:286px;width:100%}.news-card{grid-column:span 4!important;order:2;height:386px}.news-list{max-height:294px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d9e0d6 transparent}.news-item-container{border-bottom:1px solid var(--border)}.news-item-container:last-child{border:0}.news-item-title{padding:13px 0;cursor:pointer;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;line-height:1.65}.news-item-container:first-child .news-item-title{padding-top:0}.news-item-title:hover strong{color:var(--accent)}.news-item-title strong{font-size:12px;font-weight:550;word-break:keep-all;overflow-wrap:anywhere}.news-tag{display:table;font-size:9px;font-weight:600;color:#60725e;background:#eff3ed;border:1px solid #e4eadf;padding:1px 5px;border-radius:3px;margin-bottom:6px}.news-time{font-size:10px;color:#8e968e;flex-shrink:0;padding-top:3px;font-variant-numeric:tabular-nums}
+.market-card{grid-column:span 8;order:3}.ranking-card{grid-column:span 4;order:4}.portfolio-card{grid-column:1/-1;order:5}.table-scroll{overflow-x:auto;scrollbar-width:thin}table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}th,td{padding:15px 9px;text-align:right;border-bottom:1px solid #edf0ea;white-space:nowrap;vertical-align:middle}th{font-size:10px;font-weight:500;color:#929a93;background:#fafbf8;padding-top:10px;padding-bottom:10px}th:first-child,td:first-child{text-align:left;padding-left:12px}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fafbf8}td b{font-weight:600}.stock-info-cell{display:flex;flex-direction:column;align-items:flex-start;min-width:86px}.stock-title{font-size:12px;font-weight:650;color:#35453a}.stock-category{font-size:9px;color:#98a094;margin-top:3px}.text-profit{color:var(--profit);font-weight:600}.text-loss{color:var(--loss);font-weight:600}.my-rank-row{background:#f1f6ee!important}.trade-input{width:51px;padding:6px 3px;text-align:center;border:1px solid #dfe5dd;border-radius:4px;color:#3d4a40;background:#fff;font-size:11px}.trade-btn{border:1px solid transparent;border-radius:4px;padding:6px 7px;font-size:10px;font-weight:600;margin:2px 0}.btn-buy{background:#f9ecea;color:#b54c46;border-color:#f0dedb}.btn-sell{background:#ebf1fa;color:#3d6ba5;border-color:#dce5f2}.btn-max-buy,.btn-max-sell{background:#fff;color:#737d73;border-color:#e1e6dc}.market-card td:last-child{max-width:192px;white-space:normal;min-width:166px}.ranking-card th,.ranking-card td{padding-left:7px;padding-right:7px;font-size:11px}.ranking-card th{font-size:10px}.ranking-card td:first-child{color:#7d8b7b;font-size:13px}.ranking-card td:nth-child(2){text-align:left;max-width:90px;overflow:hidden;text-overflow:ellipsis}.toggle-expand-btn{margin-top:14px;width:100%;padding:9px;border:1px solid var(--border);border-radius:4px;background:#fafbf8;color:#72806f;font-size:11px}.empty-state{padding:24px 8px;color:#939b91;font-size:12px;text-align:center}.portfolio-card tbody:empty:after{content:"보유한 주식이 없습니다. 관심 있는 종목으로 투자를 시작해 보세요.";display:table-cell;padding:28px 12px;font-size:12px;color:#939b91}.app-footer{display:flex;justify-content:space-between;border-top:1px solid var(--border);margin-top:30px;padding-top:17px;color:#929a90;font-size:10px;letter-spacing:.01em}
+.ai-control-panel{display:flex;flex-direction:column;gap:13px;padding:18px 22px;margin-bottom:22px;background:#eaf0e7;border:1px solid #dce5d7;border-radius:7px;font-size:12px}.ai-control-panel>div:last-child{display:flex;gap:6px;flex-wrap:wrap}.ai-control-btn,.admin-action-btn{padding:7px 10px;background:#fff;color:#48613d;border:1px solid #d2decb;border-radius:4px;font-size:11px}.ai-control-btn.danger,.btn-admin-delete{color:#ac514a;border-color:#e9cec9}.ai-control-btn.warning,.btn-admin-reset{color:#896832}.admin-action-btn{padding:4px;font-size:9px}.breaking-news-banner{display:flex;align-items:center;justify-content:space-between;background:#a54a40;color:#fff;padding:15px 22px;border-radius:6px;margin-bottom:22px;gap:15px}.breaking-title{font-size:12px;font-weight:650}.breaking-body{font-size:12px;margin-top:3px}
+.modal-overlay{position:fixed;inset:0;background:rgba(23,36,28,.35);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;overflow-y:auto}.modal-content{background:#fff;padding:32px;border:1px solid #e2e7dd;border-radius:11px;width:100%;max-width:550px;max-height:calc(100dvh - 48px);overflow-y:auto;box-shadow:0 18px 70px #1d322422}.modal-content h2{font-size:23px;font-weight:650;line-height:1.4;color:var(--primary);margin-bottom:12px;letter-spacing:-.045em}.modal-content p{font-size:13px;color:#7c857b;line-height:1.9;margin-bottom:24px;word-break:keep-all}.modal-content input[type=text],.modal-content input[type=password]{width:100%;border:1px solid #dfe5da;border-radius:5px;background:#fff;padding:12px 13px;margin-bottom:18px;font-size:13px;color:#34422f}.modal-content input::placeholder{color:#a6ada3}.field-label{display:block;font-size:11px;font-weight:600;color:#62725b;margin-bottom:7px}.btn-start,.btn-close{width:100%;border:0;background:var(--accent);color:#fff;padding:13px 16px;border-radius:5px;font-size:13px;font-weight:600}.btn-start:hover,.btn-close:hover{background:#1a4937}.quiz-card{border-bottom:1px solid var(--border);padding:16px 0}.quiz-card:first-child{padding-top:0}.quiz-card:last-child{margin-bottom:24px}.quiz-question{font-size:13px;font-weight:600;color:#394b32;margin-bottom:10px}.quiz-options{display:flex;flex-direction:column;gap:6px}.quiz-options label{display:flex;align-items:center;gap:9px;font-size:12px;line-height:1.65;padding:6px 8px;border-radius:4px;cursor:pointer}.quiz-options label:hover{background:#f3f6ef}.quiz-options label:has(input:checked){background:#edf3e7;color:#34552a}.quiz-options input{accent-color:var(--accent);flex-shrink:0}.login-content{max-width:830px;padding:0;display:grid;grid-template-columns:.95fr 1fr;overflow:hidden}.login-aside{background:#edf1e8;padding:40px 33px;display:flex;flex-direction:column;position:relative;overflow:hidden;min-height:460px}.login-aside .brand{color:var(--accent);font-size:19px;letter-spacing:-.06em;font-weight:700}.login-aside h3{font-size:35px;line-height:1.4;font-weight:500;letter-spacing:-.065em;color:#344b34;margin:45px 0 16px}.login-aside p{font-size:12px;color:#7c8c72;margin:0;line-height:1.9}.login-aside small{margin-top:auto;padding-top:28px;font-size:9px;letter-spacing:.13em;color:#8b967e}.login-form{padding:43px 34px 34px}.login-form .eyebrow{margin-bottom:14px}.login-form h2{font-size:24px}.login-form p{font-size:12px;margin-bottom:27px}.login-footnote{font-size:10px!important;margin:18px 0 0!important;text-align:center;color:#8d9787!important}.login-aside-graphic{display:flex;align-items:flex-end;gap:9px;height:80px;margin-top:26px}.login-aside-graphic i{border:1px solid #b6c4a7;background:#e3e9da;width:25%;border-radius:3px 3px 0 0}.login-aside-graphic i:nth-child(1){height:23%}.login-aside-graphic i:nth-child(2){height:46%}.login-aside-graphic i:nth-child(3){height:63%}.login-aside-graphic i:nth-child(4){height:96%}
+.page-loader{position:fixed;inset:0;z-index:9999;background:#f5f6f1;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .35s,visibility .35s}.page-loader.is-leaving{opacity:0;visibility:hidden;pointer-events:none}.loader-brand{display:flex;align-items:center;gap:13px;font-size:27px;font-weight:700;letter-spacing:-.065em;color:#245c47}.loader-brand .brand-mark{width:39px;height:39px;padding:11px}.loader-caption{font-size:11px;color:#8b9485;margin-top:18px;letter-spacing:.02em}.loader-track{width:130px;height:2px;background:#e0e6d9;margin-top:32px;overflow:hidden}.loader-track:after{content:"";height:100%;width:45%;display:block;background:#467151;animation:loading 1.25s ease-in-out infinite}.loader-bottom{position:absolute;bottom:35px;color:#a1a999;font-size:9px;letter-spacing:.17em}@keyframes loading{from{transform:translateX(-105%)}to{transform:translateX(330%)}}.resource-error{padding:15px;background:#f8eee8;color:#985b40;font-size:12px;border-bottom:1px solid #ecdace;text-align:center}.resource-error button{background:#fff;border:1px solid #dbc4b6;padding:3px 8px;border-radius:3px;margin-left:8px;color:inherit}
+@media(min-width:1500px){.asset-box .val{font-size:29px}.asset-box:nth-child(2) .val{font-size:34px}}
+@media(max-width:1150px){header{gap:30px}.top-nav{gap:20px}.brand-caption{display:none}.dashboard{gap:16px}.card{padding:19px}.summary-card{padding:0}.chart-card-wrapper,.market-card{grid-column:span 7}.news-card,.ranking-card{grid-column:span 5!important}.asset-box{padding:22px 20px}.asset-box .val{font-size:21px}.asset-box:nth-child(2) .val{font-size:26px}.market-card table{min-width:550px}.chart-controls{gap:4px}.chart-select{max-width:132px;padding-left:7px;padding-right:5px}.chart-card h2{flex-wrap:wrap}.chart-container{height:276px}}
+@media(max-width:800px){header{height:66px;padding:0 20px;gap:22px}.top-nav{gap:17px}.top-nav a{font-size:12px}.user-badge{font-size:11px}.app-shell{padding:26px 20px}.chart-card-wrapper,.market-card,.news-card,.ranking-card{grid-column:1/-1!important}.chart-card-wrapper{order:1}.market-card{order:2}.news-card{order:4;height:auto}.ranking-card{order:5}.portfolio-card{order:3}.chart-card{height:355px}.chart-container{height:264px}.news-list{max-height:260px}.asset-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.asset-box{min-height:100px}.asset-box:nth-child(4),.asset-box:nth-child(1){border-top:1px solid var(--border)}.asset-box:nth-child(4):before{display:none}.market-caption{font-size:10px}.page-intro h2{font-size:25px}.ranking-card td,.ranking-card th{padding:12px}.modal-content{padding:25px}.login-content{padding:0}.login-form{padding:30px 25px}.login-aside{padding:30px 25px}.login-aside h3{font-size:29px}.app-footer{gap:16px}}
+@media(max-width:560px){header{height:auto;min-height:64px;padding:14px 16px;flex-wrap:wrap;gap:12px}.brand-mark{width:27px;height:27px;padding:6px}header h1{font-size:19px}.top-nav{order:3;width:100%;height:28px;justify-content:space-between;border-top:1px solid #f1f3ed;padding-top:7px}.top-nav a{padding-bottom:6px;border-bottom:0}.top-nav a:first-child{border-bottom:0}.user-badge{font-size:10px}.logout-btn{font-size:10px;padding:4px 6px;margin-left:6px}.app-shell{padding:24px 14px}.page-intro{margin-bottom:19px;align-items:flex-start}.eyebrow{font-size:9px}.page-intro h2{font-size:25px}.page-intro p{font-size:11px}.market-caption{font-size:9px;padding:5px 7px}.card{padding:17px 14px;border-radius:7px}.summary-card{padding:0}.summary-card h2{padding:13px 16px}.asset-box{padding:17px 16px;min-height:98px}.asset-box .val{font-size:21px}.asset-box:nth-child(2) .val{font-size:24px}.asset-box .label{font-size:10px}.card h2{font-size:14px;margin-bottom:17px}.section-note{font-size:9px}.chart-card{height:340px}.chart-card h2{align-items:flex-start;gap:9px}.chart-controls{margin-left:auto}.chart-select{font-size:10px;max-width:119px;padding:6px}.chart-container{height:250px}.portfolio-card table{min-width:480px}.app-footer{font-size:9px;flex-direction:column;gap:5px}.modal-overlay{padding:16px}.modal-content{max-height:calc(100dvh - 32px)}.login-content{grid-template-columns:1fr;max-width:390px;overflow-y:auto}.login-aside{min-height:0;padding:23px 26px 21px}.login-aside .brand{font-size:16px}.login-aside h3{font-size:22px;margin:18px 0 0;line-height:1.4}.login-aside h3 br{display:none}.login-aside p,.login-aside-graphic,.login-aside small{display:none}.login-form{padding:25px 26px 27px}.login-form .eyebrow{display:none}.login-form h2{font-size:22px;margin-bottom:7px}.login-form p{font-size:11px;margin-bottom:20px}.modal-content input[type=text],.modal-content input[type=password]{font-size:16px;padding:10px 12px;margin-bottom:14px}.login-footnote{margin-top:14px!important}.btn-start,.btn-close{padding:12px}.ai-control-panel{padding:15px}.breaking-news-banner{padding:14px}.resource-error{font-size:11px}}
+@media(max-width:560px){html{scroll-padding-top:124px}.market-card table{min-width:0;width:100%;display:block}.market-card thead{display:none}.market-card tbody{display:block}.market-card tbody tr{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:11px 5px;padding:15px 0;border-bottom:1px solid var(--border)}.market-card tbody tr:last-child{border:0}.market-card td{padding:0;border:0}.market-card td:first-child{padding:0;grid-column:1}.market-card td:nth-child(2),.market-card td:nth-child(3){align-self:center;font-size:11px}.market-card td:nth-child(4){grid-column:1;display:flex;align-items:center;gap:6px;text-align:left}.market-card td:nth-child(4):before{content:"수량";color:#84917a;font-size:10px}.market-card td:last-child{grid-column:2 / 4;max-width:none;min-width:0;display:flex;justify-content:flex-end;gap:4px}.market-card .trade-btn{padding:8px 5px;font-size:10px;margin:0;white-space:nowrap}.market-card .trade-input{width:47px;padding:7px 3px}.portfolio-card .table-scroll:after,.admin-page .table-scroll:after{content:"좌우로 밀어 전체 표를 확인하세요 ↔";display:block;position:sticky;left:0;font-size:9px;color:#909b87;padding-top:10px;text-align:right}.market-card tbody tr:hover{background:transparent}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.loader-track:after{width:100%;opacity:.6}}
 
-        /* 긴급 속보 패널 */
-        .breaking-news-banner {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            color: white;
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            animation: pulse-border 2s infinite;
-        }
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-        }
-        .breaking-title { font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-        .breaking-body { font-size: 0.95rem; margin-top: 4px; opacity: 0.95; }
-
-        /* 모달 스타일 */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: white; padding: 28px; border-radius: 16px; width: 90%; max-width: 540px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
-        .modal-content h2 { font-size: 1.3rem; margin-bottom: 12px; color: var(--primary); }
-        .modal-content p { font-size: 0.95rem; color: #475569; margin-bottom: 20px; line-height: 1.6; }
-        .modal-content input[type="text"], .modal-content input[type="password"] { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none; }
-        .btn-start, .btn-close { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; }
-
-        /* 퀴즈 전용 스타일 */
-        .quiz-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; text-align: left; }
-        .quiz-question { font-weight: bold; font-size: 0.95rem; color: var(--primary); margin-bottom: 8px; line-height: 1.4; }
-        .quiz-options { display: flex; flex-direction: column; gap: 6px; }
-        .quiz-options label { font-size: 0.88rem; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-
-        /* 상단 헤더 */
-        header { background: var(--primary); color: white; padding: 18px 24px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        header h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
-        .user-badge { background: #334155; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-left: 8px; }
-
-        /* 대시보드 그리드 레이아웃 */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
-        .card { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-
-        /* 차트 카드 영역 */
-        .chart-card-wrapper { grid-column: 1 / -1; display: flex; justify-content: center; }
-        .chart-card { width: 100%; max-width: 850px; }
-
-        /* 자산 요약 박스 */
-        .asset-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .asset-box { background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #f1f5f9; text-align: center; }
-        .asset-box .label { font-size: 0.8rem; color: #64748b; margin-bottom: 4px; }
-        .asset-box .val { font-size: 1.25rem; font-weight: 700; }
-
-        /* 테이블 및 종목명/카테고리 스타일 통일 */
-        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-        th, td { padding: 12px 6px; text-align: center; border-bottom: 1px solid var(--border); vertical-align: middle; }
-        th { background: #f8fafc; color: #64748b; font-weight: 600; }
-        
-        .stock-info-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .stock-title { font-weight: bold; font-size: 0.95rem; color: var(--primary); }
-        .stock-category { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
-
-        .text-profit { color: var(--profit); font-weight: bold; }
-        .text-loss { color: var(--loss); font-weight: bold; }
-        .my-rank-row { background-color: #eff6ff; font-weight: bold; }
-
-        /* 거래 및 관리 버튼 */
-        .trade-btn { padding: 6px 8px; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; font-size: 0.75rem; margin: 0 1px; }
-        .btn-buy { background: var(--profit); }
-        .btn-sell { background: var(--loss); }
-        .btn-max-buy { background: #059669; }
-        .btn-max-sell { background: #d97706; }
-        
-        .admin-action-btn { padding: 3px 6px; border: none; border-radius: 4px; color: white; font-size: 0.72rem; cursor: pointer; margin: 0 1px; }
-        .btn-admin-info { background: #0284c7; }
-        .btn-admin-reset { background: #eab308; color: #0f172a; font-weight: bold; }
-        .btn-admin-delete { background: #ef4444; }
-
-        .trade-input { width: 45px; text-align: center; padding: 5px; border: 1px solid var(--border); border-radius: 6px; }
-
-        /* 뉴스 피드 */
-        .news-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .news-item-container { background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding-right: 12px; }
-        .news-item-title { padding: 10px 14px; flex-grow: 1; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
-        .news-item-title:hover { background: #e2e8f0; border-radius: 8px; }
-        .news-tag { font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #2563eb; color: white; margin-right: 8px; }
-        .news-time { font-size: 0.75rem; color: #94a3b8; }
-
-        /* AI 조종판 (어드민) */
-        .ai-control-panel { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
-        .ai-control-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-        .ai-control-btn.freeze { background: #0284c7; }
-        .ai-control-btn.unfreeze { background: #ea580c; }
-        .ai-control-btn.warning { background: #d97706; }
-        .ai-control-btn.danger { background: #ef4444; }
-
-        .hidden { display: none !important; }
-
-        /* 차트 컨트롤 */
-        .chart-controls { display: flex; gap: 8px; align-items: center; }
-        .chart-select { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: bold; outline: none; background: #f8fafc; cursor: pointer; }
-        .chart-container { position: relative; height: 350px; width: 100%; background: #ffffff; border-radius: 8px; padding: 10px; border: 1px solid #f1f5f9; }
-
-        .toggle-expand-btn {
-            width: 100%;
-            margin-top: 12px;
-            padding: 8px;
-            background: #f1f5f9;
-            color: #334155;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .toggle-expand-btn:hover { background: #e2e8f0; }
-    </style>
+</style>
 </head>
 <body>
+<div class="page-loader" id="page-loader" role="status" aria-live="polite" aria-label="화면을 준비하고 있습니다">
+<div class="loader-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>invest.</span></div>
+<p class="loader-caption">투자 화면을 준비하고 있습니다</p><div class="loader-track" aria-hidden="true"></div><span class="loader-bottom">YOUR NEXT INVESTMENT</span></div>
+<script>
+// Presentation only. A bounded entry animation does not wait for account data.
+(() => {
+ const started = performance.now();
+ let done = false;
+ window.finishEntryLoader = () => {
+  if (done) return;
+  done = true;
+  setTimeout(() => {
+   const loader = document.getElementById('page-loader');
+   if (!loader) return;
+   loader.classList.add('is-leaving');
+   loader.setAttribute('aria-hidden', 'true');
+   setTimeout(() => loader.remove(), 380);
+  }, Math.max(0, 900 - (performance.now() - started)));
+ };
+ window.addEventListener('load', window.finishEntryLoader, { once: true });
+ setTimeout(window.finishEntryLoader, 8000);
+})();
+</script>
+<noscript><style>.page-loader{display:none}</style><div class="resource-error">이 사이트를 사용하려면 브라우저에서 JavaScript를 허용해 주세요.</div></noscript>
 
 <!-- 1. 로그인 모달 -->
 <div id="login-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h2>📈 AI 모의 주식 투자</h2>
-        <p>닉네임과 비밀번호를 입력하세요.<br>(처음 입력 시 퀴즈 풀이 후 계정이 생성됩니다.)</p>
-        <input type="text" id="user-name-input" placeholder="닉네임을 입력하세요">
-        <input type="password" id="user-pw-input" placeholder="비밀번호를 입력하세요">
-        <button class="btn-start" onclick="checkLoginOrStartQuiz()">접속하기 / 시작하기</button>
+    <div class="modal-content login-content"><aside class="login-aside"><div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>invest.</div><h3>시장을 읽고,<br>나의 기준으로.</h3><p>뉴스에서 가능성을 발견하고,<br>직접 투자하며 경험을 쌓아 보세요.</p><div class="login-aside-graphic" aria-hidden="true"><i></i><i></i><i></i><i></i></div><small>LEARN. INVEST. GROW.</small></aside><div class="login-form"><div class="eyebrow">WELCOME TO INVEST</div><h2>투자를 시작해 볼까요</h2>
+        <p>닉네임과 비밀번호로 접속하세요.<br>처음이라면 간단한 금융 퀴즈부터 시작합니다.</p>
+        <label class="field-label" for="user-name-input">닉네임</label><input autocomplete="username" type="text" id="user-name-input" placeholder="닉네임을 입력하세요">
+        <label class="field-label" for="user-pw-input">비밀번호</label><input autocomplete="current-password" type="password" id="user-pw-input" placeholder="비밀번호를 입력하세요">
+        <button class="btn-start" onclick="checkLoginOrStartQuiz()">시작하기 <span aria-hidden="true">→</span></button><p class="login-footnote">퀴즈 결과에 따라 최대 1,000만 원의 투자금이 지급됩니다.</p></div>
     </div>
 </div>
 
 <!-- 2. 신규 사용자 시드머니 금융 퀴즈 모달 -->
 <div id="quiz-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-        <h2>📝 신규 가입 투자 자격 퀴즈</h2>
+        <h2> 신규 가입 투자 자격 퀴즈</h2>
         <p>기본 시드머니 <b>500만원</b>이 기본 지급되며,<br>정답을 맞출 때마다 <b>100만원씩</b> 추가 지급됩니다! (최대 1,000만원)</p>
         
         <div id="quiz-container">
@@ -230,55 +143,51 @@
 <!-- 사용자 상세 관리 모달 -->
 <div id="user-info-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-        <h2 id="info-modal-title">🔍 계정 상세 정보</h2>
+        <h2 id="info-modal-title"> 계정 상세 정보</h2>
         <div id="info-modal-body" style="font-size: 0.9rem; color: #334155; max-height: 350px; overflow-y: auto; margin-bottom: 15px;"></div>
         <button class="btn-close" onclick="closeUserInfoModal()">닫기</button>
     </div>
 </div>
 
+<header><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>invest.</h1><span class="brand-caption">모의투자</span></a><nav class="top-nav" aria-label="주 메뉴"><a href="#overview">투자 현황</a><a href="#market">거래소</a><a href="#news">시장 뉴스</a><a href="#ranking">랭킹</a></nav><div class="user-badge" id="user-display-name"><span>접속 대기 중</span></div></header><main class="app-shell"><section class="page-intro"><div><div class="eyebrow">MY INVESTMENT</div><h2>나의 투자 현황</h2><p>시장의 흐름을 살피고, 다음 투자를 준비하세요.</p></div><span class="market-caption">모의투자</span></section>
 <!-- 긴급 속보 팝업 -->
 <div id="breaking-news-area" class="breaking-news-banner hidden">
     <div>
-        <div class="breaking-title">🚨 [긴급 속보 이벤트] <span id="breaking-stock-name"></span></div>
+        <div class="breaking-title"> [긴급 속보 이벤트] <span id="breaking-stock-name"></span></div>
         <div class="breaking-body" id="breaking-news-title"></div>
     </div>
     <button onclick="document.getElementById('breaking-news-area').classList.add('hidden')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">닫기</button>
 </div>
 
-<header>
-    <h1>📈 AI 모의 주식 투자 System</h1>
-    <div class="user-badge" id="user-display-name">
-        <span>접속 대기 중</span>
-    </div>
-</header>
+
 
 <!-- 어드민 조종 패널 -->
 <div id="admin-panel" class="ai-control-panel hidden">
     <div>
-        👑 <strong>[관리자 모드]</strong> | ⏱️ <strong>주가 변동: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span></strong>
+         <strong>[관리자 모드]</strong> |  <strong>주가 변동: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span></strong>
     </div>
     <div>
-        <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()">🧊 주가 얼리기</button>
-        <button class="ai-control-btn" onclick="adminTriggerStock()">📈 즉시 주가 변동</button>
-        <button class="ai-control-btn warning" onclick="adminResetStockPrices()">📉 주가 초기화</button>
-        <button class="ai-control-btn" onclick="adminTriggerNews()">📰 AI 뉴스 생성</button>
-        <button class="ai-control-btn danger" onclick="adminTriggerBreakingNews()">🚨 속보 발령</button>
-        <button class="ai-control-btn danger" onclick="adminDeleteAllNews()">🗑️ 뉴스 초기화</button>
-        <button class="ai-control-btn warning" onclick="adminResetAllUserAssets()">💰 자산 초기화</button>
-        <button class="ai-control-btn danger" onclick="adminDeleteAllUsers()">🧹 계정 삭제</button>
+        <button id="freeze-toggle-btn" class="ai-control-btn freeze" onclick="adminToggleFreeze()"> 주가 얼리기</button>
+        <button class="ai-control-btn" onclick="adminTriggerStock()"> 즉시 주가 변동</button>
+        <button class="ai-control-btn warning" onclick="adminResetStockPrices()"> 주가 초기화</button>
+        <button class="ai-control-btn" onclick="adminTriggerNews()"> 뉴스 생성</button>
+        <button class="ai-control-btn danger" onclick="adminTriggerBreakingNews()"> 속보 발령</button>
+        <button class="ai-control-btn danger" onclick="adminDeleteAllNews()"> 뉴스 초기화</button>
+        <button class="ai-control-btn warning" onclick="adminResetAllUserAssets()"> 자산 초기화</button>
+        <button class="ai-control-btn danger" onclick="adminDeleteAllUsers()"> 계정 삭제</button>
     </div>
 </div>
 
 <div class="dashboard">
     <!-- 1. AI 실시간 속보 헤드라인 -->
-    <div class="card" style="grid-column: 1 / -1;">
-        <h2>📰 실시간 뉴스 및 시장 이슈 (클릭하여 전체 읽기)</h2>
-        <div class="news-list" id="ai-news-feed"></div>
-    </div>
+    <section class="card news-card" id="news">
+        <h2>시장 뉴스 <span class="section-note">제목을 눌러 전체 읽기</span></h2>
+        <div class="news-list" id="ai-news-feed"><p class="empty-state">접속 후 시장 뉴스를 확인할 수 있습니다.</p></div>
+    </section>
 
     <!-- 2. 내 투자 요약 & 실시간 자산 Status -->
-    <div class="card" style="grid-column: 1 / -1;">
-        <h2>내 투자 요약 & 실시간 자산 Status</h2>
+    <div class="card summary-card" id="overview">
+        <h2>자산 요약 <span class="section-note">MY PORTFOLIO</span></h2>
         <div class="asset-summary">
             <div class="asset-box"><div class="label">내 현재 순위</div><div class="val" id="my-rank-display">- 위</div></div>
             <div class="asset-box"><div class="label">총 평가 자산</div><div class="val" id="total-asset">0 원</div></div>
@@ -291,12 +200,12 @@
     <div class="chart-card-wrapper">
         <div class="card chart-card">
             <h2>
-                <span>📉 실시간 거래소 주가 차트</span>
+                <span>주가 흐름</span>
                 <div class="chart-controls">
                     <select id="chart-stock-select" class="chart-select" onchange="renderStockChart()"></select>
                     <select id="chart-type-select" class="chart-select" onchange="changeChartType()">
-                        <option value="line">📈 꺾은선 그래프</option>
-                        <option value="bar">📊 막대 그래프</option>
+                        <option value="line">꺾은선</option>
+                        <option value="bar">막대</option>
                     </select>
                 </div>
             </h2>
@@ -307,9 +216,9 @@
     </div>
 
     <!-- 주식 시장 (내 보유 상위 종목 우선 정렬) -->
-    <div class="card">
-        <h2>📊 AI 주식 시장 (10초마다 변동)</h2>
-        <table>
+    <div class="card market-card" id="market">
+        <h2>거래소 <span class="section-note">주가 변동 주기 10초</span></h2>
+        <div class="table-scroll"><table>
             <thead>
                 <tr>
                     <th>종목명</th>
@@ -320,14 +229,14 @@
                 </tr>
             </thead>
             <tbody id="stock-market-list"></tbody>
-        </table>
-        <button id="toggle-market-btn" class="toggle-expand-btn hidden" onclick="toggleMarketExpand()">🔍 더보기 (TOP 5 보는 중)</button>
+        </table></div>
+        <button id="toggle-market-btn" class="toggle-expand-btn hidden" onclick="toggleMarketExpand()"> 더보기 (TOP 5 보는 중)</button>
     </div>
 
     <!-- 내 포트폴리오 -->
-    <div class="card">
-        <h2>💼 내 잔고 및 보유 주식</h2>
-        <table>
+    <div class="card portfolio-card" id="portfolio">
+        <h2>보유 주식 <span class="section-note">HOLDINGS</span></h2>
+        <div class="table-scroll"><table>
             <thead>
                 <tr>
                     <th>종목명</th>
@@ -338,13 +247,13 @@
                 </tr>
             </thead>
             <tbody id="my-portfolio-list"></tbody>
-        </table>
+        </table></div>
     </div>
 
     <!-- 투자자 랭킹 -->
-    <div class="card">
-        <h2>🏆 전체 투자자 자산/수익률 랭킹</h2>
-        <table>
+    <div class="card ranking-card" id="ranking">
+        <h2>투자자 순위 <span class="section-note">총 자산 기준</span></h2>
+        <div class="table-scroll"><table>
             <thead>
                 <tr id="leaderboard-header">
                     <th>순위</th>
@@ -355,11 +264,13 @@
                 </tr>
             </thead>
             <tbody id="leaderboard-list"></tbody>
-        </table>
-        <button id="toggle-rank-btn" class="toggle-expand-btn hidden" onclick="toggleLeaderboardExpand()">🔍 전체보기 (TOP 5 보는 중)</button>
+        </table></div>
+        <button id="toggle-rank-btn" class="toggle-expand-btn hidden" onclick="toggleLeaderboardExpand()"> 전체보기 (TOP 5 보는 중)</button>
     </div>
 </div>
 
+<footer class="app-footer"><span>invest. &nbsp; 모의 주식 투자</span><span>뉴스와 시세는 모의투자용 데이터입니다.</span></footer></main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
@@ -1302,6 +1213,81 @@
         await db.collection('users').doc(targetUserId).delete();
         alert("계정이 삭제되었습니다.");
     }
+</script>
+<script>
+// UI enhancements are independent of the original investment and database code.
+(() => {
+ const requiresChart = !!document.getElementById('stockHistoryChart');
+ if (!window.firebase || !firebase.firestore || (requiresChart && !window.Chart)) {
+  const message = document.createElement('div');
+  message.className = 'resource-error';
+  message.setAttribute('role', 'alert');
+  message.textContent = '화면에 필요한 파일을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.';
+  const retry = document.createElement('button');
+  retry.textContent = '새로고침';
+  retry.onclick = () => location.reload();
+  message.appendChild(retry);
+  const login = document.querySelector('.login-form');
+  (login || document.body).prepend(message);
+  document.querySelectorAll('button:not(.resource-error button), input, select, textarea').forEach(el => el.disabled = true);
+ }
+ const login = document.getElementById('login-modal');
+ ['user-name-input','user-pw-input'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', event => {
+   if (event.key === 'Enter' && !event.isComposing) {
+    event.preventDefault();
+    login.querySelector('.btn-start').click();
+   }
+  });
+ });
+ // Existing dynamically generated news titles gain keyboard access.
+ const feed = document.getElementById('ai-news-feed');
+ if (feed) {
+  const enhance = () => feed.querySelectorAll('.news-item-title:not([role])').forEach(el => {
+   el.setAttribute('role', 'button'); el.tabIndex = 0;
+   el.onkeydown = event => { if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); el.click(); } };
+  });
+  new MutationObserver(enhance).observe(feed, {childList:true,subtree:true});
+ }
+ // Keep keyboard focus inside the existing modal while it is open.
+ const overlays = [...document.querySelectorAll('.modal-overlay')];
+ let active = null;
+ let previousFocus = null;
+ function syncDialog() {
+  const visible = overlays.filter(el => getComputedStyle(el).display !== 'none');
+  const next = visible.at(-1) || null;
+  if (next === active) return;
+  if (!active) previousFocus = document.activeElement;
+  active = next;
+  const shell = document.querySelector('.app-shell');
+  const header = document.querySelector('header');
+  if (shell) shell.inert = !!active;
+  if (header) header.inert = !!active;
+  document.body.style.overflow = active ? 'hidden' : '';
+  if (active) {
+   const target = active.querySelector('input,button,select,[tabindex="0"]');
+   target?.focus({preventScroll:true});
+  } else if (previousFocus?.isConnected) previousFocus.focus({preventScroll:true});
+ }
+ overlays.forEach(el => {
+  el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+  const title = el.querySelector('h2');
+  if (title) { if(!title.id) title.id = el.id + '-heading'; el.setAttribute('aria-labelledby',title.id); }
+  new MutationObserver(syncDialog).observe(el,{attributes:true,attributeFilter:['style','class']});
+ });
+ document.addEventListener('keydown',event => {
+  if (!active) return;
+  if (event.key === 'Escape' && ['news-modal','user-info-modal'].includes(active.id)) {
+   active.querySelector('.btn-close').click(); return;
+  }
+  if (event.key !== 'Tab') return;
+  const items = [...active.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]')].filter(el => el.getClientRects().length);
+  if (!items.length) return;
+  if(event.shiftKey && document.activeElement === items[0]) {event.preventDefault();items.at(-1).focus();}
+  else if(!event.shiftKey && document.activeElement === items.at(-1)) {event.preventDefault();items[0].focus();}
+ });
+ syncDialog();
+})();
 </script>
 </body>
 </html>
