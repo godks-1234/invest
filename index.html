@@ -914,6 +914,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
             holdings: holdings,
             buyPrices: buyPrices
         });
+        return true;
     }
 
     async function buyMaxStock(stockId) {
@@ -922,7 +923,9 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
         if (maxQty <= 0) return alert("매수할 수 있는 예수금이 부족합니다.");
 
         document.getElementById(`trade-qty-${stockId}`).value = maxQty;
-        await buyStock(stockId);
+        if (await buyStock(stockId)) {
+            alert("매수 되었습니다");
+        }
     }
 
     async function sellStock(stockId) {
@@ -944,6 +947,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
             balance: currentUser.balance + income,
             holdings: holdings
         });
+        return true;
     }
 
     async function sellMaxStock(stockId) {
@@ -952,7 +956,9 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
         if (currentQty <= 0) return alert("보유 주식이 없습니다.");
 
         document.getElementById(`trade-qty-${stockId}`).value = currentQty;
-        await sellStock(stockId);
+        if (await sellStock(stockId)) {
+            alert("매도 되었습니다");
+        }
     }
 
     function startLoops() {
