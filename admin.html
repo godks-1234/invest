@@ -31,6 +31,10 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 .admin-page .grid-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}.admin-page .card h2{border-bottom:1px solid var(--border);padding-bottom:16px}.admin-page .form-group{margin-bottom:17px}.admin-page .form-group label{display:block;font-size:11px;font-weight:600;color:#6d7c65;margin-bottom:7px}.admin-page .form-group input,.admin-page .form-group textarea,.admin-page .form-group select{width:100%;background:#fff;border:1px solid #dde5d8;padding:11px 12px;border-radius:5px;font-size:12px;color:#425339}.admin-page textarea{resize:vertical;min-height:122px;font-family:inherit;line-height:1.8}.admin-page input::placeholder,.admin-page textarea::placeholder{color:#a3ac9b}.admin-page form>button{width:100%;background:var(--accent);color:#fff;border:0;border-radius:5px;padding:11px;font-size:12px;font-weight:600}.admin-page #stock-form{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.admin-page #stock-form>button{grid-column:1/-1}.admin-page .price-input-group{display:flex;align-items:center;justify-content:flex-end;gap:5px}.admin-page .price-input-group input{width:82px;border:1px solid #dce5d6;border-radius:4px;padding:6px;font-size:11px;text-align:right;color:#546449}.admin-page .btn-sm{background:#eef3e9;border:1px solid #dfe8d7;color:#4d6940;padding:6px 8px;font-size:10px;border-radius:4px;white-space:nowrap}.admin-page .btn-danger{color:#b35b4f;border-color:#eddfd6;background:#fbf3ee}.admin-page .sub-heading{font-size:12px;font-weight:600;margin-top:28px;padding-top:21px;border-top:1px solid var(--border);color:#69785f}.admin-page .monitor-card{grid-column:1/-1}.admin-page #admin-news-list td:nth-child(2){max-width:220px;min-width:130px;white-space:normal;text-align:left;line-height:1.7}.admin-page #admin-user-monitor td:last-child{white-space:normal;min-width:210px;font-size:11px;color:#7d8875}.admin-page #admin-user-monitor td:nth-child(4){color:var(--accent)}.admin-page .card table{min-width:440px}.admin-page .monitor-card table{min-width:840px}.admin-page .page-intro{margin-bottom:28px}.admin-page .monitor-card h2{justify-content:flex-start}.admin-page .monitor-card h2 .section-note{margin-left:auto}.admin-page .return-link{padding:7px 10px;border:1px solid var(--border);border-radius:4px}.admin-page .card tbody:empty:after{content:"등록된 데이터가 없습니다.";display:table-cell;padding:24px 10px;color:#929c8b;font-size:12px}
 @media(max-width:1000px){.admin-page .grid-layout{grid-template-columns:1fr}.admin-page .card table{min-width:520px}.admin-page .monitor-card table{min-width:840px}}
 @media(max-width:560px){.admin-page .grid-layout{gap:16px}.admin-page #stock-form{grid-template-columns:1fr}.admin-page .form-group input,.admin-page .form-group textarea,.admin-page .form-group select{font-size:16px}.admin-page .monitor-card h2{flex-wrap:wrap}.admin-page .monitor-card h2 .section-note{margin-left:0}}
+
+.news-generator{border-top:1px solid #dce5d7;margin-top:9px;padding-top:16px;width:100%}.news-generator h3{font-size:13px;margin-bottom:12px;color:#36513b}.generator-fields{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}.generator-fields label,.probability-row label{font-size:11px;color:#637359;display:flex;flex-direction:column;gap:5px}.generator-fields select,.probability-row input{padding:9px 10px;border:1px solid #d7e0d1;border-radius:5px;background:white;color:#344b31;font-size:12px;min-height:36px}.generator-fields select{min-width:130px}.generator-fields button,.probability-row button{padding:9px 12px;border-radius:5px;border:1px solid #cedbc6;background:#fff;color:#385230;font-size:12px;min-height:36px}.generator-fields button[data-side=negative]{border-color:#e3ccc7;color:#945145}.probability-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:14px}.probability-row input{width:76px}.probability-row small{align-self:center;color:#6e7e61;font-size:11px}.generator-note{font-size:11px;color:#7e8b73;line-height:1.8;margin-top:12px}.admin-page .news-generator{margin-bottom:24px;border-top:0;border-bottom:1px solid var(--border);padding:0 0 20px}.asset-manager-content{max-width:610px}.asset-user-summary{padding:12px;background:#f2f5ee;border:1px solid #e1e7da;border-radius:5px;font-size:12px;color:#566b4a;line-height:1.8;margin-bottom:18px}.asset-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}.asset-fields label{font-size:12px;color:#526349;display:flex;flex-direction:column;gap:7px}.asset-fields select,.asset-fields input,.asset-fields textarea{width:100%;padding:11px;border:1px solid #dce4d6;border-radius:5px;background:#fff;font-size:13px;color:#33452c}.asset-fields [hidden]{display:none!important}.asset-reason-field{grid-column:1/-1}.asset-fields textarea{resize:vertical;min-height:68px;font-family:inherit}.asset-form-note{font-size:11px!important;line-height:1.8!important;margin:14px 0!important}.asset-buttons{display:flex;gap:10px}.asset-buttons button{flex:1}.asset-buttons .btn-close{background:#edf1e8;color:#53654a}.asset-history-heading{font-size:12px;margin-top:22px;margin-bottom:9px}.asset-history{max-height:180px;overflow:auto;font-size:11px;color:#6c7961;line-height:1.8}.asset-history>div{padding:9px 0;border-bottom:1px solid #e8ede2;overflow-wrap:anywhere}.account-status{font-size:10px;color:#6b815e}.account-status.frozen{color:#b26548}.account-freeze-notice{padding:14px 17px;border:1px solid #e2cdb4;background:#fbf4e8;color:#8d6844;font-size:12px;border-radius:6px;margin-bottom:22px}.account-freeze-notice[hidden]{display:none}.ranking-card:has(.admin-only-col:not(.hidden)){grid-column:1/-1}.asset-manager-content h2{font-size:21px}.admin-page .monitor-card table{min-width:940px}.admin-page .monitor-card td:last-child{min-width:84px!important}.admin-login-content{max-width:430px}.admin-login-content .eyebrow{margin-bottom:12px}.admin-login-content input{font-size:16px!important}.admin-page .manual-news-heading{font-size:13px;margin:8px 0 18px;color:#5d7350}
+@media(max-width:560px){.generator-fields label{flex:1;min-width:130px}.generator-fields select{width:100%}.generator-fields button{flex:1;font-size:11px}.asset-fields{grid-template-columns:1fr}.asset-manager-content{padding:22px}.asset-fields input,.asset-fields select,.asset-fields textarea{font-size:16px}.asset-manager-content h2{font-size:20px}.probability-row small{flex-basis:100%}.asset-manager-content .asset-buttons button{font-size:12px}}
+
 </style>
 </head>
 <body class="admin-page">
@@ -65,7 +69,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
         <form id="stock-form">
             <div class="form-group"><label for="stock-name">종목명</label><input type="text" id="stock-name" placeholder="예: 한국전자" required></div>
             <div class="form-group"><label for="stock-price">기준 가격(원)</label><input type="number" id="stock-price" placeholder="10000" required></div>
-            <button type="submit">신규 종목 등록</button>
+            <div class="form-group"><label for="stock-category">업종</label><select id="stock-category"><option value="기타">기타</option><option>IT/반도체</option><option>플랫폼</option><option>식품</option><option>의약/제약</option><option>자동차</option><option>이차전지</option><option>엔터테인먼트</option></select></div><button type="submit">신규 종목 등록</button>
         </form>
         <div class="table-scroll"><table style="margin-top:20px;">
             <thead><tr><th>종목명</th><th>현재가</th><th>변동률</th><th>가격 조정</th></tr></thead>
@@ -74,11 +78,18 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
     </section>
     <section class="card" id="news-management">
         <h2>뉴스 발행 <span class="section-note">NEWSROOM</span></h2>
-        <form id="news-form">
+        <section class="news-generator"><h3>종목별 뉴스 생성</h3><div class="generator-fields">
+<label>대상 종목<select id="generated-news-stock"><option value="RANDOM">무작위 종목</option></select></label>
+<label>뉴스 종류<select id="generated-news-kind"><option value="normal">일반 뉴스</option><option value="breaking">긴급속보</option></select></label>
+<button type="button" data-generate-news data-side="positive" onclick="adminGenerateNews('positive')">긍정적 뉴스 생성</button><button type="button" data-generate-news data-side="negative" onclick="adminGenerateNews('negative')">부정적 뉴스 생성</button></div>
+<div class="probability-row"><label>자동 부정 뉴스 확률 (%)<input id="negative-news-percent" type="number" min="0" max="100" step="1" value="50"></label><button type="button" onclick="saveNewsProbability()">확률 저장</button><small id="news-probability-label">자동 뉴스: 긍정 50% · 부정 50%</small></div>
+<p class="generator-note">뉴스 영향은 다음 주가 갱신에 반영됩니다. 이용자 뉴스 화면에는 긍정·부정 구분을 표시하지 않습니다.</p></section>
+<h3 class="manual-news-heading">직접 뉴스 작성</h3>
+<form id="news-form">
             <div class="form-group"><label for="news-title">뉴스 제목</label><input type="text" id="news-title" placeholder="속보 제목 입력" required></div>
             <div class="form-group"><label for="news-target-stock">관련 종목 선택</label><select id="news-target-stock" required><option value="ALL">전체 시장</option></select></div>
             <div class="form-group"><label for="news-content">뉴스 내용</label><textarea id="news-content" rows="4" placeholder="시장이나 해당 종목에 영향을 미칠 호재/악재 뉴스 작성" required></textarea></div>
-            <button type="submit">속보 발행</button>
+            <div class="form-group"><label for="news-impact-direction">뉴스 영향 (관리자만 표시)</label><select id="news-impact-direction"><option value="neutral">영향 없음</option><option value="positive">긍정</option><option value="negative">부정</option></select></div><div class="form-group"><label for="news-impact-percent">다음 주가 변동에 더할 영향 크기 (%)</label><input id="news-impact-percent" type="number" min="0" max="40" step="0.1" value="8"></div><button type="submit">뉴스 발행</button>
         </form>
         <h3 class="sub-heading">최근 발행 뉴스</h3>
         <div class="table-scroll"><table style="margin-top:10px;">
@@ -89,12 +100,23 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
     <div class="card monitor-card" id="participants">
         <h2>참여자 투자 현황 <span class="section-note">자산 · 수익률 · 보유 종목</span></h2>
         <div class="table-scroll"><table>
-            <thead><tr><th>참여자 이름</th><th>예수금 (원)</th><th>주식 평가액 (원)</th><th>총 자산 (원)</th><th>수익률 (%)</th><th>보유 종목 세부 현황</th></tr></thead>
+            <thead><tr><th>참여자 이름</th><th>예수금 (원)</th><th>주식 평가액 (원)</th><th>총 자산 (원)</th><th>수익률 (%)</th><th>보유 종목 세부 현황</th><th>자산 관리</th></tr></thead>
             <tbody id="admin-user-monitor"></tbody>
         </table></div>
     </div>
 </div>
 <footer class="app-footer"><span>invest. &nbsp; 관리자 센터</span><span>모의 주식 투자 운영 시스템</span></footer></main>
+<div id="admin-login-modal" class="modal-overlay"><div class="modal-content admin-login-content"><div class="eyebrow">ADMINISTRATION</div><h2>관리자 접속</h2><p>관리자 비밀번호로 접속하세요.<br>이름은 자산 조정 이력에 기록됩니다.</p><form onsubmit="unlockAdminPage(event)"><label for="admin-operator-name" class="field-label">관리자 이름</label><input id="admin-operator-name" type="text" required maxlength="40" placeholder="예: 운영 담당자"><label for="admin-access-password" class="field-label">관리자 비밀번호</label><input id="admin-access-password" type="password" required autocomplete="current-password"><button type="submit" class="btn-start">관리자 접속</button></form></div></div><div id="asset-manager-modal" class="modal-overlay" style="display:none;">
+<div class="modal-content asset-manager-content"><h2 id="asset-manager-title">이용자 자산 관리</h2>
+<div id="asset-user-summary" class="asset-user-summary"></div>
+<form id="asset-adjust-form"><div class="asset-fields">
+<label>조정 방식<select id="asset-action" onchange="updateAssetFields()"><option value="cash-seize">현금 압류</option><option value="stock-seize">보유 주식 압류</option><option value="seize-all">전체 자산 압류</option><option value="cash-add">현금 지급</option><option value="cash-set">현금 잔액 지정</option><option value="freeze">계좌 동결 (매수·매도 차단)</option><option value="unfreeze">계좌 동결 해제</option></select></label>
+<label id="asset-stock-field" hidden>압류할 종목<select id="asset-stock"><option value="">보유 종목 선택</option></select></label>
+<label id="asset-amount-field"><span id="asset-amount-label">금액 (원)</span><input type="number" id="asset-amount" min="1" step="1" inputmode="numeric" placeholder="금액 또는 수량"></label>
+<label class="asset-reason-field">처리 사유<textarea id="asset-reason" maxlength="300" required placeholder="예: 운영 규정 위반으로 현금 일부 압류"></textarea></label></div>
+<p class="asset-form-note">압류는 해당 자산을 차감합니다. 조정은 총자산·수익률에 반영되며 초기 투자금은 유지됩니다. 계좌 동결 중에도 시세에 따른 평가액은 변동됩니다.</p>
+<div class="asset-buttons"><button id="asset-submit" type="submit" class="btn-start">조정 적용</button><button type="button" class="btn-close" onclick="closeAssetManager()">닫기</button></div></form>
+<h3 class="asset-history-heading">최근 처리 이력 · 최대 10건</h3><div id="asset-user-history" class="asset-history"></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
@@ -109,84 +131,1009 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const ADMIN_PASSWORD = "eerf";
+    let isAdmin = false;
+    let currentUser = {name:'관리자 센터'};
     let stockDataMap = {};
-
-    document.getElementById('stock-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('stock-name').value.trim();
-        const price = Number(document.getElementById('stock-price').value);
-        if(!name || !price) return;
-        await db.collection('stocks').add({ name: name, currentPrice: price, initialPrice: price, changeRate: 0, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        document.getElementById('stock-form').reset();
+// Embedded identically in both pages. Firebase transactions serialize related changes.
+const NEWS_CATALOG = [
+  {
+    "id": "general-positive-0",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 분기 영업이익, 시장 예상 웃돌아",
+    "content": "매출 증가와 비용 절감이 동시에 나타나며 영업이익이 예상치를 넘어섰습니다. 회사는 다음 분기에도 수익성 중심의 운영을 이어갈 계획입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-1",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 장기 공급 계약 체결… 수주 잔고 확대",
+    "content": "주요 거래처와 다년간 공급 계약을 맺어 향후 매출의 가시성이 높아졌습니다. 생산과 인력 계획을 안정적으로 수립할 여건이 마련됐습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-2",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 원재료 구매 비용 하락, 수익성 개선 기대",
+    "content": "주요 원재료 가격과 운송비가 낮아지면서 비용 부담이 줄었습니다. 판매 가격을 유지할 경우 이익률 개선이 가능하다는 분석입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-3",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 자사주 매입 계획 발표",
+    "content": "회사가 잉여현금을 활용한 자사주 매입 계획을 공개했습니다. 사업 투자에 필요한 자금은 별도로 확보했다는 설명입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-4",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 해외 판매망 확대… 신규 시장 진출",
+    "content": "현지 유통업체와 계약을 맺고 새로운 지역에 판매망을 구축했습니다. 초기 주문량이 내부 목표치를 웃돌며 매출 다변화에 대한 기대가 커지고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-5",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 차입금 조기 상환, 이자 부담 완화",
+    "content": "영업 현금흐름 개선으로 차입금 일부를 조기 상환했습니다. 이자 비용 감소가 향후 순이익 개선에 기여할 것으로 예상됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-6",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 신제품 사전 주문, 내부 목표 초과",
+    "content": "신제품의 사전 주문이 당초 계획보다 빠르게 늘어나고 있습니다. 회사는 공급량 확대를 검토하고 있으며 초기 고객 반응도 안정적이라고 밝혔습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-7",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 공정 개선으로 생산 효율 높여",
+    "content": "작업 공정 개선이 마무리되면서 같은 설비로 더 많은 제품을 생산할 수 있게 됐습니다. 추가 대규모 투자 없이 원가를 낮출 여지가 생겼습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-8",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 장기 분쟁 합의… 불확실성 해소",
+    "content": "장기간 이어진 거래 분쟁이 합의로 마무리됐습니다. 예상보다 합의 비용이 낮아 관련 충당금 부담도 줄어들 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-9",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 신용등급 전망 상향, 자금 조달 여건 개선",
+    "content": "신용평가사가 안정적인 현금흐름과 재무구조 개선을 반영해 등급 전망을 높였습니다. 신규 자금 조달 시 비용 절감 효과가 기대됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-10",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 정부 지원 사업 선정… 연구개발 재원 확보",
+    "content": "회사의 연구개발 과제가 지원 사업에 선정됐습니다. 자체 부담을 줄이면서 기술 개발 일정을 이어갈 수 있게 됐습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-positive-11",
+    "sector": "general",
+    "sentiment": "positive",
+    "title": "{name}, 해외 법인 흑자 전환",
+    "content": "설립 초기 투자비 부담이 컸던 해외 법인이 손익분기점을 넘겼습니다. 현지 고객 확보와 비용 안정화가 동시에 나타난 결과로 분석됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-0",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 분기 영업이익, 시장 예상 밑돌아",
+    "content": "매출 증가세가 둔화한 가운데 고정비 부담이 커져 영업이익이 예상치를 밑돌았습니다. 회사는 올해 비용 계획과 실적 전망을 다시 검토하고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-1",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 주요 고객 주문 축소… 수주 공백 우려",
+    "content": "주요 고객사가 재고 조정을 이유로 주문량을 줄였습니다. 다른 거래처로 물량을 돌리기까지 생산 가동률이 낮아질 가능성이 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-2",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 원재료·물류비 상승, 원가 부담 확대",
+    "content": "주요 원재료 가격과 국제 운송비가 동시에 올랐습니다. 계약상 판매 가격에 즉시 반영하기 어려워 단기 수익성이 악화될 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-3",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 유상증자 계획 공개… 주식 수 증가 전망",
+    "content": "회사가 투자 자금 확보를 위해 신주 발행을 추진합니다. 장기 투자 효과와 별개로 기존 주주의 지분 비율이 낮아질 수 있다는 우려가 나오고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-4",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 해외 규제 강화로 시장 진출 일정 지연",
+    "content": "진출 예정 국가의 심사 기준이 강화돼 제품 출시가 늦어지고 있습니다. 현지 인력과 시설 유지 비용은 계속 발생하고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-5",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 차입금 차환 금리 상승",
+    "content": "만기가 돌아온 차입금을 이전보다 높은 금리로 재조달하게 됐습니다. 이자 비용 증가가 순이익에 부담으로 작용할 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-6",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 신제품 판매, 초기 기대에 못 미쳐",
+    "content": "출시 후 판매량이 내부 목표에 미치지 못하고 있습니다. 재고 처리와 추가 마케팅 집행이 필요해 이익률 저하 가능성이 제기됐습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-7",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 생산 설비 점검 연장… 출하 일정 차질",
+    "content": "핵심 생산 설비에서 추가 점검 항목이 발견돼 가동 재개가 늦어졌습니다. 일부 고객에 대한 납품 일정 조정이 불가피해졌습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-8",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 계약 분쟁 소송 제기… 충당금 검토",
+    "content": "거래 상대방이 계약 이행과 관련한 손해배상 소송을 제기했습니다. 소송 결과는 확정되지 않았지만 법률 비용과 충당금 부담이 커질 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-9",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 신용등급 전망 하향",
+    "content": "신용평가사가 현금흐름 약화와 차입 부담을 이유로 등급 전망을 낮췄습니다. 향후 자금 조달 조건이 불리해질 가능성이 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-10",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 연구개발 일정 지연… 추가 비용 발생",
+    "content": "핵심 개발 과제에서 보완 사항이 발견돼 상용화 일정이 늦어졌습니다. 당초 예상한 매출 발생 시점도 뒤로 밀릴 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "general-negative-11",
+    "sector": "general",
+    "sentiment": "negative",
+    "title": "{name}, 해외 법인 적자 확대",
+    "content": "현지 수요 부진과 운영비 상승으로 해외 법인의 손실이 늘었습니다. 본사의 추가 자금 지원 여부가 향후 실적의 변수가 되고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "semiconductor-positive-0",
+    "sector": "semiconductor",
+    "sentiment": "positive",
+    "title": "{name}, 고성능 메모리 공급 확대 계약",
+    "content": "고성능 메모리에 대한 장기 공급 계약을 확보했습니다. 고부가 제품 비중 확대가 평균 판매 가격과 수익성 개선으로 이어질 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "semiconductor-positive-1",
+    "sector": "semiconductor",
+    "sentiment": "positive",
+    "title": "{name}, 차세대 공정 수율 개선",
+    "content": "새로운 생산 공정의 양품 비율이 높아져 생산 비용이 줄고 있습니다. 주요 고객의 품질 인증도 계획대로 진행되고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "semiconductor-positive-2",
+    "sector": "semiconductor",
+    "sentiment": "positive",
+    "title": "{name}, 반도체 재고 감소… 고객 주문 회복",
+    "content": "고객사의 부품 재고가 정상 수준에 가까워지며 주문이 회복되고 있습니다. 생산 가동률 개선에 대한 기대가 커졌습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "semiconductor-negative-0",
+    "sector": "semiconductor",
+    "sentiment": "negative",
+    "title": "{name}, 반도체 재고 증가… 판매 단가 압박",
+    "content": "주요 고객의 주문 회복이 지연되며 재고가 늘었습니다. 재고 처리를 위한 가격 할인 가능성이 수익성 우려를 키우고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "semiconductor-negative-1",
+    "sector": "semiconductor",
+    "sentiment": "negative",
+    "title": "{name}, 신규 공정 수율 목표 미달",
+    "content": "차세대 공정의 양품 비율이 당초 목표를 밑돌았습니다. 생산 안정화에 필요한 비용과 시간이 예상보다 늘어날 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "semiconductor-negative-2",
+    "sector": "semiconductor",
+    "sentiment": "negative",
+    "title": "{name}, 첨단 반도체 수출 심사 강화",
+    "content": "주요 시장의 수출 심사가 까다로워져 일부 출하가 지연됐습니다. 심사 결과에 따라 판매 지역과 제품 구성을 조정해야 할 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "platform-positive-0",
+    "sector": "platform",
+    "sentiment": "positive",
+    "title": "{name}, 광고주 집행 확대… 플랫폼 매출 회복",
+    "content": "주요 광고주의 예산 집행이 늘어나 광고 매출이 회복되고 있습니다. 이용자당 광고 효율 개선도 실적에 보탬이 되고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "platform-positive-1",
+    "sector": "platform",
+    "sentiment": "positive",
+    "title": "{name}, 유료 서비스 가입자 증가",
+    "content": "핵심 유료 서비스의 신규 가입과 갱신이 함께 증가했습니다. 반복 매출 비중이 높아져 수익 안정성이 개선될 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "platform-positive-2",
+    "sector": "platform",
+    "sentiment": "positive",
+    "title": "{name}, 결제·커머스 거래액 확대",
+    "content": "플랫폼 내 거래액이 증가하며 결제와 판매 수수료 수입이 늘고 있습니다. 기존 이용자의 서비스 이용 빈도도 높아졌습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "platform-negative-0",
+    "sector": "platform",
+    "sentiment": "negative",
+    "title": "{name}, 서비스 장애 장기화… 보상 비용 우려",
+    "content": "일부 핵심 서비스의 장애 복구가 지연됐습니다. 이용자 보상과 시스템 보완 비용이 늘어날 가능성이 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "platform-negative-1",
+    "sector": "platform",
+    "sentiment": "negative",
+    "title": "{name}, 광고 경기 둔화… 광고주 예산 축소",
+    "content": "주요 광고주들이 마케팅 예산을 줄이면서 광고 판매가 둔화됐습니다. 회사는 비용 효율화 방안을 검토하고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "platform-negative-2",
+    "sector": "platform",
+    "sentiment": "negative",
+    "title": "{name}, 이용자 증가세 둔화, 경쟁 비용 확대",
+    "content": "경쟁 서비스로 이용자가 분산되며 성장률이 낮아졌습니다. 이용자 유치를 위한 판촉비 증가는 단기 수익성을 압박할 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "food-positive-0",
+    "sector": "food",
+    "sentiment": "positive",
+    "title": "{name}, 해외 식품 유통망 입점 확대",
+    "content": "주력 식품이 해외 대형 유통망에 추가 입점했습니다. 판매 지역 확대와 반복 주문 증가가 수출 실적을 뒷받침할 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "food-positive-1",
+    "sector": "food",
+    "sentiment": "positive",
+    "title": "{name}, 곡물 구매 가격 안정… 원가 개선",
+    "content": "주요 곡물 구매 가격이 안정되며 원가 부담이 줄었습니다. 기존 판매 가격을 유지하면 영업이익률이 개선될 여지가 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "food-positive-2",
+    "sector": "food",
+    "sentiment": "positive",
+    "title": "{name}, 간편식 신제품 판매 호조",
+    "content": "새로 출시한 간편식의 재구매율이 예상치를 웃돌았습니다. 회사는 생산량과 판매 채널을 순차적으로 확대할 예정입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "food-negative-0",
+    "sector": "food",
+    "sentiment": "negative",
+    "title": "{name}, 곡물 가격 상승… 식품 원가 압박",
+    "content": "주요 산지의 작황 부진으로 곡물 구매 가격이 올랐습니다. 판매 가격 인상이 지연되면 원가 상승분을 회사가 부담해야 합니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "food-negative-1",
+    "sector": "food",
+    "sentiment": "negative",
+    "title": "{name}, 해외 통관 지연으로 식품 출하 차질",
+    "content": "주력 수출 지역에서 통관 검사가 길어져 배송 일정이 늦어졌습니다. 보관료 증가와 판매 기회 손실이 우려됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "food-negative-2",
+    "sector": "food",
+    "sentiment": "negative",
+    "title": "{name}, 제품 회수 조치… 품질 관리 비용 확대",
+    "content": "일부 생산분에 대한 품질 확인을 위해 자발적 회수 조치를 시작했습니다. 회수 비용과 브랜드 신뢰 회복을 위한 지출이 예상됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "bio-positive-0",
+    "sector": "bio",
+    "sentiment": "positive",
+    "title": "{name}, 신규 의약품 위탁생산 계약 확보",
+    "content": "고객사와 신규 의약품 생산 계약을 맺었습니다. 기존 생산시설의 가동률이 높아져 고정비 부담이 완화될 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "bio-positive-1",
+    "sector": "bio",
+    "sentiment": "positive",
+    "title": "{name}, 품질 심사 통과… 공급 일정 정상 진행",
+    "content": "주요 고객사의 생산시설 품질 심사를 통과했습니다. 예정된 공급 일정에 맞춰 생산을 확대할 수 있게 됐습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "bio-positive-2",
+    "sector": "bio",
+    "sentiment": "positive",
+    "title": "{name}, 기술이전 계약 단계별 성과금 유입",
+    "content": "기술이전 계약의 개발 목표가 충족되면서 단계별 성과금이 들어올 예정입니다. 연구개발 자금 확보에 도움이 될 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "bio-negative-0",
+    "sector": "bio",
+    "sentiment": "negative",
+    "title": "{name}, 고객사 의약품 생산 일정 연기",
+    "content": "고객사의 개발 계획 변경으로 예정된 생산 일정이 늦춰졌습니다. 유휴 설비 증가가 단기 이익률에 부담을 줄 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "bio-negative-1",
+    "sector": "bio",
+    "sentiment": "negative",
+    "title": "{name}, 품질 심사 보완 요청… 공급 승인 지연",
+    "content": "생산시설 심사 과정에서 추가 자료와 보완 조치가 요청됐습니다. 조치 완료 시점에 따라 신규 공급 일정이 달라질 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "bio-negative-2",
+    "sector": "bio",
+    "sentiment": "negative",
+    "title": "{name}, 개발 단계 지연으로 성과금 수령 연기",
+    "content": "협력사의 개발 일정이 늦어져 예정된 성과금 유입 시점이 밀렸습니다. 연구개발 지출이 지속되는 가운데 현금흐름 부담이 커질 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "auto-positive-0",
+    "sector": "auto",
+    "sentiment": "positive",
+    "title": "{name}, 신차 판매 확대… 해외 점유율 상승",
+    "content": "새로운 차종의 판매가 늘며 주요 해외 시장 점유율이 높아졌습니다. 고부가 차종 비중 확대도 수익성에 기여하고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "auto-positive-1",
+    "sector": "auto",
+    "sentiment": "positive",
+    "title": "{name}, 부품 수급 정상화로 생산 회복",
+    "content": "주요 부품 공급이 안정되면서 생산 차질이 해소되고 있습니다. 대기 주문을 처리하며 출하량을 늘릴 수 있을 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "auto-positive-2",
+    "sector": "auto",
+    "sentiment": "positive",
+    "title": "{name}, 하이브리드 수요 확대 수혜",
+    "content": "연료 효율을 중시하는 소비자가 늘면서 하이브리드 차종 판매가 증가했습니다. 수요에 맞춘 생산 조정이 진행되고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "auto-negative-0",
+    "sector": "auto",
+    "sentiment": "negative",
+    "title": "{name}, 대규모 리콜 발표… 보증 비용 증가",
+    "content": "일부 차종의 부품 교체를 위한 리콜 계획을 발표했습니다. 정비 비용과 고객 보상 비용이 실적에 부담을 줄 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "auto-negative-1",
+    "sector": "auto",
+    "sentiment": "negative",
+    "title": "{name}, 해외 판매 부진으로 재고 증가",
+    "content": "주요 해외 시장에서 판매 속도가 늦어져 재고가 증가했습니다. 판매 촉진을 위한 할인 확대가 이익률을 낮출 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "auto-negative-2",
+    "sector": "auto",
+    "sentiment": "negative",
+    "title": "{name}, 자동차 관세 부담 확대",
+    "content": "주요 수출 시장의 관세 정책 변경으로 판매 비용이 증가할 가능성이 생겼습니다. 생산 거점 조정에는 추가 비용과 시간이 필요합니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "battery-positive-0",
+    "sector": "battery",
+    "sentiment": "positive",
+    "title": "{name}, 양극재 장기 공급 계약 체결",
+    "content": "배터리 고객사와 양극재 장기 공급 계약을 맺었습니다. 향후 출하량을 안정적으로 확보해 가동률 개선을 기대할 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "battery-positive-1",
+    "sector": "battery",
+    "sentiment": "positive",
+    "title": "{name}, 배터리 소재 공장 가동률 회복",
+    "content": "고객 주문이 재개되면서 생산시설 가동률이 높아지고 있습니다. 고정비 분산 효과로 수익성 회복 가능성이 커졌습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "battery-positive-2",
+    "sector": "battery",
+    "sentiment": "positive",
+    "title": "{name}, 차세대 소재 고객 인증 통과",
+    "content": "개발 중인 소재가 고객사의 성능과 안정성 기준을 충족했습니다. 신규 제품 매출 발생을 위한 준비가 본격화됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "battery-negative-0",
+    "sector": "battery",
+    "sentiment": "negative",
+    "title": "{name}, 전기차 수요 둔화로 소재 주문 축소",
+    "content": "고객사들이 전기차 생산 계획을 낮추면서 소재 주문량도 감소했습니다. 재고 관리와 생산량 조정이 필요한 상황입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "battery-negative-1",
+    "sector": "battery",
+    "sentiment": "negative",
+    "title": "{name}, 금속 가격 하락… 재고 평가손실 우려",
+    "content": "소재 판매 가격의 기준이 되는 금속 가격이 내려갔습니다. 높은 가격에 매입한 원재료의 평가손실이 발생할 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "battery-negative-2",
+    "sector": "battery",
+    "sentiment": "negative",
+    "title": "{name}, 신규 소재 인증 일정 지연",
+    "content": "고객사의 검증 과정에서 추가 시험이 필요해졌습니다. 신규 생산시설의 가동 시점이 늦어질 수 있다는 우려가 나옵니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "entertainment-positive-0",
+    "sector": "entertainment",
+    "sentiment": "positive",
+    "title": "{name}, 해외 공연 예매 호조… 추가 회차 검토",
+    "content": "주요 해외 공연의 예매율이 예상치를 웃돌았습니다. 추가 회차 편성이 이뤄지면 공연과 부가 상품 매출이 늘어날 전망입니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "entertainment-positive-1",
+    "sector": "entertainment",
+    "sentiment": "positive",
+    "title": "{name}, 신규 음반·콘텐츠 판매 확대",
+    "content": "새로운 음반과 콘텐츠의 판매량이 증가했습니다. 해외 유통 채널 확대로 수익원의 지역 다변화도 진행되고 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "entertainment-positive-2",
+    "sector": "entertainment",
+    "sentiment": "positive",
+    "title": "{name}, 아티스트 재계약 체결… 활동 계획 안정",
+    "content": "핵심 아티스트와 재계약을 체결해 향후 활동 계획의 불확실성이 줄었습니다. 중장기 음반과 공연 일정을 안정적으로 추진할 수 있게 됐습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "entertainment-negative-0",
+    "sector": "entertainment",
+    "sentiment": "negative",
+    "title": "{name}, 해외 공연 일정 연기… 환불 비용 발생",
+    "content": "현지 운영 사정으로 예정된 공연이 연기됐습니다. 티켓 환불과 장소 재예약 비용이 단기 실적에 부담을 줄 수 있습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "entertainment-negative-1",
+    "sector": "entertainment",
+    "sentiment": "negative",
+    "title": "{name}, 신규 콘텐츠 흥행 부진",
+    "content": "신작 콘텐츠의 판매와 이용 실적이 기대에 못 미쳤습니다. 제작비 회수 기간이 길어질 수 있다는 우려가 제기됐습니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "entertainment-negative-2",
+    "sector": "entertainment",
+    "sentiment": "negative",
+    "title": "{name}, 주요 아티스트 활동 공백 확대",
+    "content": "예정된 활동 일정이 조정되면서 매출 인식 시점이 뒤로 밀렸습니다. 고정비가 유지되는 상황에서 단기 수익성 저하가 예상됩니다.",
+    "isBreaking": false
+  },
+  {
+    "id": "breaking-positive-0",
+    "sector": "breaking",
+    "sentiment": "positive",
+    "title": "{name}, 대규모 장기 계약 최종 확정",
+    "content": "최근 협상 중이던 대규모 장기 계약이 최종 확정됐습니다. 기존 사업 규모에 비해 큰 계약이어서 향후 매출과 현금흐름에 의미 있는 변화가 예상됩니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-positive-1",
+    "sector": "breaking",
+    "sentiment": "positive",
+    "title": "{name}, 핵심 사업 인허가 승인",
+    "content": "사업 확대의 전제 조건이던 핵심 인허가가 승인됐습니다. 장기간 묶여 있던 투자와 생산 계획이 본격적으로 진행될 수 있게 됐습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-positive-2",
+    "sector": "breaking",
+    "sentiment": "positive",
+    "title": "{name}, 실적 전망 대폭 상향",
+    "content": "회사가 수요 회복과 수익성 개선을 반영해 연간 실적 전망을 크게 높였습니다. 당초 보수적으로 잡았던 주문과 비용 가정이 개선됐다는 설명입니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-positive-3",
+    "sector": "breaking",
+    "sentiment": "positive",
+    "title": "{name}, 전략적 투자 유치 확정",
+    "content": "대형 사업 파트너의 전략적 투자 유치가 확정됐습니다. 투자금뿐 아니라 유통과 기술 협력도 함께 추진될 예정입니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-positive-4",
+    "sector": "breaking",
+    "sentiment": "positive",
+    "title": "{name}, 장기 분쟁 종결… 사업 재개 확정",
+    "content": "핵심 사업을 제약했던 분쟁이 최종 해결됐습니다. 중단됐던 거래와 사업 활동이 재개되며 실적 회복 가능성이 커졌습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-positive-5",
+    "sector": "breaking",
+    "sentiment": "positive",
+    "title": "{name}, 신규 대형 고객사 확보",
+    "content": "업계 주요 기업이 신규 고객으로 합류했습니다. 공급 규모가 기존 전망을 크게 웃돌아 회사는 생산 계획을 상향 조정하고 있습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-negative-0",
+    "sector": "breaking",
+    "sentiment": "negative",
+    "title": "{name}, 대형 공급 계약 해지 통보",
+    "content": "주요 거래처가 대규모 공급 계약의 해지를 통보했습니다. 대체 고객 확보까지 매출 공백과 설비 유휴 비용이 발생할 가능성이 있습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-negative-1",
+    "sector": "breaking",
+    "sentiment": "negative",
+    "title": "{name}, 핵심 사업 인허가 보류",
+    "content": "규제 기관이 핵심 사업의 인허가 판단을 보류했습니다. 추가 검토 기간이 길어질 경우 사업 일정과 투자 회수 계획을 다시 조정해야 합니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-negative-2",
+    "sector": "breaking",
+    "sentiment": "negative",
+    "title": "{name}, 연간 실적 전망 대폭 하향",
+    "content": "회사가 수요 부진과 비용 증가를 반영해 연간 실적 전망을 크게 낮췄습니다. 기존 전망의 전제가 흔들리면서 사업 계획 재검토가 시작됐습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-negative-3",
+    "sector": "breaking",
+    "sentiment": "negative",
+    "title": "{name}, 대규모 투자 유치 협상 결렬",
+    "content": "예정됐던 투자 유치 협상이 최종 결렬됐습니다. 회사는 대체 자금 조달 방안을 검토 중이며 투자 일정이 늦어질 가능성이 있습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-negative-4",
+    "sector": "breaking",
+    "sentiment": "negative",
+    "title": "{name}, 핵심 사업 운영 잠정 중단",
+    "content": "주요 사업의 운영을 잠정 중단하고 원인 점검에 들어갔습니다. 중단 기간과 보완 비용이 확정되지 않아 실적 불확실성이 커졌습니다.",
+    "isBreaking": true
+  },
+  {
+    "id": "breaking-negative-5",
+    "sector": "breaking",
+    "sentiment": "negative",
+    "title": "{name}, 주요 고객의 대규모 발주 취소",
+    "content": "핵심 고객이 시장 상황을 이유로 예정 물량을 대폭 취소했습니다. 재고 부담과 향후 주문 감소 가능성이 동시에 제기되고 있습니다.",
+    "isBreaking": true
+  }
+];
+let systemConfig = { negativeNewsProbability: 0.5 };
+let selectedAssetUserId = null;
+let stopAssetUser = null;
+let stopAssetHistory = null;
+let assetSubmitting = false;
+let generatingNews = false;
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const adminAllowed = () => typeof isAdmin !== 'undefined' && isAdmin === true;
+function requireAdmin() { if (!adminAllowed()) throw new Error('관리자 접속 후 이용해 주세요.'); }
+function actorName() { return typeof currentUser !== 'undefined' && currentUser?.name ? currentUser.name : '관리자 센터'; }
+function negativeProbability(config = systemConfig) {
+    const value = config.negativeNewsProbability;
+    return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0.5;
+}
+function acceptSystemConfig(config) {
+    systemConfig = config || {};
+    const input = document.getElementById('negative-news-percent');
+    if (input && document.activeElement !== input) input.value = Math.round(negativeProbability() * 100);
+    const label = document.getElementById('news-probability-label');
+    if (label) label.textContent = `자동 뉴스: 긍정 ${100 - Math.round(negativeProbability() * 100)}% · 부정 ${Math.round(negativeProbability() * 100)}%`;
+}
+async function saveNewsProbability() {
+    try {
+        requireAdmin();
+        const raw = document.getElementById('negative-news-percent').value;
+        const percent = Number(raw);
+        if (raw.trim() === '' || !Number.isInteger(percent) || percent < 0 || percent > 100) throw new Error('부정 뉴스 확률은 0~100 사이의 정수로 입력해 주세요.');
+        await db.collection('system').doc('config').set({negativeNewsProbability: percent / 100}, {merge:true});
+        alert(`긍정 ${100-percent}% · 부정 ${percent}%로 저장했습니다.`);
+    } catch (error) { alert(error.message || '확률을 저장하지 못했습니다.'); }
+}
+function refreshAdminStockChoices() {
+    const select = document.getElementById('generated-news-stock');
+    if (!select) return;
+    const previous = select.value;
+    select.replaceChildren(new Option('무작위 종목', 'RANDOM'));
+    Object.entries(stockDataMap).forEach(([id, stock]) => select.add(new Option(stock.name, id)));
+    if ([...select.options].some(option => option.value === previous)) select.value = previous;
+}
+function stockSector(stock) {
+    const value = `${stock.name || ''} ${stock.category || ''}`;
+    if (/반도체|삼성전자|하이닉스/i.test(value)) return 'semiconductor';
+    if (/플랫폼|카카오|NAVER/i.test(value)) return 'platform';
+    if (/식품|제일제당/i.test(value)) return 'food';
+    if (/의약|제약|바이오|유한양행/i.test(value)) return 'bio';
+    if (/자동차|현대차/i.test(value)) return 'auto';
+    if (/배터리|이차전지|2차전지|에코프로|양극재/i.test(value)) return 'battery';
+    if (/엔터|하이브|JYP|SM Ent/i.test(value)) return 'entertainment';
+    return 'general';
+}
+function pickNewsScenario(stock, sentiment, breaking, recentIds = []) {
+    const sector = stockSector(stock);
+    const candidates = NEWS_CATALOG.filter(item => item.sentiment === sentiment && item.isBreaking === breaking && (breaking || item.sector === 'general' || item.sector === sector));
+    const unseen = candidates.filter(item => !recentIds.includes(item.id));
+    const available = unseen.length ? unseen : candidates;
+    const sectorItems = available.filter(item => item.sector === sector);
+    const pool = !breaking && sectorItems.length && Math.random() < 0.6 ? sectorItems : available;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', breaking = false, automatic = false} = {}) {
+    if (!automatic) requireAdmin();
+    if (sentiment !== null && !['positive','negative'].includes(sentiment)) throw new Error('뉴스 방향을 확인해 주세요.');
+    const ids = Object.keys(stockDataMap);
+    if (!ids.length) { if (automatic) return null; throw new Error('먼저 종목을 등록해 주세요.'); }
+    const targetId = stockId === 'RANDOM' ? ids[Math.floor(Math.random() * ids.length)] : stockId;
+    if (!ids.includes(targetId)) throw new Error('선택한 종목이 없습니다. 다시 선택해 주세요.');
+    const configRef = db.collection('system').doc('config');
+    const stockRef = db.collection('stocks').doc(targetId);
+    const newsRef = db.collection('news').doc();
+    const timeKey = breaking ? 'lastBreakingNewsAt' : 'lastRegularNewsAt';
+    const interval = breaking ? 90000 : 30000;
+    return db.runTransaction(async transaction => {
+        const configDoc = await transaction.get(configRef);
+        const config = configDoc.exists ? configDoc.data() : {};
+        const now = Date.now();
+        if (automatic && (config.isFrozen || now - (config[timeKey] || 0) < interval)) return null;
+        // One draw per shared 90-second window, independent of connected user count.
+        if (automatic && breaking && Math.random() >= 0.4) {
+            transaction.set(configRef, {[timeKey]:now}, {merge:true});
+            return null;
+        }
+        const stockDoc = await transaction.get(stockRef);
+        if (!stockDoc.exists) { if (automatic) return null; throw new Error('선택한 종목이 삭제됐습니다.'); }
+        const stock = stockDoc.data();
+        const side = sentiment || (Math.random() < negativeProbability(config) ? 'negative' : 'positive');
+        const recent = config.recentNewsScenarios || [];
+        const item = pickNewsScenario(stock, side, breaking, recent);
+        const magnitude = breaking ? 0.18 + Math.random() * 0.14 : 0.06 + Math.random() * 0.12;
+        const impact = (side === 'negative' ? -1 : 1) * magnitude;
+        const pendingImpact = Math.max(-0.6, Math.min(0.6, (Number(stock.lastImpact) || 0) + impact));
+        const title = item.title.replace('{name}', stock.name);
+        transaction.set(newsRef, {
+            title, content:item.content, targetStockId:targetId, isBreaking:breaking,
+            sentiment:side, impact, scenarioId:item.id, isSimulation:true,
+            createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        transaction.update(stockRef, {lastImpact:pendingImpact});
+        transaction.set(configRef, {
+            ...(automatic ? {[timeKey]:now} : {}),
+            recentNewsScenarios:[...recent.filter(id => id !== item.id), item.id].slice(-12)
+        }, {merge:true});
+        return {title, stockName:stock.name, sentiment:side, isBreaking:breaking};
     });
+}
+async function adminGenerateNews(sentiment) {
+    if (generatingNews) return;
+    generatingNews = true;
+    document.querySelectorAll('[data-generate-news]').forEach(button => button.disabled = true);
+    try {
+        const result = await publishGeneratedNews({sentiment, stockId:document.getElementById('generated-news-stock').value, breaking:document.getElementById('generated-news-kind').value === 'breaking'});
+        alert(`${result.stockName} ${sentiment === 'positive' ? '긍정적' : '부정적'} 뉴스가 발행되었습니다.`);
+    } catch (error) { alert(error.message || '뉴스 발행에 실패했습니다.'); }
+    finally { generatingNews = false; document.querySelectorAll('[data-generate-news]').forEach(button => button.disabled = false); }
+}
 
+async function applyAssetAction(targetId, {action, amount, stockId, reason}) {
+    requireAdmin();
+    if (!reason || !reason.trim()) throw new Error('처리 사유를 입력해 주세요.');
+    const allowed = ['cash-add','cash-seize','cash-set','stock-seize','seize-all','freeze','unfreeze'];
+    if (!allowed.includes(action)) throw new Error('지원하지 않는 조정 방식입니다.');
+    const needsNumber = ['cash-add','cash-seize','cash-set','stock-seize'].includes(action);
+    if (needsNumber && (String(amount).trim() === '' || !Number.isSafeInteger(Number(amount)) || Number(amount) < (action === 'cash-set' ? 0 : 1))) throw new Error(action === 'cash-set' ? '0 이상의 정수 금액을 입력해 주세요.' : '1 이상의 정수 금액 또는 수량을 입력해 주세요.');
+    const quantity = Number(amount);
+    const userRef = db.collection('users').doc(targetId);
+    const auditRef = userRef.collection('assetHistory').doc();
+    await db.runTransaction(async transaction => {
+        const doc = await transaction.get(userRef);
+        if (!doc.exists) throw new Error('해당 이용자 계정이 없습니다.');
+        const user = doc.data();
+        const balance = Number(user.balance) || 0;
+        const holdings = {...(user.holdings || {})};
+        const buyPrices = {...(user.buyPrices || {})};
+        const update = {assetUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+        if (action === 'cash-add') {
+            if (!Number.isSafeInteger(balance + quantity)) throw new Error('허용 가능한 금액 범위를 초과했습니다.');
+            update.balance = balance + quantity;
+        }
+        if (action === 'cash-seize') {
+            if (quantity > balance) throw new Error('압류 금액이 현재 예수금보다 많습니다.');
+            update.balance = balance - quantity;
+        }
+        if (action === 'cash-set') update.balance = quantity;
+        if (action === 'stock-seize') {
+            if (!stockId || quantity > (holdings[stockId] || 0)) throw new Error('압류 수량이 현재 보유 수량보다 많습니다.');
+            holdings[stockId] -= quantity;
+            if (!holdings[stockId]) { delete holdings[stockId]; delete buyPrices[stockId]; }
+            update.holdings = holdings;
+            update.buyPrices = buyPrices;
+        }
+        if (action === 'seize-all') Object.assign(update, {balance:0, holdings:{}, buyPrices:{}});
+        if (action === 'freeze') Object.assign(update, {isAccountFrozen:true, freezeReason:reason.trim()});
+        if (action === 'unfreeze') Object.assign(update, {isAccountFrozen:false, freezeReason:''});
+        transaction.update(userRef, update);
+        transaction.set(auditRef, {
+            action, amount:needsNumber ? quantity : null, stockId:stockId || null,
+            reason:reason.trim(), actor:actorName(),
+            before:{balance, holdings:user.holdings || {}, isAccountFrozen:!!user.isAccountFrozen},
+            after:{balance:update.balance ?? balance, holdings:update.holdings ?? (user.holdings || {}), isAccountFrozen:update.isAccountFrozen ?? !!user.isAccountFrozen},
+            createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+    });
+}
+const ASSET_ACTION_LABELS = {'cash-add':'현금 지급','cash-seize':'현금 압류','cash-set':'현금 잔액 지정','stock-seize':'보유 주식 압류','seize-all':'전체 자산 압류','freeze':'계좌 동결','unfreeze':'동결 해제'};
+function updateAssetFields() {
+    const action = document.getElementById('asset-action').value;
+    const needsAmount = ['cash-add','cash-seize','cash-set','stock-seize'].includes(action);
+    document.getElementById('asset-amount-field').hidden = !needsAmount;
+    document.getElementById('asset-amount').disabled = !needsAmount;
+    document.getElementById('asset-amount').required = needsAmount;
+    document.getElementById('asset-stock-field').hidden = action !== 'stock-seize';
+    document.getElementById('asset-stock').disabled = action !== 'stock-seize';
+    document.getElementById('asset-stock').required = action === 'stock-seize';
+    document.getElementById('asset-amount-label').textContent = action === 'stock-seize' ? '압류 수량 (주)' : action === 'cash-set' ? '변경 후 현금 잔액 (원)' : '금액 (원)';
+    document.getElementById('asset-amount').min = action === 'cash-set' ? '0' : '1';
+}
+function closeAssetManager() {
+    if (assetSubmitting) return;
+    document.getElementById('asset-manager-modal').style.display = 'none';
+    stopAssetUser?.(); stopAssetHistory?.();
+    stopAssetUser = null; stopAssetHistory = null; selectedAssetUserId = null;
+}
+function openAssetManager(targetId) {
+    try { requireAdmin(); } catch(error) { return alert(error.message); }
+    if (assetSubmitting) return;
+    stopAssetUser?.(); stopAssetHistory?.();
+    selectedAssetUserId = targetId;
+    document.getElementById('asset-action').value = 'cash-seize';
+    document.getElementById('asset-amount').value = '';
+    document.getElementById('asset-reason').value = '';
+    document.getElementById('asset-user-summary').textContent = '자산 정보를 불러오는 중입니다.';
+    document.getElementById('asset-user-history').textContent = '처리 이력을 불러오는 중입니다.';
+    document.getElementById('asset-submit').disabled = true;
+    document.getElementById('asset-manager-modal').style.display = 'flex';
+    updateAssetFields();
+    const ref = db.collection('users').doc(targetId);
+    stopAssetUser = ref.onSnapshot(doc => {
+        const summary = document.getElementById('asset-user-summary');
+        if (!doc.exists) { summary.textContent = '삭제된 계정입니다.'; document.getElementById('asset-submit').disabled = true; return; }
+        const user = doc.data();
+        document.getElementById('asset-manager-title').textContent = `${user.name} · 자산 관리`;
+        const value = Object.entries(user.holdings || {}).reduce((total,[id,qty]) => total + qty * (stockDataMap[id]?.currentPrice || 0), 0);
+        summary.textContent = `현금 ${Math.round(user.balance || 0).toLocaleString()}원 · 주식 평가액 ${Math.round(value).toLocaleString()}원 · ${user.isAccountFrozen ? '계좌 동결 중' : '거래 가능'}`;
+        const select = document.getElementById('asset-stock');
+        const old = select.value;
+        select.replaceChildren(new Option('보유 종목 선택', ''));
+        Object.entries(user.holdings || {}).filter(([,qty]) => qty > 0).forEach(([id,qty]) => select.add(new Option(`${stockDataMap[id]?.name || id} (${qty}주)`,id)));
+        if ([...select.options].some(option => option.value === old)) select.value = old;
+        document.getElementById('asset-submit').disabled = assetSubmitting;
+    }, error => { document.getElementById('asset-user-summary').textContent = '자산 정보를 읽지 못했습니다. 권한과 연결 상태를 확인해 주세요.'; console.error(error); });
+    stopAssetHistory = ref.collection('assetHistory').orderBy('createdAt','desc').limit(10).onSnapshot(snapshot => {
+        const list = document.getElementById('asset-user-history');
+        list.replaceChildren();
+        if (snapshot.empty) { list.textContent = '처리 이력이 없습니다.'; return; }
+        snapshot.forEach(doc => {
+            const entry = doc.data(); const row = document.createElement('div');
+            const time = entry.createdAt?.toDate ? entry.createdAt.toDate().toLocaleString('ko-KR') : '방금 전';
+            const amount = entry.amount !== null && entry.amount !== undefined ? ` · ${entry.amount.toLocaleString()}${entry.action === 'stock-seize' ? '주' : '원'}` : '';
+            const stock = entry.stockId ? ` · ${stockDataMap[entry.stockId]?.name || entry.stockId}` : '';
+            row.textContent = `${time} | ${ASSET_ACTION_LABELS[entry.action] || entry.action}${stock}${amount} | ${entry.reason} | ${entry.actor}`;
+            list.appendChild(row);
+        });
+    }, () => { document.getElementById('asset-user-history').textContent = '이력을 읽지 못했습니다. 데이터베이스 접근 권한을 확인해 주세요.'; });
+}
+async function submitAssetAdjustment(event) {
+    event.preventDefault();
+    if (assetSubmitting || !selectedAssetUserId) return;
+    const action = document.getElementById('asset-action').value;
+    const reason = document.getElementById('asset-reason').value.trim();
+    if (!reason) return alert('처리 사유를 입력해 주세요.');
+    const title = document.getElementById('asset-manager-title').textContent;
+    const amount = document.getElementById('asset-amount').value;
+    const amountText = ['cash-add','cash-seize','cash-set','stock-seize'].includes(action) ? `\n입력 금액/수량: ${amount}${action === 'stock-seize' ? '주' : '원'}` : '';
+    if (!confirm(`${title}\n${ASSET_ACTION_LABELS[action]}를 적용하시겠습니까?${amountText}\n사유: ${reason}`)) return;
+    assetSubmitting = true;
+    document.getElementById('asset-submit').disabled = true;
+    try {
+        await applyAssetAction(selectedAssetUserId, {action, amount, stockId:action === 'stock-seize' ? document.getElementById('asset-stock').value : null, reason});
+        document.getElementById('asset-amount').value = '';
+        document.getElementById('asset-reason').value = '';
+        alert(`${ASSET_ACTION_LABELS[action]} 처리가 완료되었습니다.`);
+    } catch (error) { alert(error.message || '자산 조정에 실패했습니다.'); }
+    finally { assetSubmitting = false; document.getElementById('asset-submit').disabled = false; }
+}
+document.getElementById('asset-adjust-form').addEventListener('submit', submitAssetAdjustment);
+
+let adminPageStarted = false;
+let allAdminUsers = [];
+async function unlockAdminPage(event) {
+    event.preventDefault();
+    if (document.getElementById('admin-access-password').value !== ADMIN_PASSWORD) return alert('관리자 비밀번호가 일치하지 않습니다.');
+    isAdmin = true;
+    currentUser = {name:document.getElementById('admin-operator-name').value.trim() || '관리자 센터'};
+    document.getElementById('admin-login-modal').style.display = 'none';
+    document.getElementById('admin-access-password').value = '';
+    if (!adminPageStarted) { adminPageStarted = true; initAdminPage(); }
+}
+function initAdminPage() {
+    db.collection('system').doc('config').onSnapshot(doc => acceptSystemConfig(doc.exists ? doc.data() : {}));
     db.collection('stocks').onSnapshot(snapshot => {
         const list = document.getElementById('admin-stock-list');
-        const newsSelect = document.getElementById('news-target-stock');
-        list.innerHTML = ''; newsSelect.innerHTML = '<option value="ALL">전체 시장</option>'; stockDataMap = {};
+        const select = document.getElementById('news-target-stock');
+        const selected = select.value;
+        list.replaceChildren(); select.replaceChildren(new Option('전체 시장','ALL')); stockDataMap = {};
         snapshot.forEach(doc => {
-            const data = doc.data(); stockDataMap[doc.id] = data;
-            const rate = data.changeRate || 0;
-            const colorClass = rate > 0 ? 'text-profit' : (rate < 0 ? 'text-loss' : '');
-            list.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>${data.currentPrice.toLocaleString()}원</td><td class="${colorClass}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td><td><div class="price-input-group"><input type="number" id="price-${doc.id}" value="${data.currentPrice}"><button class="btn-sm" onclick="updateStockPrice('${doc.id}')">수정</button><button class="btn-sm btn-danger" onclick="deleteStock('${doc.id}')">삭제</button></div></td></tr>`;
-            newsSelect.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
+            const stock = doc.data(); stockDataMap[doc.id] = stock;
+            const rate = stock.changeRate || 0;
+            const row = document.createElement('tr');
+            row.innerHTML = `<td><strong>${escapeHTML(stock.name)}</strong></td><td>${stock.currentPrice.toLocaleString()}원</td><td class="${rate > 0 ? 'text-profit' : rate < 0 ? 'text-loss' : ''}">${rate > 0 ? '+' : ''}${rate.toFixed(2)}%</td><td><div class="price-input-group"><input aria-label="${escapeHTML(stock.name)} 변경 가격" type="number" min="1" step="1" value="${stock.currentPrice}"><button class="btn-sm">수정</button><button class="btn-sm btn-danger">삭제</button></div></td>`;
+            const input = row.querySelector('input');
+            row.querySelectorAll('button')[0].onclick = () => updateStockPrice(doc.id, input.value);
+            row.querySelectorAll('button')[1].onclick = () => deleteStock(doc.id);
+            list.appendChild(row); select.add(new Option(stock.name,doc.id));
         });
-        loadUserMonitoring();
+        if ([...select.options].some(option => option.value === selected)) select.value = selected;
+        refreshAdminStockChoices(); renderAdminUsers();
     });
-
-    async function updateStockPrice(id) {
-        const newPrice = Number(document.getElementById(`price-${id}`).value);
-        const oldStock = stockDataMap[id];
-        if (!oldStock || isNaN(newPrice)) return;
-        const initialPrice = oldStock.initialPrice || oldStock.currentPrice;
-        const changeRate = ((newPrice - initialPrice) / initialPrice) * 100;
-        await db.collection('stocks').doc(id).update({ currentPrice: newPrice, changeRate: changeRate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    }
-
-    async function deleteStock(id) { if(confirm("정말 삭제하시겠습니까?")) await db.collection('stocks').doc(id).delete(); }
-
-    document.getElementById('news-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('news-title').value.trim();
-        const target = document.getElementById('news-target-stock').value;
-        const content = document.getElementById('news-content').value.trim();
-        await db.collection('news').add({ title: title, targetStockId: target, content: content, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        document.getElementById('news-form').reset();
+    db.collection('users').onSnapshot(snapshot => {
+        allAdminUsers = []; snapshot.forEach(doc => allAdminUsers.push({id:doc.id,...doc.data()}));
+        renderAdminUsers();
     });
-
-    db.collection('news').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-        const newsList = document.getElementById('admin-news-list');
-        newsList.innerHTML = '';
+    db.collection('news').orderBy('createdAt','desc').limit(50).onSnapshot(snapshot => {
+        const list = document.getElementById('admin-news-list'); list.replaceChildren();
         snapshot.forEach(doc => {
             const data = doc.data();
-            const timeStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) : '방금 전';
-            newsList.innerHTML += `<tr><td>${timeStr}</td><td><strong>${data.title}</strong></td><td>${data.targetStockId === 'ALL' ? '전체' : (stockDataMap[data.targetStockId]?.name || '종목')}</td><td><button class="btn-sm btn-danger" onclick="deleteNews('${doc.id}')">삭제</button></td></tr>`;
+            const time = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) : '방금 전';
+            const direction = data.sentiment === 'negative' ? '부정' : data.sentiment === 'positive' ? '긍정' : '미지정';
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${time}</td><td><strong>${escapeHTML(data.title)}</strong><br><small>${direction}${data.isBreaking ? ' · 긴급속보' : ''}</small></td><td>${escapeHTML(data.targetStockId === 'ALL' ? '전체' : stockDataMap[data.targetStockId]?.name || '종목')}</td><td><button class="btn-sm btn-danger">삭제</button></td>`;
+            row.querySelector('button').onclick = () => deleteNews(doc.id);
+            list.appendChild(row);
         });
     });
-
-    async function deleteNews(id) { await db.collection('news').doc(id).delete(); }
-
-    function loadUserMonitoring() {
-        db.collection('users').onSnapshot(snapshot => {
-            const tbody = document.getElementById('admin-user-monitor');
-            tbody.innerHTML = '';
-            snapshot.forEach(doc => {
-                const user = doc.data(); const holdings = user.holdings || {};
-                let stockEval = 0; let holdingsDetailStr = [];
-                for (let stockId in holdings) {
-                    const count = holdings[stockId];
-                    if (count > 0 && stockDataMap[stockId]) {
-                        stockEval += stockDataMap[stockId].currentPrice * count;
-                        holdingsDetailStr.push(`${stockDataMap[stockId].name}: ${count}주`);
-                    }
-                }
-                const totalAsset = user.balance + stockEval;
-                const profitRate = ((totalAsset - 10000000) / 10000000) * 100;
-                const colorClass = profitRate > 0 ? 'text-profit' : (profitRate < 0 ? 'text-loss' : '');
-                tbody.innerHTML += `<tr><td><strong>${user.name}</strong></td><td>${user.balance.toLocaleString()}원</td><td>${stockEval.toLocaleString()}원</td><td><strong>${totalAsset.toLocaleString()}원</strong></td><td class="${colorClass}">${profitRate > 0 ? '+' : ''}${profitRate.toFixed(2)}%</td><td style="text-align:left;">${holdingsDetailStr.join(', ') || '보유 주식 없음'}</td></tr>`;
-            });
+}
+function renderAdminUsers() {
+    const tbody = document.getElementById('admin-user-monitor'); tbody.replaceChildren();
+    const users = allAdminUsers.map(user => {
+        const value = Object.entries(user.holdings || {}).reduce((sum,[id,qty]) => sum + qty * (stockDataMap[id]?.currentPrice || 0),0);
+        return {...user,stockEval:value,totalAsset:(Number(user.balance) || 0)+value};
+    }).sort((a,b) => b.totalAsset-a.totalAsset);
+    users.forEach(user => {
+        const seed = Number(user.initialSeedMoney) || 10000000;
+        const rate = (user.totalAsset - seed) / seed * 100;
+        const details = Object.entries(user.holdings || {}).filter(([,qty]) => qty>0).map(([id,qty]) => `${stockDataMap[id]?.name || id}: ${qty}주`).join(', ');
+        const row = document.createElement('tr');
+        row.innerHTML = `<td><strong>${escapeHTML(user.name)}</strong><br><span class="account-status ${user.isAccountFrozen ? 'frozen' : ''}">${user.isAccountFrozen ? '동결' : '정상'}</span></td><td>${Math.round(user.balance || 0).toLocaleString()}원</td><td>${Math.round(user.stockEval).toLocaleString()}원</td><td><strong>${Math.round(user.totalAsset).toLocaleString()}원</strong></td><td class="${rate>0?'text-profit':rate<0?'text-loss':''}">${rate>0?'+':''}${rate.toFixed(2)}%</td><td>${escapeHTML(details || '보유 주식 없음')}</td><td><button class="btn-sm">자산 관리</button></td>`;
+        row.querySelector('button').onclick = () => openAssetManager(user.id);
+        tbody.appendChild(row);
+    });
+}
+document.getElementById('stock-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    try {
+        requireAdmin();
+        const name = document.getElementById('stock-name').value.trim();
+        const price = Number(document.getElementById('stock-price').value);
+        if (!name || !Number.isSafeInteger(price) || price <= 0) throw new Error('종목명과 1 이상의 정수 가격을 입력해 주세요.');
+        const category = document.getElementById('stock-category').value;
+        await db.collection('stocks').add({name,category,currentPrice:price,initialPrice:price,changeRate:0,lastImpact:0,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        document.getElementById('stock-form').reset(); alert('종목이 등록되었습니다.');
+    } catch(error) { alert(error.message); }
+});
+async function updateStockPrice(id, value) {
+    try {
+        requireAdmin();
+        const price = Number(value);
+        if (!Number.isSafeInteger(price) || price <= 0) throw new Error('1 이상의 정수 가격을 입력해 주세요.');
+        const ref = db.collection('stocks').doc(id);
+        await db.runTransaction(async transaction => {
+            const doc = await transaction.get(ref);
+            if (!doc.exists) throw new Error('삭제된 종목입니다.');
+            const stock = doc.data(); const initial = stock.initialPrice || stock.currentPrice;
+            transaction.update(ref,{currentPrice:price,changeRate:(price-initial)/initial*100,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
         });
-    }
+    } catch(error) { alert(error.message); }
+}
+async function deleteStock(id) {
+    try { requireAdmin(); if(confirm('이 종목을 삭제하시겠습니까?')) await db.collection('stocks').doc(id).delete(); }
+    catch(error) { alert(error.message); }
+}
+async function deleteNews(id) {
+    try { requireAdmin(); if(confirm('이 뉴스를 삭제하시겠습니까? 이미 예약된 주가 영향은 유지됩니다.')) await db.collection('news').doc(id).delete(); }
+    catch(error) { alert(error.message); }
+}
+document.getElementById('news-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = document.querySelector('#news-form button[type="submit"]');
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+        requireAdmin();
+        const title = document.getElementById('news-title').value.trim();
+        const content = document.getElementById('news-content').value.trim();
+        const target = document.getElementById('news-target-stock').value;
+        const sentiment = document.getElementById('news-impact-direction').value;
+        const percent = Number(document.getElementById('news-impact-percent').value);
+        if (!title || !content) throw new Error('제목과 내용을 입력해 주세요.');
+        if (!Number.isFinite(percent) || percent < 0 || percent > 40) throw new Error('주가 영향은 0~40%로 입력해 주세요.');
+        const impact = sentiment === 'negative' ? -percent/100 : sentiment === 'positive' ? percent/100 : 0;
+        const ids = target === 'ALL' ? Object.keys(stockDataMap) : [target];
+        const refs = ids.map(id => db.collection('stocks').doc(id));
+        const newsRef = db.collection('news').doc();
+        await db.runTransaction(async transaction => {
+            const docs = impact ? await Promise.all(refs.map(ref => transaction.get(ref))) : [];
+            if (target !== 'ALL' && (!stockDataMap[target] || (impact && !docs[0]?.exists))) throw new Error('선택한 종목이 없습니다.');
+            transaction.set(newsRef,{title,content,targetStockId:target,sentiment,impact,isSimulation:true,isBreaking:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+            docs.forEach((doc,index) => {if(doc.exists) transaction.update(refs[index],{lastImpact:Math.max(-0.6,Math.min(0.6,(Number(doc.data().lastImpact)||0)+impact))});});
+        });
+        document.getElementById('news-form').reset(); alert('뉴스가 발행되었습니다.');
+    } catch(error) { alert(error.message); }
+    finally { button.disabled = false; }
+});
+
 </script>
 <script>
 // UI enhancements are independent of the original investment and database code.
