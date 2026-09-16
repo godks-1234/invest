@@ -35,6 +35,11 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 
 
 .login-status{padding:10px 12px;margin-bottom:14px;background:#eff4eb;border:1px solid #dbe6d3;border-radius:5px;color:#516c43;font-size:12px;line-height:1.75;overflow-wrap:anywhere}.login-status.is-error{background:#fbf0eb;border-color:#ebd6cd;color:#954f3d}.login-status[hidden]{display:none}
+
+.profile-trigger{display:flex;align-items:center;gap:7px;flex-shrink:0;border:1px solid #dce5d6;background:#f5f8f1;color:#46643c;border-radius:5px;padding:8px 11px;font-size:12px}.profile-trigger svg{width:16px;height:16px}.profile-dialog{max-width:450px}.profile-dialog .field-label{margin-top:14px}.profile-dialog input{width:100%;padding:12px;border:1px solid #dbe4d4;border-radius:5px;background:#fff;font-size:15px;color:#354c2d}.profile-status{font-size:12px;color:#6b7e5c;line-height:1.8;margin:15px 0;overflow-wrap:anywhere}.profile-status.is-error{color:#a35843}.profile-actions{display:flex;gap:9px}.profile-actions button{flex:1}.profile-actions .btn-close{background:#eef3e8;color:#506444}.profile-details{display:grid;grid-template-columns:80px 1fr;gap:13px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 0;margin:18px 0}.profile-details dt{font-size:12px;color:#839178}.profile-details dd{font-size:17px;color:#344b2d;font-weight:600;overflow-wrap:anywhere}.profile-key-picker{font-size:12px;color:#6c7c60;line-height:1.8}.profile-key-picker input{font-size:11px;padding:9px;margin-top:8px}.profile-key-picker[hidden],#profile-lock-button[hidden]{display:none}.profile-lock{border:0;background:none;color:#7b8a6f;font-size:11px;padding:0 0 16px;text-decoration:underline}.admin-page .profile-view-btn{margin-left:5px}.top-nav{gap:22px}header{gap:28px}
+@media(max-width:800px){header{gap:16px}.profile-trigger{padding:7px 9px;font-size:11px}.top-nav{gap:13px}}
+@media(max-width:560px){header{gap:9px}.profile-trigger{padding:6px 8px;font-size:10px}.profile-trigger svg{width:13px;height:13px}.profile-dialog input{font-size:16px}.profile-dialog h2{font-size:21px}.profile-status{font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -155,7 +160,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
     </div>
 </div>
 
-<header><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>invest.</h1><span class="brand-caption">모의투자</span></a><nav class="top-nav" aria-label="주 메뉴"><a href="#overview">투자 현황</a><a href="#market">거래소</a><a href="#news">시장 뉴스</a><a href="#ranking">랭킹</a></nav><div class="user-badge" id="user-display-name"><span>접속 대기 중</span></div></header><main class="app-shell"><section class="page-intro"><div><div class="eyebrow">MY INVESTMENT</div><h2>나의 투자 현황</h2><p>시장의 흐름을 살피고, 다음 투자를 준비하세요.</p></div><span class="market-caption">모의투자</span></section>
+<header><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>invest.</h1><span class="brand-caption">모의투자</span></a><button type="button" id="profile-trigger" class="profile-trigger" onclick="openMyProfile()" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 21v-2a7 7 0 0 1 14 0v2"></path></svg>프로필</button><nav class="top-nav" aria-label="주 메뉴"><a href="#overview">투자 현황</a><a href="#market">거래소</a><a href="#news">시장 뉴스</a><a href="#ranking">랭킹</a></nav><div class="user-badge" id="user-display-name"><span>접속 대기 중</span></div></header><main class="app-shell"><section class="page-intro"><div><div class="eyebrow">MY INVESTMENT</div><h2>나의 투자 현황</h2><p>시장의 흐름을 살피고, 다음 투자를 준비하세요.</p></div><span class="market-caption">모의투자</span></section>
 <!-- 긴급 속보 팝업 -->
 <div id="breaking-news-area" class="breaking-news-banner hidden">
     <div>
@@ -292,7 +297,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 <p class="asset-form-note">압류는 해당 자산을 차감합니다. 조정은 총자산·수익률에 반영되며 초기 투자금은 유지됩니다. 계좌 동결 중에도 시세에 따른 평가액은 변동됩니다.</p>
 <div class="asset-buttons"><button id="asset-submit" type="submit" class="btn-start">조정 적용</button><button type="button" class="btn-close" onclick="closeAssetManager()">닫기</button></div></form>
 <h3 class="asset-history-heading">최근 처리 이력 · 최대 10건</h3><div id="asset-user-history" class="asset-history"></div></div></div>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<div id="my-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content profile-dialog"><div class="eyebrow">MY PROFILE</div><h2>학생 프로필</h2><p>학번과 이름은 관리자에게만 제공됩니다.<br>공개 랭킹에는 기존 닉네임만 표시됩니다.</p><form id="my-profile-form"><label for="profile-student-number" class="field-label">학번</label><input id="profile-student-number" type="text" inputmode="numeric" maxlength="20" pattern="[0-9]+" required placeholder="예: 20101" autocomplete="off"><label for="profile-real-name" class="field-label">이름</label><input id="profile-real-name" type="text" maxlength="40" required placeholder="이름을 입력하세요" autocomplete="off"><div id="profile-save-status" class="profile-status" role="status" aria-live="polite"></div><div class="profile-actions"><button type="submit" id="profile-save-button" class="btn-start">프로필 저장</button><button type="button" class="btn-close" onclick="closeMyProfile()">닫기</button></div></form></div></div><div id="admin-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content profile-dialog"><div class="eyebrow">PRIVATE PROFILE</div><h2 id="admin-profile-title">학생 프로필</h2><label id="profile-key-picker" class="profile-key-picker">프로필 열람 키<input id="profile-key-file" type="file" accept=".json,application/json"></label><div id="admin-profile-status" class="profile-status" role="status" aria-live="polite"></div><dl class="profile-details"><dt>학번</dt><dd id="admin-profile-student-number">—</dd><dt>이름</dt><dd id="admin-profile-real-name">—</dd></dl><button id="profile-lock-button" class="profile-lock" type="button" onclick="lockProfileKey()" hidden>열람 키 잠그기</button><div class="profile-actions"><button id="profile-refresh-button" type="button" class="btn-start" onclick="loadAdminProfile(true)" disabled>새로고침</button><button type="button" class="btn-close" onclick="closeAdminProfile()">닫기</button></div></div></div><script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
     const firebaseConfig = {
@@ -1037,6 +1042,7 @@ function pickNewsScenario(stock, sentiment, breaking, recentIds = []) {
 }
 async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', breaking = false, automatic = false} = {}) {
     if (!automatic) requireAdmin();
+    if (automatic && (typeof ownsMarketLease !== 'function' || !ownsMarketLease())) return null;
     if (sentiment !== null && !['positive','negative'].includes(sentiment)) throw new Error('뉴스 방향을 확인해 주세요.');
     const ids = Object.keys(stockDataMap);
     if (!ids.length) { if (automatic) return null; throw new Error('먼저 종목을 등록해 주세요.'); }
@@ -1051,7 +1057,7 @@ async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', break
         const configDoc = await transaction.get(configRef);
         const config = configDoc.exists ? configDoc.data() : {};
         const now = Date.now();
-        if (automatic && (config.isFrozen || now - (config[timeKey] || 0) < interval)) return null;
+        if (automatic && (!ownsMarketLease(config, now) || config.isFrozen || now - (config[timeKey] || 0) < interval)) return null;
         // One draw per shared 90-second window, independent of connected user count.
         if (automatic && breaking && Math.random() >= 0.4) {
             transaction.set(configRef, {[timeKey]:now}, {merge:true});
@@ -1172,7 +1178,7 @@ function openAssetManager(targetId) {
     document.getElementById('asset-manager-modal').style.display = 'flex';
     updateAssetFields();
     const ref = db.collection('users').doc(targetId);
-    stopAssetUser = ref.onSnapshot(doc => {
+    stopAssetUser = observeCachedAssetUser(targetId, doc => {
         const summary = document.getElementById('asset-user-summary');
         if (!doc.exists) { summary.textContent = '삭제된 계정입니다.'; document.getElementById('asset-submit').disabled = true; return; }
         const user = doc.data();
@@ -1185,7 +1191,7 @@ function openAssetManager(targetId) {
         Object.entries(user.holdings || {}).filter(([,qty]) => qty > 0).forEach(([id,qty]) => select.add(new Option(`${stockDataMap[id]?.name || id} (${qty}주)`,id)));
         if ([...select.options].some(option => option.value === old)) select.value = old;
         document.getElementById('asset-submit').disabled = assetSubmitting;
-    }, error => { document.getElementById('asset-user-summary').textContent = '자산 정보를 읽지 못했습니다. 권한과 연결 상태를 확인해 주세요.'; console.error(error); });
+    });
     stopAssetHistory = ref.collection('assetHistory').orderBy('createdAt','desc').limit(10).onSnapshot(snapshot => {
         const list = document.getElementById('asset-user-history');
         list.replaceChildren();
@@ -1221,6 +1227,158 @@ async function submitAssetAdjustment(event) {
     finally { assetSubmitting = false; document.getElementById('asset-submit').disabled = false; }
 }
 document.getElementById('asset-adjust-form').addEventListener('submit', submitAssetAdjustment);
+// Only the public key is embedded in website files. The private key is held by the administrator.
+const PROFILE_ENCRYPTION = {"keyId":"48f85a2cd479cd0b60695bed","publicKey":{"kty":"RSA","n":"4Z0Jw2UPzuGbUz7x64I-C-2O7EwPupUcuotOXG6MGErKQKO9rMUFdA_F-Z46KkrcTZx79iQXsONBCHY58KVzJ3wdrxIIxNVtKzzg6VTpBLa1RC16sNgcpOffx7R5jwVLySjHMypm6tZcLc04kF0GRK7qK42BAVzgfuteGc-XJJBMBI-5mU-_z4P-M43qJ_NPoh3GQ1RZy4Zhd9pQi_gQGVVhdaCitbOXi9tEw3LUn7LWVSDlKhOhrk6cSEktPoTHFCZS6miMZlnCAl08cYoweaW-wya6I1vTmm4NYJsaNoB4Qvgp1PKd_VRSIiC3iA8leloANT6ekVMdMQPXtkldxORZ4mLmluCXr4d8YFV4omKcK9Ku2VKVRqJvEqHAkYvhMPjx8ZWHEZDuTcACPXnl7vw3jMC4kkVN1ffz4fja_kXzsSaavpixTxNa6N1pviOO-5kP9CFzvx6qO0GnKxDVaxFOA3k5qarGbpm1BJjJeImzoW7kq6jUgA1I1DE0c2KN","e":"AQAB"}};
+let profilePublicKeyPromise = null;
+let profilePrivateKey = null;
+let profileDraft = null;
+let profileSaving = false;
+let selectedProfileUserId = null;
+let profileOpenRequest = 0;
+const profileCipherCache = new Map();
+const profileFetches = new Map();
+const profileBytes = text => new TextEncoder().encode(text);
+const profileBase64 = buffer => btoa(String.fromCharCode(...new Uint8Array(buffer)));
+const profileDecode = text => Uint8Array.from(atob(text), char => char.charCodeAt(0));
+function profileCryptoReady() {
+    if (!globalThis.crypto?.subtle) throw new Error('프로필 보호 기능은 HTTPS 주소에서 사용할 수 있습니다. 사이트 주소를 확인해 주세요.');
+}
+function profileAAD(id) { return profileBytes(`invest-profile/v1/${PROFILE_ENCRYPTION.keyId}/${id}`); }
+async function getProfilePublicKey() {
+    profileCryptoReady();
+    if (!profilePublicKeyPromise) profilePublicKeyPromise = crypto.subtle.importKey('jwk', PROFILE_ENCRYPTION.publicKey, {name:'RSA-OAEP',hash:'SHA-256'}, false, ['wrapKey']);
+    return profilePublicKeyPromise;
+}
+async function encryptStudentProfile(id, payload) {
+    const publicKey = await getProfilePublicKey();
+    const key = await crypto.subtle.generateKey({name:'AES-GCM',length:256}, true, ['encrypt','decrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:profileAAD(id),tagLength:128}, key, profileBytes(JSON.stringify(payload)));
+    const wrappedKey = await crypto.subtle.wrapKey('raw', key, publicKey, {name:'RSA-OAEP'});
+    return {format:1,keyId:PROFILE_ENCRYPTION.keyId,iv:profileBase64(iv),wrappedKey:profileBase64(wrappedKey),ciphertext:profileBase64(ciphertext)};
+}
+async function decryptStudentProfile(id, envelope, privateKey = profilePrivateKey) {
+    if (!privateKey) throw new Error('관리자 열람 키 파일을 먼저 불러와 주세요.');
+    if (envelope.format !== 1 || envelope.keyId !== PROFILE_ENCRYPTION.keyId) throw new Error('다른 열람 키로 저장된 프로필입니다. 해당 키 파일을 확인해 주세요.');
+    const key = await crypto.subtle.unwrapKey('raw', profileDecode(envelope.wrappedKey), privateKey, {name:'RSA-OAEP'}, {name:'AES-GCM',length:256}, false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:profileDecode(envelope.iv),additionalData:profileAAD(id),tagLength:128}, key, profileDecode(envelope.ciphertext));
+    const result = JSON.parse(new TextDecoder().decode(plain));
+    if (typeof result.studentNumber !== 'string' || typeof result.realName !== 'string') throw new Error('프로필 형식을 확인할 수 없습니다.');
+    return result;
+}
+function setProfileStatus(id, message, error = false) {
+    const element = document.getElementById(id);
+    element.textContent = message; element.classList.toggle('is-error',error);
+}
+function openMyProfile() {
+    if (typeof userId === 'undefined' || !userId) return alert('먼저 접속해 주세요.');
+    document.getElementById('profile-student-number').value = profileDraft?.userId === userId ? profileDraft.studentNumber : '';
+    document.getElementById('profile-real-name').value = profileDraft?.userId === userId ? profileDraft.realName : '';
+    setProfileStatus('profile-save-status', profileDraft?.userId === userId ? '이번 접속에서 저장한 정보입니다.' : '저장된 정보는 관리자만 조회합니다. 수정하려면 학번과 이름을 다시 입력해 주세요.');
+    document.getElementById('my-profile-modal').style.display = 'flex';
+}
+function closeMyProfile() { if (!profileSaving) document.getElementById('my-profile-modal').style.display = 'none'; }
+async function saveMyProfile(event) {
+    event.preventDefault();
+    if (profileSaving || typeof userId === 'undefined' || !userId) return;
+    const studentNumber = document.getElementById('profile-student-number').value.trim();
+    const realName = document.getElementById('profile-real-name').value.trim();
+    if (!/^[0-9]{1,20}$/.test(studentNumber)) return setProfileStatus('profile-save-status','학번은 숫자로 입력해 주세요. 앞의 0도 그대로 저장됩니다.',true);
+    if (!realName || realName.length > 40 || /[\x00-\x1f\x7f]/.test(realName)) return setProfileStatus('profile-save-status','이름은 1~40자로 입력해 주세요.',true);
+    if (profileDraft?.userId === userId && profileDraft.studentNumber === studentNumber && profileDraft.realName === realName) return setProfileStatus('profile-save-status','이미 저장된 내용입니다.');
+    const ownerId = userId;
+    profileSaving = true;
+    document.getElementById('profile-save-button').disabled = true;
+    setProfileStatus('profile-save-status','정보를 보호하여 저장하고 있습니다.');
+    try {
+        const envelope = await encryptStudentProfile(ownerId,{studentNumber,realName});
+        await db.collection('studentProfiles').doc(ownerId).set({...envelope,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        profileDraft = {userId:ownerId,studentNumber,realName};
+        profileCipherCache.delete(ownerId);
+        setProfileStatus('profile-save-status','저장했습니다. 학번과 이름은 관리자에게만 제공됩니다.');
+    } catch(error) {
+        const message = error.code === 'permission-denied' ? '프로필 저장 권한이 없습니다. 관리자에게 studentProfiles 경로의 Firebase 접근 규칙 확인을 요청해 주세요.' : error.message || '저장하지 못했습니다. 연결 상태를 확인해 주세요.';
+        setProfileStatus('profile-save-status',message,true);
+    } finally { profileSaving = false; document.getElementById('profile-save-button').disabled = false; }
+}
+function openAdminProfile(id, nickname) {
+    try { requireAdmin(); } catch(error) { return alert(error.message); }
+    selectedProfileUserId = id;
+    profileOpenRequest++;
+    document.getElementById('admin-profile-title').textContent = `${nickname || id} · 학생 프로필`;
+    clearAdminProfileFields();
+    document.getElementById('admin-profile-modal').style.display = 'flex';
+    updateProfileKeyUI();
+    if (profilePrivateKey) void loadAdminProfile();
+}
+function clearAdminProfileFields() {
+    document.getElementById('admin-profile-student-number').textContent = '—';
+    document.getElementById('admin-profile-real-name').textContent = '—';
+}
+function closeAdminProfile() {
+    document.getElementById('admin-profile-modal').style.display = 'none';
+    selectedProfileUserId = null; profileOpenRequest++; clearAdminProfileFields();
+}
+function updateProfileKeyUI() {
+    const ready = !!profilePrivateKey;
+    document.getElementById('profile-key-picker').hidden = ready;
+    document.getElementById('profile-lock-button').hidden = !ready;
+    document.getElementById('profile-refresh-button').disabled = !ready;
+    setProfileStatus('admin-profile-status',ready ? '관리자 열람 키가 준비됐습니다.' : '관리자 전용 admin-profile-key.json 파일을 선택해 주세요.');
+}
+async function importProfileKey(event) {
+    try {
+        requireAdmin(); profileCryptoReady();
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (file.size > 20000) throw new Error('올바른 관리자 열람 키 파일을 선택해 주세요.');
+        const record = JSON.parse(await file.text());
+        if (record.format !== 'invest-profile-key-v1' || record.keyId !== PROFILE_ENCRYPTION.keyId || record.privateKey?.n !== PROFILE_ENCRYPTION.publicKey.n || record.privateKey?.e !== PROFILE_ENCRYPTION.publicKey.e) throw new Error('이 사이트에 맞는 열람 키가 아닙니다.');
+        const candidate = await crypto.subtle.importKey('jwk', record.privateKey, {name:'RSA-OAEP',hash:'SHA-256'}, false, ['unwrapKey']);
+        const probe = await encryptStudentProfile('key-check',{studentNumber:'0',realName:'key-check'});
+        await decryptStudentProfile('key-check',probe,candidate);
+        requireAdmin();
+        profilePrivateKey = candidate;
+        updateProfileKeyUI();
+        if (selectedProfileUserId) await loadAdminProfile();
+    } catch(error) { setProfileStatus('admin-profile-status',error.message || '열람 키를 확인하지 못했습니다.',true); }
+    finally { event.target.value = ''; }
+}
+function lockProfileKey() {
+    profilePrivateKey = null; profileOpenRequest++;
+    clearAdminProfileFields(); updateProfileKeyUI();
+}
+async function loadAdminProfile(force = false) {
+    try { requireAdmin(); } catch(error) { return setProfileStatus('admin-profile-status',error.message,true); }
+    if (!selectedProfileUserId || !profilePrivateKey) return;
+    const id = selectedProfileUserId, request = ++profileOpenRequest;
+    document.getElementById('profile-refresh-button').disabled = true;
+    setProfileStatus('admin-profile-status','프로필을 확인하고 있습니다.');
+    try {
+        let record = profileCipherCache.get(id);
+        if (force || record === undefined) {
+            if (!profileFetches.has(id)) {
+                const fetch = db.collection('studentProfiles').doc(id).get({source:'server'}).then(doc => ({data:doc.exists ? doc.data() : null,fetchedAt:Date.now()}));
+                profileFetches.set(id,fetch);
+                fetch.then(()=>profileFetches.delete(id),()=>profileFetches.delete(id));
+            }
+            record = await profileFetches.get(id); profileCipherCache.set(id,record);
+        }
+        if (selectedProfileUserId !== id || request !== profileOpenRequest || !profilePrivateKey) return;
+        if (!record.data) {clearAdminProfileFields();setProfileStatus('admin-profile-status','아직 프로필을 제출하지 않은 이용자입니다.');return;}
+        const plain = await decryptStudentProfile(id,record.data);
+        if (selectedProfileUserId !== id || request !== profileOpenRequest || !profilePrivateKey) return;
+        document.getElementById('admin-profile-student-number').textContent = plain.studentNumber;
+        document.getElementById('admin-profile-real-name').textContent = plain.realName;
+        setProfileStatus('admin-profile-status',`${new Date(record.fetchedAt).toLocaleTimeString('ko-KR')} 조회 · 변경 여부는 새로고침으로 확인하세요.`);
+    } catch(error) {
+        if (selectedProfileUserId === id && request === profileOpenRequest) {clearAdminProfileFields();setProfileStatus('admin-profile-status',error.code === 'permission-denied' ? '프로필을 조회할 권한이 없습니다. Firebase 접근 규칙을 확인해 주세요.' : error.message || '프로필을 열람하지 못했습니다.',true);}
+    } finally {if(request === profileOpenRequest)document.getElementById('profile-refresh-button').disabled = !profilePrivateKey;}
+}
+document.getElementById('profile-key-file').addEventListener('change',importProfileKey);
+document.getElementById('my-profile-form')?.addEventListener('submit',saveMyProfile);
+
+
 
 
     // 로그인 검증 및 신규 가입 퀴즈 모달 전환
@@ -1295,23 +1453,6 @@ async function checkLoginOrStartQuiz() {
         button.innerHTML = '시작하기 <span aria-hidden="true">→</span>';
     }
 }
-async function initializeMarketInBackground() {
-    const notice = document.getElementById('market-setup-notice');
-    try {
-        // This setup may require additional Firestore permissions; account access is independent.
-        await withReadTimeout((async () => {
-            await ensurePresetStocks();
-            await ensureSystemSettings();
-        })());
-        notice.hidden = true;
-    } catch (error) {
-        console.error('시장 초기화 실패:', error);
-        notice.textContent = `접속은 완료됐지만 시장 초기화가 끝나지 않았습니다. ${describeConnectionError(error)}`;
-        notice.hidden = false;
-    }
-}
-
-
     // 퀴즈 채점 및 계정 생성
     async function submitQuizAndCreateAccount() {
         if (signupInProgress) return;
@@ -1375,7 +1516,7 @@ async function initializeMarketInBackground() {
 
         initRealtimeData();
         startLoops();
-        void initializeMarketInBackground();
+        document.getElementById('profile-trigger').disabled = false;
     }
 
     async function ensurePresetStocks() {
@@ -1399,14 +1540,6 @@ async function initializeMarketInBackground() {
             transaction.set(configRef, {stocksInitialized:true}, {merge:true});
         });
     }
-    async function ensureSystemSettings() {
-        const ref = db.collection('system').doc('config');
-        await db.runTransaction(async transaction => {
-            const doc = await transaction.get(ref);
-            if (!doc.exists) transaction.set(ref, {isFrozen:false,negativeNewsProbability:0.5});
-        });
-    }
-
     function initChart() {
         const ctx = document.getElementById('stockHistoryChart').getContext('2d');
         stockChart = new Chart(ctx, {
@@ -1531,87 +1664,112 @@ async function initializeMarketInBackground() {
         stockChart.update('none');
     }
 
-    function initRealtimeData() {
-        db.collection('system').doc('config').onSnapshot(doc => {
-            if (doc.exists) {
-                isStocksFrozen = doc.data().isFrozen || false;
-                acceptSystemConfig(doc.data());
-                updateFreezeUI();
+let realtimeStops = [];
+let initialStockSetupRequested = false;
+let cachedAssetUserObserver = null;
+let pendingMarketPaint = null;
+const marketPaintFlags = {market:false,user:false,ranking:false,chart:false,options:false};
+function queueMarketPaint(flags) {
+    Object.assign(marketPaintFlags,flags);
+    if (pendingMarketPaint !== null) return;
+    pendingMarketPaint = requestAnimationFrame(() => {
+        pendingMarketPaint=null;
+        const next={...marketPaintFlags};Object.keys(marketPaintFlags).forEach(key=>marketPaintFlags[key]=false);
+        if(next.options) {refreshAdminStockChoices();renderStockSelectOptions();}
+        if(next.market) renderStockMarketList();
+        if(next.chart && stockChart) renderStockChart();
+        if(next.user) updateUserUI();
+        if(next.ranking) updateLeaderboard();
+    });
+}
+function reportRealtimeError(label,error) {
+    const notice=document.getElementById('market-setup-notice');
+    notice.hidden=false;notice.textContent=`${label}을 불러오지 못했습니다. ${describeConnectionError(error)}`;
+    console.error(label,error);
+}
+function stopRealtimeData() {
+    realtimeStops.forEach(stop=>stop());realtimeStops=[];
+    if(pendingMarketPaint!==null) cancelAnimationFrame(pendingMarketPaint);
+    pendingMarketPaint=null;
+    stopMarketCoordinator();
+    stopAssetUser?.();stopAssetHistory?.();
+}
+function observeCachedAssetUser(id,callback) {
+    cachedAssetUserObserver={id,callback};
+    notifyCachedAssetUser();
+    return ()=>{if(cachedAssetUserObserver?.callback===callback)cachedAssetUserObserver=null;};
+}
+function notifyCachedAssetUser() {
+    if(!cachedAssetUserObserver)return;
+    const {id,callback}=cachedAssetUserObserver;
+    const users=typeof allAdminUsers!=='undefined'?allAdminUsers:allUsersData;
+    const user=users.find(item=>item.id===id);
+    callback({exists:!!user,data:()=>user});
+}
+function initRealtimeData() {
+    stopRealtimeData();
+    realtimeStops.push(db.collection('system').doc('config').onSnapshot(doc=>{
+        const config=doc.exists?doc.data():{};
+        isStocksFrozen=!!config.isFrozen;
+        acceptSystemConfig(config);updateFreezeUI();syncMarketCoordinator();
+    },error=>reportRealtimeError('시장 설정',error)));
+    realtimeStops.push(db.collection('stocks').onSnapshot(snapshot=>{
+        const nowTime=new Date().toLocaleTimeString('ko-KR',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        const nextMap={};let changed=false,optionsChanged=false,chartChanged=false;
+        snapshot.forEach(doc=>{
+            const data=doc.data(),previous=stockDataMap[doc.id];nextMap[doc.id]=data;
+            if(!previous||previous.name!==data.name||previous.category!==data.category)optionsChanged=true;
+            if(!previous||previous.currentPrice!==data.currentPrice||previous.changeRate!==data.changeRate||previous.name!==data.name||previous.category!==data.category)changed=true;
+            const stamp=record=>record?.updatedAt?.toMillis?.()??record?.updatedAt?.toDate?.().getTime()??0;
+            if(!previous||previous.currentPrice!==data.currentPrice||stamp(previous)!==stamp(data)) {
+                const history=stockHistoryMap[doc.id]||(stockHistoryMap[doc.id]=[]);
+                history.push({time:nowTime,price:data.currentPrice});if(history.length>25)history.shift();chartChanged=true;
             }
         });
-
-        db.collection('stocks').onSnapshot(snapshot => {
-            const nowTime = new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-            stockDataMap = {};
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                stockDataMap[doc.id] = data;
-
-                if (!stockHistoryMap[doc.id]) stockHistoryMap[doc.id] = [];
-                const history = stockHistoryMap[doc.id];
-                if (history.length === 0 || history[history.length - 1].time !== nowTime) {
-                    history.push({ time: nowTime, price: data.currentPrice });
-                    if (history.length > 25) history.shift();
-                }
-            });
-
-            refreshAdminStockChoices();
-            renderStockSelectOptions();
-            renderStockMarketList();
-            renderStockChart();
-            updateUserUI();
-            updateLeaderboard();
-        });
-
-        db.collection('users').doc(userId).onSnapshot(doc => {
-            if (doc.exists) {
-                currentUser = doc.data();
-                refreshAccountFreezeUI();
-                renderStockMarketList();
-                updateUserUI();
+        Object.keys(stockDataMap).forEach(id=>{if(!nextMap[id]){delete stockHistoryMap[id];changed=optionsChanged=chartChanged=true;}});
+        stockDataMap=nextMap;
+        notifyCachedAssetUser();
+        if(optionsChanged)queueMarketPaint({options:true});
+        if(changed)queueMarketPaint({market:true,user:true,ranking:true});
+        if(chartChanged)queueMarketPaint({chart:true});
+        syncMarketCoordinator();
+        if(snapshot.empty&&!initialStockSetupRequested){
+            initialStockSetupRequested=true;
+            void withReadTimeout(ensurePresetStocks()).catch(error=>reportRealtimeError('초기 종목',error));
+        }
+    },error=>reportRealtimeError('종목 정보',error)));
+    // Ranking already delivers this user's document, so a second own-account listener is unnecessary.
+    realtimeStops.push(db.collection('users').onSnapshot(snapshot=>{
+        allUsersData=[];snapshot.forEach(doc=>allUsersData.push({id:doc.id,...doc.data()}));
+        const own=allUsersData.find(user=>user.id===userId);
+        if(own){currentUser=own;refreshAccountFreezeUI();queueMarketPaint({market:true,user:true});}
+        else {currentUser={...currentUser,isAccountFrozen:true,freezeReason:'계정을 찾을 수 없습니다. 다시 접속해 주세요.'};refreshAccountFreezeUI();}
+        notifyCachedAssetUser();queueMarketPaint({ranking:true});
+    },error=>reportRealtimeError('이용자 정보',error)));
+    realtimeStops.push(db.collection('news').orderBy('createdAt','desc').limit(15).onSnapshot(snapshot=>{
+        const feed=document.getElementById('ai-news-feed');feed.replaceChildren();
+        if(snapshot.empty){feed.innerHTML='<div class="empty-state">발행된 뉴스가 없습니다.</div>';return;}
+        let latestBreakingShown=false;
+        snapshot.forEach(doc=>{
+            const news=doc.data();
+            const stockName=stockDataMap[news.targetStockId]?.name||'시황 이슈';
+            if(news.isBreaking&&!latestBreakingShown){
+                latestBreakingShown=true;
+                document.getElementById('breaking-stock-name').textContent=stockName;
+                document.getElementById('breaking-news-title').textContent=news.title||'';
+                document.getElementById('breaking-news-area').classList.remove('hidden');
             }
+            const time=news.createdAt?.toDate?news.createdAt.toDate().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'방금 전';
+            const container=document.createElement('div');container.className='news-item-container';
+            const item=document.createElement('div');item.className='news-item-title';
+            item.onclick=()=>openNewsModal(news.title,news.content,stockName,time);
+            item.innerHTML=`<div><span class="news-tag">${news.isBreaking?'긴급속보':'뉴스'}</span><strong>[${escapeHTML(stockName)}] ${escapeHTML(news.title)}</strong></div><span class="news-time">${time}</span>`;
+            container.appendChild(item);feed.appendChild(container);
         });
-
-        db.collection('users').onSnapshot(snapshot => {
-            allUsersData = [];
-            snapshot.forEach(doc => allUsersData.push({ id: doc.id, ...doc.data() }));
-            updateLeaderboard();
-        });
-
-        db.collection('news').orderBy('createdAt', 'desc').limit(15).onSnapshot(snapshot => {
-            const newsContainer = document.getElementById('ai-news-feed');
-            newsContainer.innerHTML = '';
-
-            if (snapshot.empty) {
-                newsContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.85rem; padding: 10px;">발행된 뉴스가 없습니다.</div>';
-                return;
-            }
-
-            snapshot.forEach(doc => {
-                const news = doc.data();
-                const stockName = news.targetStockId && stockDataMap[news.targetStockId] ? stockDataMap[news.targetStockId].name : '시황 이슈';
-                const timeStr = news.createdAt ? new Date(news.createdAt.toDate()).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '방금 전';
-
-                const newsItemContainer = document.createElement('div');
-                newsItemContainer.className = 'news-item-container';
-
-                const newsEl = document.createElement('div');
-                newsEl.className = 'news-item-title';
-                newsEl.onclick = () => openNewsModal(news.title, news.content, stockName, timeStr);
-
-                newsEl.innerHTML = `
-                    <div>
-                        <span class="news-tag">${news.isBreaking ? '🚨 긴급속보' : '뉴스'}</span>
-                        <strong>[${escapeHTML(stockName)}] ${escapeHTML(news.title)}</strong>
-                    </div>
-                    <span class="news-time">${timeStr}</span>`;
-                
-                newsItemContainer.appendChild(newsEl);
-                newsContainer.appendChild(newsItemContainer);
-            });
-        });
-    }
+    },error=>reportRealtimeError('뉴스',error)));
+}
+window.addEventListener('pagehide',()=>stopRealtimeData());
+window.addEventListener('pageshow',event=>{if(event.persisted&&userId){initRealtimeData();startLoops();}});
 
     function renderStockSelectOptions() {
         const selectEl = document.getElementById('chart-stock-select');
@@ -1636,6 +1794,7 @@ async function initializeMarketInBackground() {
     }
 
     function renderStockMarketList() {
+        const activeQuantityId = document.activeElement?.classList.contains('trade-input') ? document.activeElement.id : null;
         const currentQtyMap = {};
         Object.keys(stockDataMap).forEach(sId => {
             const inputEl = document.getElementById(`trade-qty-${sId}`);
@@ -1692,6 +1851,7 @@ async function initializeMarketInBackground() {
             marketList.appendChild(tr);
         });
         refreshAccountFreezeUI();
+        if(activeQuantityId) document.getElementById(activeQuantityId)?.focus({preventScroll:true});
     }
 
     function updateUserUI() {
@@ -1828,6 +1988,11 @@ async function initializeMarketInBackground() {
                 manage.textContent = '자산 관리';
                 manage.onclick = () => openAssetManager(u.id);
                 tr.querySelector('.admin-only-col').appendChild(manage);
+                const profileButton = document.createElement('button');
+                profileButton.className = 'admin-action-btn btn-admin-info';
+                profileButton.textContent = '프로필';
+                profileButton.onclick = () => openAdminProfile(u.id,u.name);
+                tr.querySelector('.admin-only-col').appendChild(profileButton);
             }
             listEl.appendChild(tr);
         });
@@ -1901,17 +2066,74 @@ async function buyMaxStock(stockId) { return executeTrade(stockId, 'buy', true);
 async function sellStock(stockId) { return executeTrade(stockId, 'sell'); }
 async function sellMaxStock(stockId) { return executeTrade(stockId, 'sell', true); }
 
-function startLoops() {
-    if (stockIntervalTimer) clearInterval(stockIntervalTimer);
-    if (aiNewsIntervalTimer) clearInterval(aiNewsIntervalTimer);
-    if (breakingNewsIntervalTimer) clearInterval(breakingNewsIntervalTimer);
-    const report = error => console.error('자동 시장 갱신 실패:', error);
-    stockIntervalTimer = setInterval(() => { if (!isStocksFrozen) triggerRandomStockChange(true).catch(report); }, 10000);
-    aiNewsIntervalTimer = setInterval(() => { if (!isStocksFrozen) triggerAINews().catch(report); }, 30000);
-    breakingNewsIntervalTimer = setInterval(() => { if (!isStocksFrozen) triggerBreakingNews().catch(report); }, 90000);
+// One tab holds a short lease. Other clients continue their realtime UI subscriptions,
+// but do not poll Firestore or attempt periodic market writes while the lease is valid.
+const marketRunnerId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+let marketCoordinatorStarted = false;
+let marketLeaseAttemptTimer = null;
+let marketLeaseBusy = false;
+let marketRetryAfter = 0;
+function ownsMarketLease(config = systemConfig, now = Date.now()) {
+    return config.marketRunnerId === marketRunnerId && Number(config.marketRunnerExpiresAt) > now;
 }
+function clearMarketWorkTimers() {
+    clearTimeout(stockIntervalTimer); clearTimeout(aiNewsIntervalTimer); clearTimeout(breakingNewsIntervalTimer);
+    stockIntervalTimer = aiNewsIntervalTimer = breakingNewsIntervalTimer = null;
+}
+function syncMarketCoordinator() {
+    if (!marketCoordinatorStarted) return;
+    clearMarketWorkTimers(); clearTimeout(marketLeaseAttemptTimer); marketLeaseAttemptTimer = null;
+    if (systemConfig.isFrozen || !Object.keys(stockDataMap).length) return;
+    const now = Date.now();
+    if (ownsMarketLease()) {
+        const delay = (last,period) => Math.max(100,Number(last || now)+period-now,marketRetryAfter-now);
+        const run = async task => {
+            try {await task();}
+            catch(error) {marketRetryAfter=Date.now()+15000;console.error('자동 시장 갱신 실패:',error);}
+            finally {syncMarketCoordinator();}
+        };
+        stockIntervalTimer = setTimeout(()=>run(()=>triggerRandomStockChange(true)),delay(systemConfig.lastPriceTickAt,10000));
+        aiNewsIntervalTimer = setTimeout(()=>run(()=>triggerAINews()),delay(systemConfig.lastRegularNewsAt,30000));
+        breakingNewsIntervalTimer = setTimeout(()=>run(()=>triggerBreakingNews()),delay(systemConfig.lastBreakingNewsAt,90000));
+    } else {
+        const delay = Math.max(0,Number(systemConfig.marketRunnerExpiresAt || 0)-now,marketRetryAfter-now)+300+Math.random()*1700;
+        marketLeaseAttemptTimer = setTimeout(()=>void acquireMarketLease(),delay);
+    }
+}
+async function acquireMarketLease() {
+    if (!marketCoordinatorStarted || marketLeaseBusy || systemConfig.isFrozen || !Object.keys(stockDataMap).length) return false;
+    marketLeaseBusy = true;
+    try {
+        const ref = db.collection('system').doc('config');
+        const config = await db.runTransaction(async transaction => {
+            const doc = await transaction.get(ref);
+            const state = doc.exists ? doc.data() : {};
+            const now = Date.now();
+            if (state.isFrozen || (state.marketRunnerId !== marketRunnerId && Number(state.marketRunnerExpiresAt) > now)) return state;
+            const patch = {marketRunnerId,marketRunnerExpiresAt:now+30000};
+            if (!state.lastPriceTickAt) patch.lastPriceTickAt=now;
+            if (!state.lastRegularNewsAt) patch.lastRegularNewsAt=now;
+            if (!state.lastBreakingNewsAt) patch.lastBreakingNewsAt=now;
+            transaction.set(ref,patch,{merge:true});
+            return {...state,...patch};
+        });
+        // The realtime listener is authoritative. This covers its initial delivery delay.
+        if (Number(config.marketRunnerExpiresAt || 0) >= Number(systemConfig.marketRunnerExpiresAt || 0)) systemConfig={...systemConfig,...config};
+        return ownsMarketLease(config);
+    } catch(error) {marketRetryAfter=Date.now()+15000;console.error('시장 자동 실행 담당 연결 실패:',error);return false;}
+    finally {marketLeaseBusy=false;syncMarketCoordinator();}
+}
+function startLoops() {
+    marketCoordinatorStarted=true;
+    syncMarketCoordinator();
+}
+function stopMarketCoordinator() {
+    marketCoordinatorStarted=false;clearMarketWorkTimers();clearTimeout(marketLeaseAttemptTimer);marketLeaseAttemptTimer=null;
+}
+
 async function triggerRandomStockChange(automatic = false) {
     if (!automatic) requireAdmin();
+    if (automatic && !ownsMarketLease()) return;
     if (isStockChanging) return;
     isStockChanging = true;
     try {
@@ -1922,7 +2144,7 @@ async function triggerRandomStockChange(automatic = false) {
             const configDoc = await transaction.get(configRef);
             const config = configDoc.exists ? configDoc.data() : {};
             const now = Date.now();
-            if (automatic && (config.isFrozen || now - (config.lastPriceTickAt || 0) < 9500)) return;
+            if (automatic && (!ownsMarketLease(config, now) || config.isFrozen || now - (config.lastPriceTickAt || 0) < 9500)) return;
             const stocks = await Promise.all(stockRefs.map(ref => transaction.get(ref)));
             stocks.forEach((doc,index) => {
                 if (!doc.exists) return;
@@ -1933,7 +2155,7 @@ async function triggerRandomStockChange(automatic = false) {
                 const initial = Number(stock.initialPrice) || stock.currentPrice;
                 transaction.update(stockRefs[index], {currentPrice:nextPrice, changeRate:((nextPrice - initial) / initial) * 100, lastImpact:0, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
             });
-            transaction.set(configRef, {lastPriceTickAt:now}, {merge:true});
+            transaction.set(configRef, {lastPriceTickAt:now,...(automatic ? {marketRunnerId,marketRunnerExpiresAt:now+30000} : {})}, {merge:true});
         });
     } finally { isStockChanging = false; }
 }
@@ -2167,6 +2389,9 @@ async function triggerBreakingNews() {
  });
  document.addEventListener('keydown',event => {
   if (!active) return;
+  if (event.key === 'Escape' && ['my-profile-modal','admin-profile-modal'].includes(active.id)) {
+   if(active.id === 'my-profile-modal') closeMyProfile(); else closeAdminProfile(); return;
+  }
   if (event.key === 'Escape' && ['news-modal','user-info-modal'].includes(active.id)) {
    active.querySelector('.btn-close').click(); return;
   }
