@@ -81,8 +81,8 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 <!-- 1. 로그인 모달 -->
 <div id="login-modal" class="modal-overlay">
     <div class="modal-content login-content"><aside class="login-aside"><div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>invest.</div><h3>시장을 읽고,<br>나의 기준으로.</h3><p>뉴스에서 가능성을 발견하고,<br>직접 투자하며 경험을 쌓아 보세요.</p><div class="login-aside-graphic" aria-hidden="true"><i></i><i></i><i></i><i></i></div><small>LEARN. INVEST. GROW.</small></aside><div class="login-form"><div class="eyebrow">WELCOME TO INVEST</div><h2>투자를 시작해 볼까요</h2>
-        <p>닉네임과 비밀번호로 접속하세요.<br>처음이라면 간단한 금융 퀴즈부터 시작합니다.</p>
-        <label class="field-label" for="user-name-input">닉네임</label><input autocomplete="username" type="text" id="user-name-input" placeholder="닉네임을 입력하세요">
+        <p>처음 가입한 아이디와 비밀번호로 접속하세요.<br>닉네임을 변경해도 로그인 아이디는 그대로입니다.</p>
+        <label class="field-label" for="user-name-input">로그인 아이디</label><input autocomplete="username" type="text" id="user-name-input" placeholder="처음 가입한 아이디를 입력하세요">
         <label class="field-label" for="user-pw-input">비밀번호</label><input autocomplete="current-password" type="password" id="user-pw-input" placeholder="비밀번호를 입력하세요">
         <div id="login-status" class="login-status" role="status" aria-live="polite" hidden></div><button id="login-start-button" class="btn-start" onclick="checkLoginOrStartQuiz()">시작하기 <span aria-hidden="true">→</span></button><p class="login-footnote">퀴즈 결과에 따라 최대 1,000만 원의 투자금이 지급됩니다.</p></div>
     </div>
@@ -307,7 +307,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 <p class="asset-form-note">압류는 해당 자산을 차감합니다. 조정은 총자산·수익률에 반영되며 초기 투자금은 유지됩니다. 계좌 동결 중에도 시세에 따른 평가액은 변동됩니다.</p>
 <div class="asset-buttons"><button id="asset-submit" type="submit" class="btn-start">조정 적용</button><button type="button" class="btn-close" onclick="closeAssetManager()">닫기</button></div></form>
 <h3 class="asset-history-heading">최근 처리 이력 · 최대 10건</h3><div id="asset-user-history" class="asset-history"></div></div></div>
-<div id="my-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content profile-dialog"><div class="eyebrow">MY PROFILE</div><h2>학생 프로필</h2><p>학번과 이름은 관리자·부관리자에게만 제공됩니다.<br>공개 랭킹에는 기존 닉네임만 표시됩니다.</p><form id="my-profile-form"><label for="profile-student-number" class="field-label">학번</label><input id="profile-student-number" type="text" inputmode="numeric" maxlength="20" pattern="[0-9]+" required placeholder="예: 20101" autocomplete="off"><label for="profile-real-name" class="field-label">이름</label><input id="profile-real-name" type="text" maxlength="40" required placeholder="이름을 입력하세요" autocomplete="off"><div id="profile-save-status" class="profile-status" role="status" aria-live="polite"></div><div class="profile-actions"><button type="submit" id="profile-save-button" class="btn-start">프로필 저장</button><button type="button" class="btn-close" onclick="closeMyProfile()">닫기</button></div></form></div></div><div id="admin-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content profile-dialog"><div class="eyebrow">PRIVATE PROFILE</div><h2 id="admin-profile-title">학생 프로필</h2><label id="profile-key-picker" class="profile-key-picker">프로필 열람 키<input id="profile-key-file" type="file" accept=".json,application/json"></label><div id="admin-profile-status" class="profile-status" role="status" aria-live="polite"></div><dl class="profile-details"><dt>학번</dt><dd id="admin-profile-student-number">—</dd><dt>이름</dt><dd id="admin-profile-real-name">—</dd></dl><button id="profile-lock-button" class="profile-lock" type="button" onclick="lockProfileKey()" hidden>열람 키 잠그기</button><div class="profile-actions"><button id="profile-refresh-button" type="button" class="btn-start" onclick="loadAdminProfile(true)" disabled>새로고침</button><button type="button" class="btn-close" onclick="closeAdminProfile()">닫기</button></div></div></div><div id="profile-directory-modal" class="modal-overlay" style="display:none"><div class="modal-content staff-directory"><h2>이용자 프로필 명단</h2><p>닉네임 · 학번 · 이름을 함께 확인합니다.</p><label class="field-label">프로필 열람 키<input id="directory-key-file" type="file" accept=".json,application/json"></label><div class="staff-actions"><button type="button" onclick="loadProfileDirectory()">명단 불러오기</button><button type="button" onclick="loadProfileDirectory(true)">새로고침</button><button type="button" onclick="lockProfileKey()">열람 키 잠그기</button></div><p id="directory-status" role="status"></p><div class="directory-table-wrap"><table><thead><tr><th>닉네임 / 역할</th><th>학번</th><th>이름</th></tr></thead><tbody id="profile-directory-rows"></tbody></table></div><button type="button" class="btn-close" onclick="closeProfileDirectory()">닫기</button></div></div>
+<div id="my-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content profile-dialog"><div class="eyebrow">MY PROFILE</div><h2>학생 프로필</h2><p>학번과 이름은 관리자·부관리자에게만 제공됩니다.<br>공개 랭킹에는 닉네임만 표시됩니다.</p><form id="nickname-form"><label class="field-label">로그인 아이디</label><p id="profile-login-id" style="font-size:14px;overflow-wrap:anywhere"></p><label for="profile-nickname" class="field-label">닉네임</label><input id="profile-nickname" maxlength="20" required autocomplete="off"><button type="submit" id="nickname-save" class="btn-start" style="margin-top:10px">닉네임 변경</button><p id="nickname-status" role="status" style="font-size:12px;line-height:1.6">로그인은 처음 가입한 아이디를 사용합니다.</p></form><hr style="border:0;border-top:1px solid #e0e6dc;margin:20px 0"><form id="my-profile-form"><label for="profile-student-number" class="field-label">학번</label><input id="profile-student-number" type="text" inputmode="numeric" maxlength="20" pattern="[0-9]+" required placeholder="예: 20101" autocomplete="off"><label for="profile-real-name" class="field-label">이름</label><input id="profile-real-name" type="text" maxlength="40" required placeholder="이름을 입력하세요" autocomplete="off"><div id="profile-save-status" class="profile-status" role="status" aria-live="polite"></div><div class="profile-actions"><button type="submit" id="profile-save-button" class="btn-start">프로필 저장</button><button type="button" class="btn-close" onclick="closeMyProfile()">닫기</button></div></form></div></div><div id="admin-profile-modal" class="modal-overlay" style="display:none;"><div class="modal-content profile-dialog"><div class="eyebrow">PRIVATE PROFILE</div><h2 id="admin-profile-title">학생 프로필</h2><label id="profile-key-picker" class="profile-key-picker">프로필 열람 키<input id="profile-key-file" type="file" accept=".json,application/json"></label><div id="admin-profile-status" class="profile-status" role="status" aria-live="polite"></div><dl class="profile-details"><dt>학번</dt><dd id="admin-profile-student-number">—</dd><dt>이름</dt><dd id="admin-profile-real-name">—</dd></dl><button id="profile-lock-button" class="profile-lock" type="button" onclick="lockProfileKey()" hidden>열람 키 잠그기</button><div class="profile-actions"><button id="profile-refresh-button" type="button" class="btn-start" onclick="loadAdminProfile(true)" disabled>새로고침</button><button type="button" class="btn-close" onclick="closeAdminProfile()">닫기</button></div></div></div><div id="profile-directory-modal" class="modal-overlay" style="display:none"><div class="modal-content staff-directory"><h2>이용자 프로필 명단</h2><p>닉네임 · 학번 · 이름을 함께 확인합니다.</p><label class="field-label">프로필 열람 키<input id="directory-key-file" type="file" accept=".json,application/json"></label><div class="staff-actions"><button type="button" onclick="loadProfileDirectory()">명단 불러오기</button><button type="button" onclick="loadProfileDirectory(true)">새로고침</button><button type="button" onclick="lockProfileKey()">열람 키 잠그기</button></div><p id="directory-status" role="status"></p><div class="directory-table-wrap"><table><thead><tr><th>닉네임 / 역할</th><th>학번</th><th>이름</th></tr></thead><tbody id="profile-directory-rows"></tbody></table></div><button type="button" class="btn-close" onclick="closeProfileDirectory()">닫기</button></div></div>
 <div id="warning-composer-modal" class="modal-overlay" style="display:none"><div class="modal-content"><h2 id="warning-target-label">개인 경고</h2><form id="warning-send-form"><label for="warning-message-input" class="field-label">경고 내용</label><textarea id="warning-message-input" rows="5" maxlength="1000" required></textarea><p id="warning-send-status" role="status"></p><button id="warning-send-button" type="submit" class="btn-start">경고 보내기</button><button type="button" class="btn-close" onclick="closeWarningComposer()">닫기</button></form></div></div><script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
@@ -1451,8 +1451,42 @@ function setProfileStatus(id, message, error = false) {
     const element = document.getElementById(id);
     element.textContent = message; element.classList.toggle('is-error',error);
 }
+let nicknameSaving=false;
+async function changeNickname(event){
+    event.preventDefault();if(nicknameSaving||!userId)return;
+    const status=document.getElementById('nickname-status');
+    const name=document.getElementById('profile-nickname').value.trim();
+    if(!name||name.length>20||/[\/\x00-\x1f\x7f]/.test(name)){status.textContent='닉네임은 / 및 제어문자를 제외한 1~20자로 입력해 주세요.';return;}
+    nicknameSaving=true;document.getElementById('nickname-save').disabled=true;
+    status.textContent='닉네임을 변경하고 있습니다.';
+    try{
+        const ref=db.collection('users').doc(userId);
+        const reserved=db.collection('nicknameReservations').doc('name_'+name);
+        const original=db.collection('users').doc('user_'+name);
+        const changed=await db.runTransaction(async tx=>{
+            const [own,claim,legacy]=await Promise.all([tx.get(ref),tx.get(reserved),tx.get(original)]);
+            if(!own.exists)throw new Error('계정을 찾을 수 없습니다. 다시 로그인해 주세요.');
+            if(own.data().name===name)return false;
+            if((claim.exists&&claim.data().userId!==userId)||(legacy.exists&&original.id!==userId))throw new Error('이미 사용 중이거나 다른 계정에 예약된 닉네임입니다.');
+            tx.update(ref,{name});tx.set(reserved,{userId});return true;
+        });
+        status.textContent=changed?'닉네임을 변경했습니다. 로그인 아이디와 비밀번호는 그대로입니다.':'이미 사용 중인 닉네임입니다.';
+    }catch(error){status.textContent=error.code==='permission-denied'?'닉네임 변경 권한이 없습니다. 관리자에게 nicknameReservations 접근 규칙 확인을 요청해 주세요.':error.message||'변경하지 못했습니다.';}
+    finally{nicknameSaving=false;document.getElementById('nickname-save').disabled=false;}
+}
+function renderAccountName(){
+    const target=document.getElementById('user-display-name');
+    const role=isAdmin?'관리자':currentUser.accountRole==='deputy'?'부관리자':'';
+    target.replaceChildren();const label=document.createElement('b');label.textContent=(role?'['+role+'] ':'')+currentUser.name;target.appendChild(label);
+    const logout=document.createElement('button');logout.className='logout-btn';logout.textContent='로그아웃';logout.onclick=()=>location.reload();target.appendChild(logout);
+}
+document.getElementById('nickname-form').addEventListener('submit',changeNickname);
+
 function openMyProfile() {
     if (typeof userId === 'undefined' || !userId) return alert('먼저 접속해 주세요.');
+    document.getElementById('profile-login-id').textContent = userId.startsWith('user_') ? userId.slice(5) : userId;
+    document.getElementById('profile-nickname').value = currentUser.name || '';
+    document.getElementById('nickname-status').textContent = '로그인은 처음 가입한 아이디를 사용합니다.';
     document.getElementById('profile-student-number').value = profileDraft?.userId === userId ? profileDraft.studentNumber : '';
     document.getElementById('profile-real-name').value = profileDraft?.userId === userId ? profileDraft.realName : '';
     setProfileStatus('profile-save-status', profileDraft?.userId === userId ? '이번 접속에서 저장한 정보입니다.' : '저장된 정보는 관리자·부관리자만 조회합니다. 수정하려면 학번과 이름을 다시 입력해 주세요.');
@@ -1598,7 +1632,7 @@ async function checkLoginOrStartQuiz() {
     if (loginInProgress) return;
     const name = document.getElementById('user-name-input').value.trim();
     const password = document.getElementById('user-pw-input').value.trim();
-    if (!name || !password) { showLoginStatus('닉네임과 비밀번호를 모두 입력하세요.', true); return; }
+    if (!name || !password) { showLoginStatus('로그인 아이디와 비밀번호를 모두 입력하세요.', true); return; }
     if (name.includes('/')) { showLoginStatus('닉네임에는 / 문자를 사용할 수 없습니다.', true); return; }
     const button = document.getElementById('login-start-button');
     loginInProgress = true;
@@ -1670,7 +1704,13 @@ async function checkLoginOrStartQuiz() {
         const originalLabel = button.textContent;
         button.textContent = '계정 생성 중…';
         try {
-        await userRef.set(newUserData);
+        await db.runTransaction(async tx=>{
+            const claimRef=db.collection('nicknameReservations').doc('name_'+pendingName);
+            const [existing,claim]=await Promise.all([tx.get(userRef),tx.get(claimRef)]);
+            if(existing.exists)throw new Error('이미 가입된 아이디입니다. 새로고침 후 로그인해 주세요.');
+            if(claim.exists && claim.data().userId!==userId)throw new Error('이미 사용 중인 닉네임입니다. 새로고침 후 다른 아이디로 가입해 주세요.');
+            tx.set(userRef,newUserData);tx.set(claimRef,{userId});
+        });
 
         alert(`🎉 퀴즈 제출 완료!\n맞춘 문제: ${correctCount} / 5 개\n지급된 시드머니: ${earnedMoney.toLocaleString()} 원으로 투자를 시작합니다!`);
 
@@ -1689,14 +1729,7 @@ async function checkLoginOrStartQuiz() {
         currentUser = userData;
         document.getElementById('login-modal').style.display = 'none';
 
-        if (isAdmin) {
-            document.getElementById('admin-panel').classList.remove('hidden');
-            document.querySelectorAll('.admin-only-col').forEach(el => el.classList.remove('hidden'));
-            document.getElementById('user-display-name').innerHTML = `👑 <b>[관리자] ${currentUser.name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
-        } else {
-            document.getElementById('user-display-name').innerHTML = `👤 <b>${currentUser.name}</b> 님 <button class="logout-btn" onclick="location.reload()">로그아웃</button>`;
-        }
-
+        renderAccountName();
         updateStaffUI();
         if(isAdmin && userData.accountRole !== 'admin') {
             void db.collection('users').doc(userId).update({accountRole:'admin'}).catch(error=>{console.error('관리자 역할 저장 실패',error);alert('관리자 배지를 저장하지 못했습니다. 이용자 정보 쓰기 권한을 확인해 주세요.');});
@@ -1948,7 +1981,7 @@ function initRealtimeData() {
     realtimeStops.push(db.collection('users').onSnapshot(snapshot=>{
         allUsersData=[];snapshot.forEach(doc=>allUsersData.push({id:doc.id,...doc.data()}));
         const own=allUsersData.find(user=>user.id===userId);
-        if(own){currentUser=own;updateStaffUI();refreshAccountFreezeUI();queueMarketPaint({market:true,user:true});}
+        if(own){currentUser=own;renderAccountName();updateStaffUI();refreshAccountFreezeUI();queueMarketPaint({market:true,user:true});}
         else {currentUser={...currentUser,accountRole:'user',isAccountFrozen:true,freezeReason:'계정을 찾을 수 없습니다. 다시 접속해 주세요.'};refreshAccountFreezeUI();}
         updateStaffUI();notifyCachedAssetUser();queueMarketPaint({ranking:true});
     },error=>reportRealtimeError('이용자 정보',error)));
