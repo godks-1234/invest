@@ -40,6 +40,14 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 @media(max-width:800px){header{gap:16px}.profile-trigger{padding:7px 9px;font-size:11px}.top-nav{gap:13px}}
 @media(max-width:560px){header{gap:9px}.profile-trigger{padding:6px 8px;font-size:10px}.profile-trigger svg{width:13px;height:13px}.profile-dialog input{font-size:16px}.profile-dialog h2{font-size:21px}.profile-status{font-size:11px}}
 
+
+.announcement-banner[hidden],.announcement-reopen[hidden]{display:none!important}
+.announcement-banner{margin:0 0 24px;padding:24px 28px;border:1px solid #d5dfd7;border-left:4px solid #244f40;border-radius:12px;background:#f4f7f1;color:#233c32}
+.announcement-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.announcement-label{font-size:12px;font-weight:700;letter-spacing:.06em}.announcement-heading button,.announcement-reopen button{background:transparent;border:0;color:#54675b;text-decoration:underline;cursor:pointer;font:inherit;font-size:13px;padding:6px}
+.announcement-banner h2{font-size:20px;margin:12px 0;overflow-wrap:anywhere}.announcement-banner p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;margin:0 0 12px;font-size:14px}.announcement-banner small{font-size:12px;color:#6a7b6f}.announcement-reopen{margin-bottom:16px;text-align:right}
+.announcement-editor-panel{width:100%;box-sizing:border-box;margin:0 0 24px;padding:24px;background:#fff;border:1px solid #dfe5dc;border-radius:12px;color:#263d32;text-align:left}.announcement-editor-panel h3{margin:0 0 10px;font-size:17px}.announcement-editor-panel p{font-size:13px;line-height:1.7;color:#657365}.announcement-editor-panel label{display:block;font-size:13px;font-weight:600;margin:14px 0 8px}.announcement-editor-panel input,.announcement-editor-panel textarea{display:block;width:100%;box-sizing:border-box;border:1px solid #d9dfd4;border-radius:6px;padding:12px;font:inherit;font-size:14px;background:#fff;color:#263d32}.announcement-editor-panel textarea{resize:vertical;min-height:120px}.announcement-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.announcement-actions button{padding:11px 17px;border:0;border-radius:6px;background:#244f40;color:white;font:inherit;font-size:13px;cursor:pointer}.announcement-actions button+button{background:#edf1e7;color:#3e563e}.announcement-actions button:disabled{opacity:.5;cursor:default}
+@media(max-width:600px){.announcement-banner,.announcement-editor-panel{padding:18px}.announcement-banner h2{font-size:18px}}
+
 </style>
 </head>
 <body>
@@ -160,7 +168,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
     </div>
 </div>
 
-<header><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>invest.</h1><span class="brand-caption">모의투자</span></a><button type="button" id="profile-trigger" class="profile-trigger" onclick="openMyProfile()" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 21v-2a7 7 0 0 1 14 0v2"></path></svg>프로필</button><nav class="top-nav" aria-label="주 메뉴"><a href="#overview">투자 현황</a><a href="#market">거래소</a><a href="#news">시장 뉴스</a><a href="#ranking">랭킹</a></nav><div class="user-badge" id="user-display-name"><span>접속 대기 중</span></div></header><main class="app-shell"><section class="page-intro"><div><div class="eyebrow">MY INVESTMENT</div><h2>나의 투자 현황</h2><p>시장의 흐름을 살피고, 다음 투자를 준비하세요.</p></div><span class="market-caption">모의투자</span></section>
+<header><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>invest.</h1><span class="brand-caption">모의투자</span></a><button type="button" id="profile-trigger" class="profile-trigger" onclick="openMyProfile()" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 21v-2a7 7 0 0 1 14 0v2"></path></svg>프로필</button><nav class="top-nav" aria-label="주 메뉴"><a href="#overview">투자 현황</a><a href="#market">거래소</a><a href="#news">시장 뉴스</a><a href="#ranking">랭킹</a></nav><div class="user-badge" id="user-display-name"><span>접속 대기 중</span></div></header><main class="app-shell"><section id="announcement-banner" class="announcement-banner" aria-label="공지사항" hidden><div class="announcement-heading"><span class="announcement-label">공지사항</span><button type="button" onclick="setAnnouncementDismissed(true)">숨기기</button></div><h2 id="announcement-title"></h2><p id="announcement-body"></p><small id="announcement-meta"></small></section><div id="announcement-reopen" class="announcement-reopen" hidden><button type="button" onclick="setAnnouncementDismissed(false)">숨긴 공지 다시 보기</button></div><section class="page-intro"><div><div class="eyebrow">MY INVESTMENT</div><h2>나의 투자 현황</h2><p>시장의 흐름을 살피고, 다음 투자를 준비하세요.</p></div><span class="market-caption">모의투자</span></section>
 <!-- 긴급 속보 팝업 -->
 <div id="breaking-news-area" class="breaking-news-banner hidden">
     <div>
@@ -173,7 +181,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 
 
 <!-- 어드민 조종 패널 -->
-<div id="admin-panel" class="ai-control-panel hidden">
+<div id="admin-panel" class="ai-control-panel hidden"><section class="announcement-editor-panel"><h3>공지사항 관리</h3><p>게시한 공지는 이용자 화면 맨 위에 표시됩니다. 새로 게시하거나 내용을 수정하면 숨긴 이용자에게도 다시 표시됩니다.</p><form id="announcement-editor"><label for="announcement-edit-title">제목</label><input id="announcement-edit-title" maxlength="100" required placeholder="공지 제목을 입력하세요"><label for="announcement-edit-body">내용</label><textarea id="announcement-edit-body" rows="5" maxlength="3000" required placeholder="전달할 내용을 입력하세요"></textarea><div class="announcement-actions"><button id="announcement-publish" type="submit">공지 게시 · 수정</button><button id="announcement-stop" type="button" onclick="stopAnnouncement()" disabled>게시 중단</button></div><p id="announcement-editor-status" role="status" aria-live="polite"></p></form></section>
     <div>
          <strong>[관리자 모드]</strong> |  <strong>주가 변동: <span id="freeze-status-text" style="color: #059669;">[실시간 변동 중]</span></strong>
     </div>
@@ -991,12 +999,82 @@ const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&
 const adminAllowed = () => typeof isAdmin !== 'undefined' && isAdmin === true;
 function requireAdmin() { if (!adminAllowed()) throw new Error('관리자 접속 후 이용해 주세요.'); }
 function actorName() { return typeof currentUser !== 'undefined' && currentUser?.name ? currentUser.name : '관리자 센터'; }
+let announcementDraftDirty = false;
+let announcementSaving = false;
+let dismissedAnnouncement = '';
+try { dismissedAnnouncement = localStorage.getItem('invest.dismissedAnnouncement') || ''; } catch {}
+function renderAnnouncement() {
+    const notice = systemConfig.announcement;
+    const active = !!(notice?.active && notice.id && notice.title && notice.body);
+    const hidden = active && dismissedAnnouncement === notice.id;
+    document.getElementById('announcement-banner').hidden = !active || hidden;
+    document.getElementById('announcement-reopen').hidden = !hidden;
+    document.getElementById('announcement-title').textContent = active ? notice.title : '';
+    document.getElementById('announcement-body').textContent = active ? notice.body : '';
+    document.getElementById('announcement-meta').textContent = active && Number.isFinite(notice.publishedAt) ? new Date(notice.publishedAt).toLocaleString('ko-KR') : '';
+    if (!announcementDraftDirty && !announcementSaving) {
+        document.getElementById('announcement-edit-title').value = notice?.title || '';
+        document.getElementById('announcement-edit-body').value = notice?.body || '';
+    }
+    document.getElementById('announcement-stop').disabled = announcementSaving || !active;
+}
+function setAnnouncementDismissed(hide) {
+    dismissedAnnouncement = hide ? systemConfig.announcement?.id || '' : '';
+    try {
+        if (dismissedAnnouncement) localStorage.setItem('invest.dismissedAnnouncement',dismissedAnnouncement);
+        else localStorage.removeItem('invest.dismissedAnnouncement');
+    } catch {}
+    renderAnnouncement();
+}
+window.addEventListener('storage',event=>{
+    if(event.key==='invest.dismissedAnnouncement' || event.key===null){dismissedAnnouncement=event.newValue||'';renderAnnouncement();}
+});
+async function publishAnnouncement(event) {
+    event.preventDefault();
+    if(announcementSaving)return;
+    const status=document.getElementById('announcement-editor-status');
+    try {
+        requireAdmin();
+        const title=document.getElementById('announcement-edit-title').value.trim();
+        const body=document.getElementById('announcement-edit-body').value.trim();
+        if(!title || title.length>100 || !body || body.length>3000)throw new Error('제목은 1~100자, 내용은 1~3,000자로 입력해 주세요.');
+        const previous=systemConfig.announcement;
+        if(previous?.active && previous.title===title && previous.body===body){status.textContent='이미 게시된 내용입니다.';return;}
+        announcementSaving=true;
+        document.getElementById('announcement-publish').disabled=true;
+        document.getElementById('announcement-stop').disabled=true;
+        status.textContent='공지사항을 게시하고 있습니다.';
+        const announcement={id:globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,title,body,active:true,publishedAt:Date.now()};
+        await db.collection('system').doc('config').set({announcement},{merge:true});
+        announcementDraftDirty=false;
+        status.textContent='게시했습니다. 숨긴 이용자에게도 새 공지가 표시됩니다.';
+    } catch(error){status.textContent=error.message || '게시하지 못했습니다. 연결과 권한을 확인해 주세요.';}
+    finally{announcementSaving=false;document.getElementById('announcement-publish').disabled=false;renderAnnouncement();}
+}
+async function stopAnnouncement() {
+    if(announcementSaving)return;
+    const status=document.getElementById('announcement-editor-status');
+    try {
+        requireAdmin();
+        if(!systemConfig.announcement?.active)return;
+        announcementSaving=true;
+        document.getElementById('announcement-publish').disabled=true;
+        document.getElementById('announcement-stop').disabled=true;
+        await db.collection('system').doc('config').update({'announcement.active':false});
+        status.textContent='게시를 중단했습니다. 모든 이용자 화면에서 공지가 내려갑니다.';
+    } catch(error){status.textContent=error.message || '게시를 중단하지 못했습니다.';}
+    finally{announcementSaving=false;document.getElementById('announcement-publish').disabled=false;renderAnnouncement();}
+}
+document.getElementById('announcement-editor').addEventListener('submit',publishAnnouncement);
+for(const id of ['announcement-edit-title','announcement-edit-body'])document.getElementById(id).addEventListener('input',()=>announcementDraftDirty=true);
+
 function negativeProbability(config = systemConfig) {
     const value = config.negativeNewsProbability;
     return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0.5;
 }
 function acceptSystemConfig(config) {
     systemConfig = config || {};
+    renderAnnouncement();
     const input = document.getElementById('negative-news-percent');
     if (input && document.activeElement !== input) input.value = Math.round(negativeProbability() * 100);
     const label = document.getElementById('news-probability-label');
