@@ -100,13 +100,13 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 <label>뉴스 종류<select id="generated-news-kind"><option value="normal">일반 뉴스</option><option value="breaking">긴급속보</option></select></label>
 <button type="button" data-generate-news data-side="positive" onclick="adminGenerateNews('positive')">긍정적 뉴스 생성</button><button type="button" data-generate-news data-side="negative" onclick="adminGenerateNews('negative')">부정적 뉴스 생성</button></div>
 <div class="probability-row"><label>자동 부정 뉴스 확률 (%)<input id="negative-news-percent" type="number" min="0" max="100" step="1" value="50"></label><button type="button" onclick="saveNewsProbability()">확률 저장</button><small id="news-probability-label">자동 뉴스: 긍정 50% · 부정 50%</small></div>
-<p class="generator-note">뉴스 영향은 다음 주가 갱신에 반영됩니다. 이용자 뉴스 화면에는 긍정·부정 구분을 표시하지 않습니다.</p></section>
+<p class="generator-note">뉴스는 상승·하락 확률에 영향을 주며 5분에 걸쳐 50%로 돌아옵니다. 이용자 뉴스 화면에는 긍정·부정 구분을 표시하지 않습니다.</p></section>
 <h3 class="manual-news-heading">직접 뉴스 작성</h3>
 <form id="news-form">
             <div class="form-group"><label for="news-title">뉴스 제목</label><input type="text" id="news-title" placeholder="속보 제목 입력" required></div>
             <div class="form-group"><label for="news-target-stock">관련 종목 선택</label><select id="news-target-stock" required><option value="ALL">전체 시장</option></select></div>
             <div class="form-group"><label for="news-content">뉴스 내용</label><textarea id="news-content" rows="4" placeholder="시장이나 해당 종목에 영향을 미칠 호재/악재 뉴스 작성" required></textarea></div>
-            <div class="form-group"><label for="news-impact-direction">뉴스 영향 (관리자만 표시)</label><select id="news-impact-direction"><option value="neutral">영향 없음</option><option value="positive">긍정</option><option value="negative">부정</option></select></div><div class="form-group"><label for="news-impact-percent">다음 주가 변동에 더할 영향 크기 (%)</label><input id="news-impact-percent" type="number" min="0" max="40" step="0.1" value="8"></div><button type="submit">뉴스 발행</button>
+            <div class="form-group"><label for="news-impact-direction">뉴스 영향 (관리자만 표시)</label><select id="news-impact-direction"><option value="neutral">영향 없음</option><option value="positive">긍정</option><option value="negative">부정</option></select></div><div class="form-group"><label for="news-impact-percent">상승 확률 조정 크기 (%p · 5분간 감소)</label><input id="news-impact-percent" type="number" min="0" max="20" step="0.1" value="8"></div><button type="submit">뉴스 발행</button>
         </form>
         <h3 class="sub-heading">최근 발행 뉴스</h3>
         <div class="table-scroll"><table style="margin-top:10px;">
@@ -1198,6 +1198,25 @@ function pickNewsScenario(stock, sentiment, breaking, recentIds = []) {
     const pool = !breaking && sectorItems.length && Math.random() < 0.6 ? sectorItems : available;
     return pool[Math.floor(Math.random() * pool.length)];
 }
+const NEWS_BIAS_DURATION_MS = 5 * 60 * 1000;
+const MAX_NEWS_BIAS = 0.20;
+function remainingNewsBias(stock, now = Date.now()) {
+    const bias=Number(stock.newsBias),at=Number(stock.newsBiasAt);
+    if(!Number.isFinite(bias)||!Number.isFinite(at))return 0;
+    const elapsed=Math.max(0,now-at);
+    return Math.max(-MAX_NEWS_BIAS,Math.min(MAX_NEWS_BIAS,bias))*Math.max(0,1-elapsed/NEWS_BIAS_DURATION_MS);
+}
+function newsUpProbability(stock, now = Date.now()) {return 0.5+remainingNewsBias(stock,now);}
+function newsProbabilityPatch(stock, impact, now = Date.now()) {
+    const bias=Math.max(-MAX_NEWS_BIAS,Math.min(MAX_NEWS_BIAS,remainingNewsBias(stock,now)+impact));
+    return {newsBias:bias,newsBiasAt:now,lastImpact:0};
+}
+function drawStockChange(stock, now = Date.now()) {
+    const rises=Math.random()<newsUpProbability(stock,now);
+    const magnitude=Math.random()*0.04;
+    return (rises?1:-1)*magnitude;
+}
+
 async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', breaking = false, automatic = false} = {}) {
     if (!automatic) requireAdmin();
     if (automatic && (typeof ownsMarketLease !== 'function' || !ownsMarketLease())) return null;
@@ -1229,14 +1248,14 @@ async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', break
         const item = pickNewsScenario(stock, side, breaking, recent);
         const magnitude = breaking ? 0.18 + Math.random() * 0.14 : 0.06 + Math.random() * 0.12;
         const impact = (side === 'negative' ? -1 : 1) * magnitude;
-        const pendingImpact = Math.max(-0.6, Math.min(0.6, (Number(stock.lastImpact) || 0) + impact));
+        const probabilityPatch = newsProbabilityPatch(stock, impact, now);
         const title = item.title.replace('{name}', stock.name);
         transaction.set(newsRef, {
             title, content:item.content, targetStockId:targetId, isBreaking:breaking,
-            sentiment:side, impact, scenarioId:item.id, isSimulation:true,
+            sentiment:side, impact, impactModel:'probability-v1', scenarioId:item.id, isSimulation:true,
             createdAt:firebase.firestore.FieldValue.serverTimestamp()
         });
-        transaction.update(stockRef, {lastImpact:pendingImpact});
+        transaction.update(stockRef, probabilityPatch);
         transaction.set(configRef, {
             ...(automatic ? {[timeKey]:now} : {}),
             recentNewsScenarios:[...recent.filter(id => id !== item.id), item.id].slice(-12)
@@ -1649,7 +1668,7 @@ async function deleteStock(id) {
     catch(error) { alert(error.message); }
 }
 async function deleteNews(id) {
-    try { requireAdmin(); if(confirm('이 뉴스를 삭제하시겠습니까? 이미 예약된 주가 영향은 유지됩니다.')) await db.collection('news').doc(id).delete(); }
+    try { requireAdmin(); if(confirm('이 뉴스를 삭제하시겠습니까? 이미 반영된 뉴스 확률 효과는 유지됩니다.')) await db.collection('news').doc(id).delete(); }
     catch(error) { alert(error.message); }
 }
 document.getElementById('news-form').addEventListener('submit', async event => {
@@ -1665,7 +1684,7 @@ document.getElementById('news-form').addEventListener('submit', async event => {
         const sentiment = document.getElementById('news-impact-direction').value;
         const percent = Number(document.getElementById('news-impact-percent').value);
         if (!title || !content) throw new Error('제목과 내용을 입력해 주세요.');
-        if (!Number.isFinite(percent) || percent < 0 || percent > 40) throw new Error('주가 영향은 0~40%로 입력해 주세요.');
+        if (!Number.isFinite(percent) || percent < 0 || percent > 20) throw new Error('확률 조정은 0~20%p로 입력해 주세요.');
         const impact = sentiment === 'negative' ? -percent/100 : sentiment === 'positive' ? percent/100 : 0;
         const ids = target === 'ALL' ? Object.keys(stockDataMap) : [target];
         const refs = ids.map(id => db.collection('stocks').doc(id));
@@ -1673,8 +1692,8 @@ document.getElementById('news-form').addEventListener('submit', async event => {
         await db.runTransaction(async transaction => {
             const docs = impact ? await Promise.all(refs.map(ref => transaction.get(ref))) : [];
             if (target !== 'ALL' && (!stockDataMap[target] || (impact && !docs[0]?.exists))) throw new Error('선택한 종목이 없습니다.');
-            transaction.set(newsRef,{title,content,targetStockId:target,sentiment,impact,isSimulation:true,isBreaking:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-            docs.forEach((doc,index) => {if(doc.exists) transaction.update(refs[index],{lastImpact:Math.max(-0.6,Math.min(0.6,(Number(doc.data().lastImpact)||0)+impact))});});
+            transaction.set(newsRef,{title,content,targetStockId:target,sentiment,impact,impactModel:'probability-v1',isSimulation:true,isBreaking:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+            docs.forEach((doc,index) => {if(doc.exists) transaction.update(refs[index],newsProbabilityPatch(doc.data(),impact));});
         });
         document.getElementById('news-form').reset(); alert('뉴스가 발행되었습니다.');
     } catch(error) { alert(error.message); }
