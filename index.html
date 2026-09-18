@@ -202,7 +202,7 @@ header{height:78px;display:flex;align-items:center;gap:46px;background:#fff;bord
 <label>뉴스 종류<select id="generated-news-kind"><option value="normal">일반 뉴스</option><option value="breaking">긴급속보</option></select></label>
 <button type="button" data-generate-news data-side="positive" onclick="adminGenerateNews('positive')">긍정적 뉴스 생성</button><button type="button" data-generate-news data-side="negative" onclick="adminGenerateNews('negative')">부정적 뉴스 생성</button></div>
 <div class="probability-row"><label>자동 부정 뉴스 확률 (%)<input id="negative-news-percent" type="number" min="0" max="100" step="1" value="50"></label><button type="button" onclick="saveNewsProbability()">확률 저장</button><small id="news-probability-label">자동 뉴스: 긍정 50% · 부정 50%</small></div>
-<p class="generator-note">뉴스 영향은 다음 주가 갱신에 반영됩니다. 이용자 뉴스 화면에는 긍정·부정 구분을 표시하지 않습니다.</p></section></div>
+<p class="generator-note">뉴스는 상승·하락 확률에 영향을 주며 5분에 걸쳐 50%로 돌아옵니다. 이용자 뉴스 화면에는 긍정·부정 구분을 표시하지 않습니다.</p></section></div>
 <div id="account-freeze-notice" class="account-freeze-notice" role="status" hidden></div>
 <div id="market-setup-notice" class="account-freeze-notice" role="status" hidden></div>
 <div class="dashboard">
@@ -1412,6 +1412,25 @@ function pickNewsScenario(stock, sentiment, breaking, recentIds = []) {
     const pool = !breaking && sectorItems.length && Math.random() < 0.6 ? sectorItems : available;
     return pool[Math.floor(Math.random() * pool.length)];
 }
+const NEWS_BIAS_DURATION_MS = 5 * 60 * 1000;
+const MAX_NEWS_BIAS = 0.20;
+function remainingNewsBias(stock, now = Date.now()) {
+    const bias=Number(stock.newsBias),at=Number(stock.newsBiasAt);
+    if(!Number.isFinite(bias)||!Number.isFinite(at))return 0;
+    const elapsed=Math.max(0,now-at);
+    return Math.max(-MAX_NEWS_BIAS,Math.min(MAX_NEWS_BIAS,bias))*Math.max(0,1-elapsed/NEWS_BIAS_DURATION_MS);
+}
+function newsUpProbability(stock, now = Date.now()) {return 0.5+remainingNewsBias(stock,now);}
+function newsProbabilityPatch(stock, impact, now = Date.now()) {
+    const bias=Math.max(-MAX_NEWS_BIAS,Math.min(MAX_NEWS_BIAS,remainingNewsBias(stock,now)+impact));
+    return {newsBias:bias,newsBiasAt:now,lastImpact:0};
+}
+function drawStockChange(stock, now = Date.now()) {
+    const rises=Math.random()<newsUpProbability(stock,now);
+    const magnitude=Math.random()*0.04;
+    return (rises?1:-1)*magnitude;
+}
+
 async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', breaking = false, automatic = false} = {}) {
     if (!automatic) requireAdmin();
     if (automatic && (typeof ownsMarketLease !== 'function' || !ownsMarketLease())) return null;
@@ -1443,14 +1462,14 @@ async function publishGeneratedNews({sentiment = null, stockId = 'RANDOM', break
         const item = pickNewsScenario(stock, side, breaking, recent);
         const magnitude = breaking ? 0.18 + Math.random() * 0.14 : 0.06 + Math.random() * 0.12;
         const impact = (side === 'negative' ? -1 : 1) * magnitude;
-        const pendingImpact = Math.max(-0.6, Math.min(0.6, (Number(stock.lastImpact) || 0) + impact));
+        const probabilityPatch = newsProbabilityPatch(stock, impact, now);
         const title = item.title.replace('{name}', stock.name);
         transaction.set(newsRef, {
             title, content:item.content, targetStockId:targetId, isBreaking:breaking,
-            sentiment:side, impact, scenarioId:item.id, isSimulation:true,
+            sentiment:side, impact, impactModel:'probability-v1', scenarioId:item.id, isSimulation:true,
             createdAt:firebase.firestore.FieldValue.serverTimestamp()
         });
-        transaction.update(stockRef, {lastImpact:pendingImpact});
+        transaction.update(stockRef, probabilityPatch);
         transaction.set(configRef, {
             ...(automatic ? {[timeKey]:now} : {}),
             recentNewsScenarios:[...recent.filter(id => id !== item.id), item.id].slice(-12)
@@ -2447,7 +2466,7 @@ async function executeTrade(stockId, side, maximum = false) {
             if (!stockDoc.exists) throw new Error('이 종목은 더 이상 거래할 수 없습니다.');
             const user = userDoc.data();
             if (user.isAccountFrozen) throw new Error('계좌가 동결되어 거래할 수 없습니다.');
-            const price = Number(stockDoc.data().currentPrice);
+            const price=Number(stockDoc.data().currentPrice);
             if (!Number.isSafeInteger(price) || price <= 0) throw new Error('유효한 주가를 확인할 수 없습니다.');
             const balance = Number(user.balance) || 0;
             const holdings = {...(user.holdings || {})};
@@ -2567,7 +2586,7 @@ async function triggerRandomStockChange(automatic = false) {
             stocks.forEach((doc,index) => {
                 if (!doc.exists) return;
                 const stock = doc.data();
-                const changePercent = (Math.random() * 0.08) - 0.04 + (Number(stock.lastImpact) || 0);
+                const changePercent = drawStockChange(stock, now);
                 const nextPrice = Math.max(1000, Math.round(stock.currentPrice * (1 + changePercent)));
                 if (!Number.isSafeInteger(nextPrice)) return;
                 const initial = Number(stock.initialPrice) || stock.currentPrice;
@@ -2642,7 +2661,7 @@ async function triggerBreakingNews() {
             batch.update(ref, {
                 currentPrice: stock.initialPrice,
                 changeRate: 0,
-                lastImpact: 0,
+                lastImpact: 0, newsBias:0, newsBiasAt:0,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         });
